@@ -1,45 +1,41 @@
 import "server-only";
-import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { getSql } from "./client";
 
-const TABLE = "ai_translations";
+const COLS_PER_ROW = 6;
 
 export interface CachedVerse {
   verse: number;
   text: string;
 }
 
-/** Read a cached Simple English chapter. Returns null when caching is
- *  unavailable or nothing is stored yet. Keyed by volume/book/chapter/verse. */
+/** Read a cached Simple English chapter. Returns null when the database isn't
+ *  configured or nothing is stored yet. Keyed by volume/book/chapter/verse. */
 export async function getCachedChapter(
   volume: string,
   book: string,
   chapter: number,
 ): Promise<CachedVerse[] | null> {
-  const sb = getSupabaseAdmin();
-  if (!sb) return null;
+  const sql = getSql();
+  if (!sql) return null;
 
-  const { data, error } = await sb
-    .from(TABLE)
-    .select("verse, simple_text")
-    .eq("volume", volume)
-    .eq("book", book)
-    .eq("chapter", chapter)
-    .order("verse", { ascending: true });
+  try {
+    const rows = (await sql`
+      select verse, simple_text
+      from ai_translations
+      where volume = ${volume} and book = ${book} and chapter = ${chapter}
+      order by verse asc
+    `) as { verse: number; simple_text: string }[];
 
-  if (error) {
-    console.error("[translations] read error:", error.message);
+    if (rows.length === 0) return null;
+    return rows.map((r) => ({ verse: r.verse, text: r.simple_text }));
+  } catch (err) {
+    console.error("[translations] read error:", (err as Error).message);
     return null;
   }
-  if (!data || data.length === 0) return null;
-
-  return data.map((row) => ({
-    verse: row.verse as number,
-    text: row.simple_text as string,
-  }));
 }
 
 /** Upsert a whole chapter's Simple English verses. Best-effort: silently
- *  no-ops when Supabase isn't configured, logs and swallows write errors. */
+ *  no-ops when the database isn't configured, logs and swallows write errors. */
 export async function saveChapterTranslation(
   volume: string,
   book: string,
@@ -47,21 +43,26 @@ export async function saveChapterTranslation(
   model: string,
   verses: CachedVerse[],
 ): Promise<void> {
-  const sb = getSupabaseAdmin();
-  if (!sb) return;
+  const sql = getSql();
+  if (!sql || verses.length === 0) return;
 
-  const rows = verses.map((v) => ({
-    volume,
-    book,
-    chapter,
-    verse: v.verse,
-    simple_text: v.text,
-    model,
-  }));
+  const params: unknown[] = [];
+  const tuples = verses.map((v, i) => {
+    const o = i * COLS_PER_ROW;
+    params.push(volume, book, chapter, v.verse, v.text, model);
+    return `($${o + 1}, $${o + 2}, $${o + 3}, $${o + 4}, $${o + 5}, $${o + 6})`;
+  });
 
-  const { error } = await sb
-    .from(TABLE)
-    .upsert(rows, { onConflict: "volume,book,chapter,verse" });
+  const text = `
+    insert into ai_translations (volume, book, chapter, verse, simple_text, model)
+    values ${tuples.join(", ")}
+    on conflict (volume, book, chapter, verse)
+    do update set simple_text = excluded.simple_text, model = excluded.model, updated_at = now()
+  `;
 
-  if (error) console.error("[translations] write error:", error.message);
+  try {
+    await sql.query(text, params);
+  } catch (err) {
+    console.error("[translations] write error:", (err as Error).message);
+  }
 }
