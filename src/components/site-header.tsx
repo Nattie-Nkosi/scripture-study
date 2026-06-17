@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Search } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -15,6 +15,13 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           Scripture Study
         </Link>
         <div className="min-w-0 flex-1">{children}</div>
+        <Link
+          href="/search"
+          aria-label="Search"
+          className="flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <Search className="size-4" />
+        </Link>
         <ThemeToggle />
       </div>
     </header>

@@ -3,6 +3,7 @@ import { ChevronRight } from "lucide-react";
 
 import { listVolumes, ScriptureApiError } from "@/lib/scripture/client";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
 export const metadata = {
   title: "Library",
@@ -39,7 +40,7 @@ export default async function LibraryPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:py-16">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-12 sm:py-16">
         <h1 className="font-serif text-3xl font-semibold tracking-tight">
           The Standard Works
         </h1>
@@ -70,6 +71,7 @@ export default async function LibraryPage() {
           ))}
         </ul>
       </main>
+      <SiteFooter />
     </>
   );
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { buttonVariants } from "@/components/ui/button";
 
 export default function Home() {
@@ -31,6 +32,7 @@ export default function Home() {
           <span className="rounded-full border px-3 py-1">Pearl of Great Price</span>
         </div>
       </main>
+      <SiteFooter />
     </>
   );
 }
