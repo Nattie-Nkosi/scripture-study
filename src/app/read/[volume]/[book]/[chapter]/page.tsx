@@ -7,6 +7,7 @@ import { getChapter } from "@/lib/scripture/client";
 import { fetchOrNotFound } from "@/lib/scripture/server-helpers";
 import { ReaderHeader } from "@/components/reader/reader-header";
 import { ChapterBody } from "@/components/reader/chapter-body";
+import { AssistantPanel } from "@/components/reader/assistant-panel";
 import { buttonVariants } from "@/components/ui/button";
 
 type Props = {
@@ -82,6 +83,13 @@ export default async function ReaderPage({ params }: Props) {
           )}
         </nav>
       </main>
+
+      <AssistantPanel
+        volume={volume}
+        book={book}
+        chapter={body.number}
+        bookTitle={bookRef.title}
+      />
     </>
   );
 }
