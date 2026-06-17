@@ -9,4 +9,5 @@ export {
   getVerse,
   getVerseReferences,
   searchScriptures,
+  findReferences,
 } from "./client";

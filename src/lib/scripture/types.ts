@@ -189,3 +189,24 @@ export interface SearchOptions {
   highlightWindow?: number;
   wordFrequency?: boolean;
 }
+
+// --- GET /referencesFinder?text=... -----------------------------------------
+// Parses free text (e.g. a raw footnote string) into structured references.
+// Unlike the single-verse endpoint's crossReferences, this parses the full
+// string. It detects scripture references only; study-help text (e.g.
+// "TG Hope") is left out of `references`. The inner targets reuse the same
+// shape as cross references (see CrossReferenceTarget).
+
+export interface FoundReference {
+  start: number; // offset within the input text
+  end: number;
+  raw: string; // "Mosiah 1:2"
+  prettyString: string; // "Mosiah 1:2"
+  reference: CrossReferenceTarget[];
+}
+
+export interface ReferencesFinderResponse {
+  text: string;
+  count: number;
+  references: FoundReference[];
+}

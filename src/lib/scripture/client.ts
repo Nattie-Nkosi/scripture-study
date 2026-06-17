@@ -5,6 +5,7 @@ import type {
   BookDetail,
   ChapterResponse,
   CrossReference,
+  ReferencesFinderResponse,
   SearchOptions,
   SearchResponse,
   VerseResponse,
@@ -163,3 +164,20 @@ export async function searchScriptures(
     SEARCH_REVALIDATE,
   );
 }
+
+/** Parse free text (e.g. a raw footnote string) into structured scripture
+ *  references. The result is deterministic per input, so it's cached like
+ *  scripture text. Returns scripture references only — study-help text is not
+ *  included by the API. */
+export const findReferences = cache(
+  (text: string): Promise<ReferencesFinderResponse> => {
+    const trimmed = text.trim();
+    if (!trimmed) {
+      return Promise.resolve({ text: "", count: 0, references: [] });
+    }
+    return apiGet<ReferencesFinderResponse>(
+      `/referencesFinder?text=${encodeURIComponent(trimmed)}`,
+      SCRIPTURE_REVALIDATE,
+    );
+  },
+);
