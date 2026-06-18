@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const VOLUMES = [
@@ -15,52 +16,103 @@ const VOLUMES = [
   { id: "pearlofgreatprice", label: "Pearl of Great Price" },
 ];
 
+type Scope = "scripture" | "talks";
+
 export function SearchBox({
   initialQuery = "",
   initialVolume = "",
+  initialScope = "scripture",
 }: {
   initialQuery?: string;
   initialVolume?: string;
+  initialScope?: Scope;
 }) {
   const router = useRouter();
   const [q, setQ] = React.useState(initialQuery);
   const [volume, setVolume] = React.useState(initialVolume);
+  const [scope, setScope] = React.useState<Scope>(initialScope);
+
+  function urlFor(query: string, nextScope: Scope) {
+    const params = new URLSearchParams({ q: query });
+    if (nextScope === "talks") {
+      params.set("scope", "talks");
+    } else if (volume) {
+      params.set("volume", volume);
+    }
+    return `/search?${params.toString()}`;
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const query = q.trim();
     if (!query) return;
-    const params = new URLSearchParams({ q: query });
-    if (volume) params.set("volume", volume);
-    router.push(`/search?${params.toString()}`);
+    router.push(urlFor(query, scope));
+  }
+
+  function pickScope(next: Scope) {
+    setScope(next);
+    const query = q.trim();
+    if (query) router.push(urlFor(query, next));
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
-      <div className="relative flex-1">
-        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search the scriptures…"
-          autoFocus
-          className="w-full rounded-lg border border-input bg-card py-2.5 pr-3 pl-9 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
-        />
-      </div>
-      <select
-        value={volume}
-        onChange={(e) => setVolume(e.target.value)}
-        className="rounded-lg border border-input bg-card px-3 py-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
-      >
-        {VOLUMES.map((v) => (
-          <option key={v.id} value={v.id}>
-            {v.label}
-          </option>
+    <div>
+      <div className="mb-3 flex w-fit items-center rounded-full border border-border bg-card p-0.5 text-sm">
+        {(
+          [
+            ["scripture", "Scriptures"],
+            ["talks", "Conference"],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => pickScope(value)}
+            aria-pressed={scope === value}
+            className={cn(
+              "rounded-full px-4 py-1.5 font-medium transition-colors",
+              scope === value
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {label}
+          </button>
         ))}
-      </select>
-      <Button type="submit" size="lg">
-        Search
-      </Button>
-    </form>
+      </div>
+
+      <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={
+              scope === "talks"
+                ? "Search conference talks…"
+                : "Search the scriptures…"
+            }
+            autoFocus
+            className="w-full rounded-lg border border-input bg-card py-2.5 pr-3 pl-9 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
+          />
+        </div>
+        {scope === "scripture" && (
+          <select
+            value={volume}
+            onChange={(e) => setVolume(e.target.value)}
+            className="rounded-lg border border-input bg-card px-3 py-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
+          >
+            {VOLUMES.map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.label}
+              </option>
+            ))}
+          </select>
+        )}
+        <Button type="submit" size="lg">
+          Search
+        </Button>
+      </form>
+    </div>
   );
 }

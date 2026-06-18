@@ -69,7 +69,7 @@ export function TalkBody({ paragraphs }: { paragraphs: TalkParagraph[] }) {
       {paragraphs.map((para, i) => {
         const isOpen = open?.p === i;
         return (
-          <div key={i}>
+          <div key={i} id={`p${i + 1}`} className="scroll-mt-24">
             <p className="text-foreground/90">
               {renderParagraph(
                 para.text,

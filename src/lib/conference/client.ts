@@ -5,6 +5,10 @@ import { notFound } from "next/navigation";
 import type {
   Conference,
   ConferencesResponse,
+  ConferenceSearchOptions,
+  ConferenceSearchResponse,
+  SpeakerDetailResponse,
+  SpeakersResponse,
   Talk,
 } from "./types";
 
@@ -21,6 +25,7 @@ const ONE_DAY = 60 * 60 * 24;
  *  year, so it gets a shorter window to pick up the newest conference. */
 const TALK_REVALIDATE = ONE_DAY * 30;
 const LIST_REVALIDATE = ONE_DAY;
+const SEARCH_REVALIDATE = 60 * 60;
 
 export class ConferenceApiError extends Error {
   readonly status?: number;
@@ -117,6 +122,58 @@ export const getTalk = cache(
   (id: string): Promise<Talk> =>
     apiGet<Talk>(`/talk/${encodeURIComponent(id)}`),
 );
+
+/** A page of speakers, alphabetically sorted, optionally filtered by name. */
+export const listSpeakers = cache(
+  (limit = 50, offset = 0, q = ""): Promise<SpeakersResponse> => {
+    const params = new URLSearchParams({
+      limit: String(limit),
+      offset: String(offset),
+    });
+    if (q) params.set("q", q);
+    return apiGet<SpeakersResponse>(
+      `/speakers?${params.toString()}`,
+      LIST_REVALIDATE,
+    );
+  },
+);
+
+/** A speaker's profile plus a page of their talks (without full content). */
+export const getSpeaker = cache(
+  (id: string, limit = 100, offset = 0): Promise<SpeakerDetailResponse> =>
+    apiGet<SpeakerDetailResponse>(
+      `/speaker/${encodeURIComponent(id)}?limit=${limit}&offset=${offset}`,
+      LIST_REVALIDATE,
+    ),
+);
+
+/** Full-text search across all conference talks. */
+export async function searchConferenceTalks(
+  query: string,
+  options: ConferenceSearchOptions = {},
+): Promise<ConferenceSearchResponse> {
+  const params = new URLSearchParams({ q: query });
+
+  if (options.limit != null) params.set("limit", String(options.limit));
+  if (options.offset != null) params.set("offset", String(options.offset));
+  if (options.speaker) params.set("speaker", options.speaker);
+  if (options.year != null) params.set("year", String(options.year));
+  if (options.startYear != null) {
+    params.set("start_year", String(options.startYear));
+  }
+  if (options.endYear != null) params.set("end_year", String(options.endYear));
+  if (options.session) params.set("session", options.session);
+  if (options.conference) params.set("conference", options.conference);
+  if (options.highlight) params.set("highlight", "true");
+  if (options.highlightWindow != null) {
+    params.set("highlight_window", String(options.highlightWindow));
+  }
+
+  return apiGet<ConferenceSearchResponse>(
+    `/search?${params.toString()}`,
+    SEARCH_REVALIDATE,
+  );
+}
 
 /** Run a conference fetch, mapping "not found" to a 404 while letting genuine
  *  network/server errors bubble to the nearest error boundary. */

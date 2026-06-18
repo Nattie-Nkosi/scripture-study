@@ -79,3 +79,59 @@ export interface Speaker {
   firstYear: number;
   lastYear: number;
 }
+
+// --- GET /speakers -----------------------------------------------------------
+
+export interface SpeakersResponse {
+  total: number;
+  limit: number;
+  offset: number;
+  speakers: Speaker[];
+}
+
+// --- GET /speaker/:id --------------------------------------------------------
+
+export interface SpeakerDetailResponse {
+  speaker: Speaker;
+  total: number;
+  limit: number;
+  offset: number;
+  talks: TalkSummary[];
+}
+
+// --- GET /search -------------------------------------------------------------
+
+export interface ConferenceSearchResult {
+  talkId: string;
+  conferenceId: string;
+  year: number;
+  month: number;
+  session: string;
+  title: string;
+  speaker: string;
+  paragraph: number;
+  text: string;
+  /** Only present when `highlight=true`. */
+  highlight?: string;
+}
+
+export interface ConferenceSearchResponse {
+  query: string;
+  total: number;
+  limit: number;
+  offset: number;
+  results: ConferenceSearchResult[];
+}
+
+export interface ConferenceSearchOptions {
+  limit?: number;
+  offset?: number;
+  speaker?: string;
+  year?: number;
+  startYear?: number;
+  endYear?: number;
+  session?: string;
+  conference?: string;
+  highlight?: boolean;
+  highlightWindow?: number;
+}

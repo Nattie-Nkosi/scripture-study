@@ -86,6 +86,21 @@ export default async function TalksPage() {
           </span>
         </Link>
 
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link
+            href="/talks/speakers"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+          >
+            Browse by speaker →
+          </Link>
+          <Link
+            href="/search?scope=talks"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+          >
+            Search talks →
+          </Link>
+        </div>
+
         <Ornament className="my-12" />
 
         <p className="small-caps text-sm text-primary">The archive</p>
