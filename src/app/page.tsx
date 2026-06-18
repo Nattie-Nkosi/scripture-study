@@ -40,6 +40,13 @@ export default function Home() {
           Open the library <ArrowRight />
         </Link>
 
+        <Link
+          href="/talks"
+          className="mt-4 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        >
+          Or read General Conference talks →
+        </Link>
+
         <div className="mt-16 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 small-caps text-xs text-muted-foreground">
           {VOLUMES.map((v, i) => (
             <span key={v} className="flex items-center gap-x-5">

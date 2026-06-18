@@ -12,6 +12,9 @@ export function SiteFooter() {
           <Link href="/read" className="transition-colors hover:text-foreground">
             Library
           </Link>
+          <Link href="/talks" className="transition-colors hover:text-foreground">
+            Conference
+          </Link>
           <Link href="/search" className="transition-colors hover:text-foreground">
             Search
           </Link>
