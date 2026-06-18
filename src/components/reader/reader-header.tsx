@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeSelector } from "@/components/theme-selector";
 import { FontSizeControl } from "@/components/reader/font-size-control";
 
 export function ReaderHeader({
@@ -25,7 +25,7 @@ export function ReaderHeader({
         </Link>
         <div className="flex flex-1 items-center justify-end gap-2">
           <FontSizeControl />
-          <ThemeToggle />
+          <ThemeSelector />
         </div>
       </div>
     </header>

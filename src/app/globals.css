@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark *, .night *));
 
 @theme inline {
   --color-background: var(--background);
@@ -37,6 +37,7 @@
 
 /* Warm "paper" palette — cream light mode, warm charcoal dark mode. */
 :root {
+  color-scheme: light;
   --radius: 0.625rem;
   --reader-font-size: 1.1875rem;
 
@@ -62,6 +63,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: oklch(0.19 0.012 60);
   --foreground: oklch(0.92 0.014 84);
   --card: oklch(0.22 0.013 60);
@@ -79,6 +81,52 @@
   --destructive: oklch(0.7 0.19 22);
   --border: oklch(1 0 0 / 9%);
   --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.6 0.03 70);
+}
+
+/* Sepia: aged-paper tones for low-glare daytime reading (a light theme). */
+.sepia {
+  color-scheme: light;
+  --background: oklch(0.925 0.035 76);
+  --foreground: oklch(0.315 0.038 52);
+  --card: oklch(0.95 0.03 78);
+  --card-foreground: oklch(0.315 0.038 52);
+  --popover: oklch(0.95 0.03 78);
+  --popover-foreground: oklch(0.315 0.038 52);
+  --primary: oklch(0.44 0.13 28);
+  --primary-foreground: oklch(0.96 0.025 80);
+  --secondary: oklch(0.888 0.04 74);
+  --secondary-foreground: oklch(0.36 0.042 50);
+  --muted: oklch(0.888 0.04 74);
+  --muted-foreground: oklch(0.5 0.04 56);
+  --accent: oklch(0.86 0.052 70);
+  --accent-foreground: oklch(0.34 0.044 50);
+  --destructive: oklch(0.52 0.19 27);
+  --border: oklch(0.82 0.045 70);
+  --input: oklch(0.82 0.045 70);
+  --ring: oklch(0.5 0.05 56);
+}
+
+/* Night: true-black background for OLED screens (a dark theme). */
+.night {
+  color-scheme: dark;
+  --background: oklch(0 0 0);
+  --foreground: oklch(0.9 0.013 84);
+  --card: oklch(0.135 0.006 60);
+  --card-foreground: oklch(0.9 0.013 84);
+  --popover: oklch(0.135 0.006 60);
+  --popover-foreground: oklch(0.9 0.013 84);
+  --primary: oklch(0.64 0.15 25);
+  --primary-foreground: oklch(0.99 0.01 85);
+  --secondary: oklch(0.2 0.01 60);
+  --secondary-foreground: oklch(0.9 0.013 84);
+  --muted: oklch(0.2 0.01 60);
+  --muted-foreground: oklch(0.68 0.016 80);
+  --accent: oklch(0.24 0.012 65);
+  --accent-foreground: oklch(0.9 0.013 84);
+  --destructive: oklch(0.7 0.19 22);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 14%);
   --ring: oklch(0.6 0.03 70);
 }
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BookOpen, Search } from "lucide-react";
 
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeSelector } from "@/components/theme-selector";
 
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
   return (
@@ -22,7 +22,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
         >
           <Search className="size-4" />
         </Link>
-        <ThemeToggle />
+        <ThemeSelector />
       </div>
     </header>
   );
