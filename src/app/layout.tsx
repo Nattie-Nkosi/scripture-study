@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Lora, Fraunces } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,12 @@ export const metadata: Metadata = {
   },
   description:
     "A clean, modern reader for the LDS standard works with AI-powered study tools.",
+  applicationName: "Scripture Study",
+  appleWebApp: {
+    capable: true,
+    title: "Scripture",
+    statusBarStyle: "default",
+  },
 };
 
 export default function RootLayout({
@@ -55,6 +62,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <ServiceWorkerRegister />
         </ThemeProvider>
       </body>
     </html>
