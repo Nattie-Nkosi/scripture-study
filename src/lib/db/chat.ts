@@ -35,6 +35,27 @@ export async function getChatHistory(
   }
 }
 
+/** Delete a chapter's chat history for a device (used by "New chat"). */
+export async function deleteChatHistory(
+  deviceId: string,
+  volume: string,
+  book: string,
+  chapter: number,
+): Promise<void> {
+  const sql = getSql();
+  if (!sql || !deviceId) return;
+
+  try {
+    await sql`
+      delete from chat_messages
+      where device_id = ${deviceId}
+        and volume = ${volume} and book = ${book} and chapter = ${chapter}
+    `;
+  } catch (err) {
+    console.error("[chat] delete error:", (err as Error).message);
+  }
+}
+
 /** Append a single chat message. Best-effort: no-ops without a database. */
 export async function saveChatMessage(
   deviceId: string,

@@ -1,6 +1,10 @@
 "use server";
 
-import { getChatHistory, type ChatMessage } from "@/lib/db/chat";
+import {
+  getChatHistory,
+  deleteChatHistory,
+  type ChatMessage,
+} from "@/lib/db/chat";
 
 export async function loadChatHistory(
   deviceId: string,
@@ -13,5 +17,20 @@ export async function loadChatHistory(
     return await getChatHistory(deviceId, volume, book, chapter);
   } catch {
     return [];
+  }
+}
+
+export async function clearChatHistory(
+  deviceId: string,
+  volume: string,
+  book: string,
+  chapter: number,
+): Promise<{ ok: boolean }> {
+  if (!deviceId) return { ok: false };
+  try {
+    await deleteChatHistory(deviceId, volume, book, chapter);
+    return { ok: true };
+  } catch {
+    return { ok: false };
   }
 }
