@@ -6,6 +6,7 @@ import { getTalk, fetchConferenceOrNotFound } from "@/lib/conference/client";
 import { conferenceShortTitle } from "@/lib/conference/format";
 import { TalkHeader } from "@/components/reader/talk-header";
 import { TalkBody } from "@/components/reader/talk-body";
+import { TalkAssistantPanel } from "@/components/reader/talk-assistant-panel";
 import { Ornament } from "@/components/ornament";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -80,6 +81,12 @@ export default async function TalkPage({ params }: Props) {
           )}
         </nav>
       </main>
+
+      <TalkAssistantPanel
+        talkId={data._id}
+        title={data.title}
+        speaker={data.speaker}
+      />
     </>
   );
 }
