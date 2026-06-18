@@ -30,6 +30,12 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             Conference
           </Link>
           <Link
+            href="/study"
+            className="hidden rounded-lg px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:inline-flex"
+          >
+            My study
+          </Link>
+          <Link
             href="/search"
             aria-label="Search"
             className="flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

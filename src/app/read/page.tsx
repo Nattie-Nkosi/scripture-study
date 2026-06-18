@@ -4,6 +4,7 @@ import { ChevronRight } from "lucide-react";
 import { listVolumes, ScriptureApiError } from "@/lib/scripture/client";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { ContinueReading } from "@/components/reader/continue-reading";
 
 export const metadata = {
   title: "Library",
@@ -48,6 +49,8 @@ export default async function LibraryPage() {
         <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
           The Standard Works
         </h1>
+
+        <ContinueReading />
 
         <ol className="mt-10 border-y border-border">
           {volumes.map((v, i) => (

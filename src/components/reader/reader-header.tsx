@@ -3,15 +3,18 @@ import { ChevronLeft } from "lucide-react";
 
 import { ThemeSelector } from "@/components/theme-selector";
 import { FontSizeControl } from "@/components/reader/font-size-control";
+import { ChapterBookmarkButton } from "@/components/reader/chapter-bookmark-button";
 
 export function ReaderHeader({
   volumeId,
   bookId,
   bookTitle,
+  chapter,
 }: {
   volumeId: string;
   bookId: string;
   bookTitle: string;
+  chapter: number;
 }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
@@ -24,6 +27,12 @@ export function ReaderHeader({
           <span className="truncate font-serif">{bookTitle}</span>
         </Link>
         <div className="flex flex-1 items-center justify-end gap-2">
+          <ChapterBookmarkButton
+            volume={volumeId}
+            book={bookId}
+            chapter={chapter}
+            bookTitle={bookTitle}
+          />
           <FontSizeControl />
           <ThemeSelector />
         </div>

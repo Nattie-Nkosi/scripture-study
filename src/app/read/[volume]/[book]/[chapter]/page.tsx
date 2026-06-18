@@ -8,6 +8,9 @@ import { getBookIndexById } from "@/lib/scripture/reference-index";
 import { fetchOrNotFound } from "@/lib/scripture/server-helpers";
 import { ReaderHeader } from "@/components/reader/reader-header";
 import { ChapterBody } from "@/components/reader/chapter-body";
+import { RecordLastRead } from "@/components/reader/record-last-read";
+import { ReadingProgress } from "@/components/reader/reading-progress";
+import { BackToTop } from "@/components/reader/back-to-top";
 import { AssistantPanel } from "@/components/reader/assistant-panel";
 import { Ornament } from "@/components/ornament";
 import { buttonVariants } from "@/components/ui/button";
@@ -66,7 +69,19 @@ export default async function ReaderPage({ params }: Props) {
 
   return (
     <>
-      <ReaderHeader volumeId={volume} bookId={book} bookTitle={bookRef.title} />
+      <RecordLastRead
+        volume={volume}
+        book={book}
+        chapter={body.number}
+        bookTitle={bookRef.title}
+      />
+      <ReaderHeader
+        volumeId={volume}
+        bookId={book}
+        bookTitle={bookRef.title}
+        chapter={body.number}
+      />
+      <ReadingProgress />
 
       <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
         <div className="text-center animate-in fade-in duration-500">
@@ -86,6 +101,7 @@ export default async function ReaderPage({ params }: Props) {
           volume={volume}
           book={book}
           chapter={body.number}
+          bookTitle={bookRef.title}
           kjvVerses={body.verses.map((verse, i) => ({
             n: i + 1,
             text: verse.text,
@@ -116,6 +132,8 @@ export default async function ReaderPage({ params }: Props) {
           )}
         </nav>
       </main>
+
+      <BackToTop />
 
       <AssistantPanel
         volume={volume}
