@@ -27,8 +27,8 @@ const THEMES: ThemeOption[] = [
   {
     value: "sepia",
     label: "Sepia",
-    hint: "Warm, low glare",
-    swatch: { bg: "oklch(0.925 0.035 76)", ink: "oklch(0.44 0.13 28)" },
+    hint: "Warm aged paper",
+    swatch: { bg: "oklch(0.905 0.048 79)", ink: "oklch(0.44 0.14 30)" },
   },
   {
     value: "dark",
@@ -41,6 +41,12 @@ const THEMES: ThemeOption[] = [
     label: "Night",
     hint: "True black, OLED",
     swatch: { bg: "oklch(0 0 0)", ink: "oklch(0.64 0.15 25)" },
+  },
+  {
+    value: "twilight",
+    label: "Twilight",
+    hint: "Indigo & gold",
+    swatch: { bg: "oklch(0.215 0.048 264)", ink: "oklch(0.8 0.13 84)" },
   },
 ];
 
