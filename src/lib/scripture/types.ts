@@ -210,3 +210,12 @@ export interface ReferencesFinderResponse {
   count: number;
   references: FoundReference[];
 }
+
+/** A single scripture cross reference, flattened for the footnote UI. */
+export interface ParsedReference {
+  prettyString: string; // "Mosiah 1:2"
+  book: string; // book id, e.g. "mosiah"
+  chapter: number;
+  verse: number;
+  volume: string; // volume id for the reader URL; "" if unknown
+}

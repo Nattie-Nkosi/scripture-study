@@ -1,17 +1,82 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Sparkles, X } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, Loader2, Sparkles, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useDeviceId } from "@/lib/hooks/use-device-id";
 import { translateChapterAction } from "@/lib/actions/translate";
 import { loadAnnotations, saveAnnotation } from "@/lib/actions/annotations";
+import { parseFootnoteReferences, previewVerse } from "@/lib/actions/footnotes";
+import type { FootNote, ParsedReference } from "@/lib/scripture/types";
+
+type RefState = { status: "loading" | "done"; refs: ParsedReference[] };
+type PreviewState = {
+  status: "loading" | "done" | "error";
+  reference?: string;
+  text?: string;
+};
 
 type Verse = { n: number; text: string };
+type KjvVerse = { n: number; text: string; footNotes: FootNote[] };
 type Annotation = { color: string | null; note: string | null };
 type AnnMap = Record<number, Annotation>;
+
+/** Footnote marker letters: a–z, then aa, ab, … for verses with many notes. */
+function markerLetter(index: number): string {
+  let i = index + 1;
+  let s = "";
+  while (i > 0) {
+    i--;
+    s = String.fromCharCode(97 + (i % 26)) + s;
+    i = Math.floor(i / 26);
+  }
+  return s;
+}
+
+/** Interleave the verse text with subtle superscript markers placed at each
+ *  footnote's start offset (immediately before the annotated word). Markers are
+ *  buttons that open the footnote panel. */
+function renderVerseText(
+  text: string,
+  footNotes: FootNote[],
+  onMarkerClick: (index: number) => void,
+  activeIndex: number | null,
+): React.ReactNode {
+  if (!footNotes || footNotes.length === 0) return text;
+
+  const markers = footNotes
+    .map((f, i) => ({ start: f.start, index: i, letter: markerLetter(i) }))
+    .sort((a, b) => a.start - b.start);
+
+  const nodes: React.ReactNode[] = [];
+  let cursor = 0;
+  markers.forEach((m) => {
+    const at = Math.max(0, Math.min(m.start, text.length));
+    if (at > cursor) nodes.push(text.slice(cursor, at));
+    nodes.push(
+      <button
+        key={`fn-${m.index}`}
+        type="button"
+        onClick={() => onMarkerClick(m.index)}
+        aria-label={`Footnote ${m.letter}`}
+        className={cn(
+          "cursor-pointer select-none px-0.5 align-super font-sans text-[0.58em] font-medium transition-colors",
+          activeIndex === m.index
+            ? "text-primary underline decoration-primary/40 underline-offset-2"
+            : "text-primary/55 hover:text-primary",
+        )}
+      >
+        {m.letter}
+      </button>,
+    );
+    cursor = at;
+  });
+  nodes.push(text.slice(cursor));
+  return nodes;
+}
 
 const HIGHLIGHTS = [
   { key: "yellow", label: "Yellow", swatch: "bg-yellow-300", text: "bg-yellow-200/70 dark:bg-yellow-300/20" },
@@ -33,7 +98,7 @@ export function ChapterBody({
   volume: string;
   book: string;
   chapter: number;
-  kjvVerses: Verse[];
+  kjvVerses: KjvVerse[];
 }) {
   const deviceId = useDeviceId();
 
@@ -45,6 +110,12 @@ export function ChapterBody({
   const [ann, setAnn] = React.useState<AnnMap>({});
   const [selected, setSelected] = React.useState<number | null>(null);
   const [noteDraft, setNoteDraft] = React.useState("");
+
+  const [openFootnote, setOpenFootnote] = React.useState<{
+    verse: number;
+    index: number;
+  } | null>(null);
+  const [refCache, setRefCache] = React.useState<Record<string, RefState>>({});
 
   React.useEffect(() => {
     if (!deviceId) return;
@@ -68,6 +139,7 @@ export function ChapterBody({
 
   function showSimple() {
     setMode("simple");
+    setOpenFootnote(null); // markers/panel are KJV-only
     if (!simple && !loading) void loadSimple();
   }
 
@@ -91,6 +163,7 @@ export function ChapterBody({
   }
 
   function toggleSelect(n: number) {
+    setOpenFootnote(null);
     if (selected === n) {
       setSelected(null);
       return;
@@ -99,7 +172,26 @@ export function ChapterBody({
     setNoteDraft(ann[n]?.note ?? "");
   }
 
-  const verses = mode === "simple" && simple ? simple : kjvVerses;
+  function openNote(verse: number, index: number, text: string) {
+    setSelected(null);
+    setOpenFootnote({ verse, index });
+    if (refCache[text] === undefined) {
+      setRefCache((prev) => ({ ...prev, [text]: { status: "loading", refs: [] } }));
+      parseFootnoteReferences(text)
+        .then((refs) =>
+          setRefCache((prev) => ({ ...prev, [text]: { status: "done", refs } })),
+        )
+        .catch(() =>
+          setRefCache((prev) => ({
+            ...prev,
+            [text]: { status: "done", refs: [] },
+          })),
+        );
+    }
+  }
+
+  const showingSimple = mode === "simple" && !!simple;
+  const verses: Array<Verse | KjvVerse> = showingSimple ? simple! : kjvVerses;
 
   return (
     <div className="mt-8">
@@ -165,7 +257,21 @@ export function ChapterBody({
                       {v.n}
                     </button>
                     <span className={cn("rounded px-0.5", highlightClass(a?.color ?? null))}>
-                      {v.text}
+                      {showingSimple
+                        ? v.text
+                        : renderVerseText(
+                            v.text,
+                            (v as KjvVerse).footNotes,
+                            (index) =>
+                              openNote(
+                                v.n,
+                                index,
+                                (v as KjvVerse).footNotes[index].text,
+                              ),
+                            openFootnote?.verse === v.n
+                              ? openFootnote.index
+                              : null,
+                          )}
                     </span>
                   </p>
 
@@ -186,6 +292,22 @@ export function ChapterBody({
                       {a.note}
                     </p>
                   )}
+
+                  {!showingSimple &&
+                    openFootnote?.verse === v.n &&
+                    (v as KjvVerse).footNotes[openFootnote.index] && (
+                      <FootnotePanel
+                        key={`fn-${v.n}-${openFootnote.index}`}
+                        letter={markerLetter(openFootnote.index)}
+                        text={(v as KjvVerse).footNotes[openFootnote.index].text}
+                        refsState={
+                          refCache[
+                            (v as KjvVerse).footNotes[openFootnote.index].text
+                          ]
+                        }
+                        onClose={() => setOpenFootnote(null)}
+                      />
+                    )}
                 </div>
               );
             })}
@@ -264,6 +386,151 @@ function VerseToolbar({
           Save note
         </Button>
       </div>
+    </div>
+  );
+}
+
+function FootnotePanel({
+  letter,
+  text,
+  refsState,
+  onClose,
+}: {
+  letter: string;
+  text: string;
+  refsState: RefState | undefined;
+  onClose: () => void;
+}) {
+  const [activeKey, setActiveKey] = React.useState<string | null>(null);
+  const [previews, setPreviews] = React.useState<Record<string, PreviewState>>(
+    {},
+  );
+
+  const refKey = (r: ParsedReference) => `${r.book}-${r.chapter}-${r.verse}`;
+
+  function fetchPreview(r: ParsedReference) {
+    const key = refKey(r);
+    setPreviews((p) => ({ ...p, [key]: { status: "loading" } }));
+    previewVerse(r.book, r.chapter, r.verse)
+      .then((res) =>
+        setPreviews((p) => ({
+          ...p,
+          [key]: res.ok
+            ? { status: "done", reference: res.reference, text: res.text }
+            : { status: "error" },
+        })),
+      )
+      .catch(() =>
+        setPreviews((p) => ({ ...p, [key]: { status: "error" } })),
+      );
+  }
+
+  function selectRef(r: ParsedReference) {
+    const key = refKey(r);
+    if (activeKey === key) {
+      setActiveKey(null);
+      return;
+    }
+    setActiveKey(key);
+    const cur = previews[key];
+    if (!cur || cur.status === "error") fetchPreview(r);
+  }
+
+  const active = refsState?.refs.find((r) => refKey(r) === activeKey) ?? null;
+  const preview = activeKey ? previews[activeKey] : undefined;
+
+  return (
+    <div className="my-2.5 ml-5 max-w-md rounded-lg border border-border bg-card p-3 font-sans text-sm">
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Footnote {letter}
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close footnote"
+          className="text-muted-foreground hover:text-foreground"
+        >
+          <X className="size-4" />
+        </button>
+      </div>
+
+      <p className="leading-relaxed text-foreground/90">{text}</p>
+
+      {refsState?.status === "loading" && (
+        <p className="mt-2.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Loader2 className="size-3 animate-spin" /> Finding cross references…
+        </p>
+      )}
+
+      {refsState?.status === "done" && refsState.refs.length > 0 && (
+        <div className="mt-3">
+          <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Cross references
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {refsState.refs.map((r) => {
+              const key = refKey(r);
+              const isActive = activeKey === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => selectRef(r)}
+                  aria-expanded={isActive}
+                  className={cn(
+                    "rounded-md border px-2 py-0.5 text-xs transition-colors",
+                    isActive
+                      ? "border-primary/50 bg-primary/10 text-foreground"
+                      : "border-border bg-background text-foreground/80 hover:border-primary/40 hover:bg-accent/40",
+                  )}
+                >
+                  {r.prettyString}
+                </button>
+              );
+            })}
+          </div>
+
+          {active && (
+            <div className="mt-2.5 rounded-md border border-border bg-background p-2.5">
+              {preview?.status === "loading" && (
+                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Loader2 className="size-3 animate-spin" /> Loading{" "}
+                  {active.prettyString}…
+                </p>
+              )}
+              {preview?.status === "error" && (
+                <p className="text-xs text-destructive">
+                  Couldn’t load {active.prettyString}.{" "}
+                  <button
+                    type="button"
+                    onClick={() => fetchPreview(active)}
+                    className="underline"
+                  >
+                    Retry
+                  </button>
+                </p>
+              )}
+              {preview?.status === "done" && (
+                <>
+                  <p className="font-serif leading-relaxed text-foreground/90">
+                    <span className="font-semibold">{preview.reference} </span>
+                    {preview.text}
+                  </p>
+                  {active.volume && (
+                    <Link
+                      href={`/read/${active.volume}/${active.book}/${active.chapter}#v${active.verse}`}
+                      className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                    >
+                      Open <ArrowUpRight className="size-3.5" />
+                    </Link>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -33,3 +33,23 @@ export const getBookIndexByTitle = cache(
     return map;
   },
 );
+
+/** Map of book id -> { volumeId, bookTitle }, used to turn a cross reference's
+ *  book id (e.g. "ether") into a reader URL. Cached per request. */
+export const getBookIndexById = cache(
+  async (): Promise<Map<string, { volumeId: string; bookTitle: string }>> => {
+    const { volumes } = await listVolumes();
+    const map = new Map<string, { volumeId: string; bookTitle: string }>();
+
+    await Promise.all(
+      volumes.map(async (v) => {
+        const detail = await getVolume(v._id);
+        for (const b of detail.books) {
+          map.set(b._id, { volumeId: v._id, bookTitle: b.title });
+        }
+      }),
+    );
+
+    return map;
+  },
+);

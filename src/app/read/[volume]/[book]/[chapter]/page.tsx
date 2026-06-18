@@ -57,6 +57,7 @@ export default async function ReaderPage({ params }: Props) {
           kjvVerses={body.verses.map((verse, i) => ({
             n: i + 1,
             text: verse.text,
+            footNotes: verse.footNotes,
           }))}
         />
 
