@@ -26,7 +26,7 @@ export default async function SearchPage({ searchParams }: Props) {
     <>
       <SiteHeader />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:py-14">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">Search</h1>
+        <h1 className="font-display text-4xl font-semibold tracking-tight">Search</h1>
         <p className="mt-2 mb-6 text-muted-foreground">
           Find verses across all the standard works.
         </p>

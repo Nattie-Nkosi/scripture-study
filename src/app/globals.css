@@ -11,6 +11,7 @@
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-lora);
   --font-heading: var(--font-lora);
+  --font-display: var(--font-fraunces);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -45,8 +46,9 @@
   --card-foreground: oklch(0.255 0.018 55);
   --popover: oklch(0.995 0.006 86);
   --popover-foreground: oklch(0.255 0.018 55);
-  --primary: oklch(0.42 0.045 50);
-  --primary-foreground: oklch(0.98 0.01 85);
+  /* Signature accent: deep garnet (rubrication). */
+  --primary: oklch(0.45 0.125 25);
+  --primary-foreground: oklch(0.98 0.012 85);
   --secondary: oklch(0.95 0.013 82);
   --secondary-foreground: oklch(0.32 0.022 52);
   --muted: oklch(0.952 0.012 82);
@@ -66,8 +68,8 @@
   --card-foreground: oklch(0.92 0.014 84);
   --popover: oklch(0.22 0.013 60);
   --popover-foreground: oklch(0.92 0.014 84);
-  --primary: oklch(0.83 0.04 78);
-  --primary-foreground: oklch(0.24 0.02 55);
+  --primary: oklch(0.62 0.14 25);
+  --primary-foreground: oklch(0.99 0.01 85);
   --secondary: oklch(0.27 0.014 60);
   --secondary-foreground: oklch(0.92 0.014 84);
   --muted: oklch(0.27 0.014 60);
@@ -97,6 +99,12 @@
   font-size: var(--reader-font-size);
   line-height: 1.85;
   font-feature-settings: "liga" 1, "calt" 1;
+}
+
+/* Editorial small-caps for overlines / labels. */
+.small-caps {
+  font-variant-caps: small-caps;
+  letter-spacing: 0.06em;
 }
 
 /* Smooth in-page jumps (cross-reference "Open", search deep links). */

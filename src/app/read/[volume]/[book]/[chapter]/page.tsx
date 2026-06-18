@@ -9,6 +9,7 @@ import { fetchOrNotFound } from "@/lib/scripture/server-helpers";
 import { ReaderHeader } from "@/components/reader/reader-header";
 import { ChapterBody } from "@/components/reader/chapter-body";
 import { AssistantPanel } from "@/components/reader/assistant-panel";
+import { Ornament } from "@/components/ornament";
 import { buttonVariants } from "@/components/ui/button";
 
 type Props = {
@@ -69,10 +70,8 @@ export default async function ReaderPage({ params }: Props) {
 
       <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
         <div className="text-center animate-in fade-in duration-500">
-          <p className="font-serif text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            {volRef.title}
-          </p>
-          <h1 className="mt-2 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+          <p className="small-caps text-sm text-primary">{volRef.title}</p>
+          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
             {bookRef.title} {body.number}
           </h1>
           {body.summary && (
@@ -80,6 +79,7 @@ export default async function ReaderPage({ params }: Props) {
               {body.summary}
             </p>
           )}
+          <Ornament className="mt-7" />
         </div>
 
         <ChapterBody

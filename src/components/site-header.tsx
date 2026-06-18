@@ -9,7 +9,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
       <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4">
         <Link
           href="/"
-          className="flex items-center gap-2 font-serif text-lg font-semibold tracking-tight"
+          className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight"
         >
           <BookOpen className="size-5 text-primary" />
           Scripture Study

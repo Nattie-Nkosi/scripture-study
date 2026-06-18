@@ -254,7 +254,7 @@ export function ChapterBody({
                         "mr-1.5 cursor-pointer align-baseline font-sans text-[0.62em] font-semibold tabular-nums transition-colors",
                         isSelected
                           ? "text-primary"
-                          : "text-muted-foreground hover:text-foreground",
+                          : "text-primary/45 hover:text-primary",
                       )}
                     >
                       {v.n}

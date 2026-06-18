@@ -32,7 +32,7 @@ export default async function VolumePage({ params }: Props) {
         >
           ← Library
         </Link>
-        <h1 className="mt-3 font-serif text-3xl font-semibold tracking-tight">
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight">
           {data.title}
         </h1>
         <p className="mt-2 text-muted-foreground">
