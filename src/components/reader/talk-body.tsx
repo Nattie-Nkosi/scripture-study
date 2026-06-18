@@ -4,6 +4,7 @@ import * as React from "react";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { FootnoteReferences } from "@/components/reader/footnote-references";
 import type { TalkFootNote, TalkParagraph } from "@/lib/conference/types";
 
 /** Footnote marker letters: a–z, then aa, ab, … for paragraphs with many notes. */
@@ -121,6 +122,7 @@ function FootnoteNote({
         </button>
       </div>
       <p className="leading-relaxed text-foreground/90">{text}</p>
+      <FootnoteReferences text={text} />
     </div>
   );
 }
