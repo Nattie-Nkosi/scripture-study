@@ -1,7 +1,15 @@
-# Scripture Study
+<p align="center">
+  <img src="public/logo.svg" alt="Scripture Study logo" width="96" height="96" />
+</p>
 
-A clean, modern reader for the LDS standard works **and** General Conference
-talks, with AI study tools, highlights and notes, and full-text search.
+<h1 align="center">Scripture Study</h1>
+
+<p align="center">
+  A clean, modern reader for the LDS standard works <strong>and</strong> General
+  Conference talks — with AI study tools, highlights and notes, and full-text search.
+</p>
+
+<br />
 
 ## Features
 
