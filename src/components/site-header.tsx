@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { BookOpen, Search } from "lucide-react";
+import { Search } from "lucide-react";
 
+import { Logo } from "@/components/logo";
 import { ThemeSelector } from "@/components/theme-selector";
 
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
@@ -11,7 +12,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           href="/"
           className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight"
         >
-          <BookOpen className="size-5 text-primary" />
+          <Logo className="size-6 text-primary" />
           Scripture Study
         </Link>
         <div className="min-w-0 flex-1">{children}</div>

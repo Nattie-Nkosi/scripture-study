@@ -6,12 +6,13 @@ import { SiteFooter } from "@/components/site-footer";
 import { Ornament } from "@/components/ornament";
 import { buttonVariants } from "@/components/ui/button";
 
-const VOLUMES = [
+const LIBRARY = [
   "Old Testament",
   "New Testament",
   "Book of Mormon",
   "Doctrine & Covenants",
   "Pearl of Great Price",
+  "General Conference",
 ];
 
 export default function Home() {
@@ -28,27 +29,26 @@ export default function Home() {
         <Ornament className="my-8" />
 
         <p className="max-w-xl font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
-          A calm reader for the Bible, Book of Mormon, Doctrine and Covenants,
-          and Pearl of Great Price — with plain-English clarity and a study
-          assistant grounded in the verses themselves.
+          The Bible, Book of Mormon, Doctrine and Covenants, and Pearl of Great
+          Price — alongside General Conference talks from 1971 to today. Read
+          with plain-English clarity, highlight and take notes, and ask a study
+          assistant grounded in the text itself.
         </p>
 
-        <Link
-          href="/read"
-          className={`${buttonVariants({ size: "lg" })} mt-9`}
-        >
-          Open the library <ArrowRight />
-        </Link>
-
-        <Link
-          href="/talks"
-          className="mt-4 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-        >
-          Or read General Conference talks →
-        </Link>
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+          <Link href="/read" className={buttonVariants({ size: "lg" })}>
+            Open the library <ArrowRight />
+          </Link>
+          <Link
+            href="/talks"
+            className={buttonVariants({ variant: "outline", size: "lg" })}
+          >
+            General Conference
+          </Link>
+        </div>
 
         <div className="mt-16 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 small-caps text-xs text-muted-foreground">
-          {VOLUMES.map((v, i) => (
+          {LIBRARY.map((v, i) => (
             <span key={v} className="flex items-center gap-x-5">
               {i > 0 && <span className="text-primary/40">·</span>}
               {v}
