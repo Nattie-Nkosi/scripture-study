@@ -57,7 +57,7 @@ export default async function BookPage({ params }: Props) {
                 <Link
                   href={`/read/${volume}/${book}/${number}`}
                   title={chapter.summary || undefined}
-                  className="flex aspect-square items-center justify-center rounded-lg border border-border bg-card font-serif text-lg transition-colors hover:border-primary/40 hover:bg-accent/40"
+                  className="flex aspect-square items-center justify-center rounded-lg border border-border bg-card font-serif text-lg transition-all duration-150 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-accent/40 hover:shadow-sm active:translate-y-0 active:scale-95"
                 >
                   {number}
                 </Link>

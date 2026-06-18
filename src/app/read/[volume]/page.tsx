@@ -44,7 +44,7 @@ export default async function VolumePage({ params }: Props) {
             <li key={book._id}>
               <Link
                 href={`/read/${volume}/${book._id}`}
-                className="block rounded-lg border border-border bg-card px-4 py-3 font-serif transition-colors hover:border-primary/40 hover:bg-accent/40"
+                className="block rounded-lg border border-border bg-card px-4 py-3 font-serif transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-accent/40 hover:shadow-sm active:translate-y-0"
               >
                 {book.title}
               </Link>

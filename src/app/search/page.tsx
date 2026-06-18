@@ -99,7 +99,7 @@ async function Results({
   };
 
   return (
-    <div className="mt-8">
+    <div className="mt-8 animate-in fade-in duration-300">
       <p className="text-sm text-muted-foreground">
         {data.total.toLocaleString()} result{data.total === 1 ? "" : "s"} ·
         showing {offset + 1}–{shownUpTo}

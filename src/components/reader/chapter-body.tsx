@@ -236,7 +236,10 @@ export function ChapterBody({
         </div>
       ) : (
         <>
-          <div className="reader-prose mx-auto mt-8 max-w-2xl space-y-3 font-serif">
+          <div
+            key={showingSimple ? "simple" : "kjv"}
+            className="reader-prose mx-auto mt-8 max-w-2xl space-y-3 font-serif animate-in fade-in duration-300"
+          >
             {verses.map((v) => {
               const a = ann[v.n];
               const isSelected = selected === v.n;
@@ -256,7 +259,7 @@ export function ChapterBody({
                     >
                       {v.n}
                     </button>
-                    <span className={cn("rounded px-0.5", highlightClass(a?.color ?? null))}>
+                    <span className={cn("rounded px-0.5 transition-colors", highlightClass(a?.color ?? null))}>
                       {showingSimple
                         ? v.text
                         : renderVerseText(
@@ -342,7 +345,7 @@ function VerseToolbar({
   onClose: () => void;
 }) {
   return (
-    <div className="my-2.5 ml-5 max-w-md rounded-lg border border-border bg-card p-2.5 font-sans">
+    <div className="my-2.5 ml-5 max-w-md rounded-lg border border-border bg-card p-2.5 font-sans animate-in fade-in slide-in-from-top-1 duration-200">
       <div className="flex items-center gap-1.5">
         {HIGHLIGHTS.map((h) => (
           <button
@@ -440,7 +443,7 @@ function FootnotePanel({
   const preview = activeKey ? previews[activeKey] : undefined;
 
   return (
-    <div className="my-2.5 ml-5 max-w-md rounded-lg border border-border bg-card p-3 font-sans text-sm">
+    <div className="my-2.5 ml-5 max-w-md rounded-lg border border-border bg-card p-3 font-sans text-sm animate-in fade-in slide-in-from-top-1 duration-200">
       <div className="mb-1.5 flex items-center justify-between gap-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Footnote {letter}
@@ -492,7 +495,7 @@ function FootnotePanel({
           </div>
 
           {active && (
-            <div className="mt-2.5 rounded-md border border-border bg-background p-2.5">
+            <div className="mt-2.5 rounded-md border border-border bg-background p-2.5 animate-in fade-in slide-in-from-top-1 duration-200">
               {preview?.status === "loading" && (
                 <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Loader2 className="size-3 animate-spin" /> Loading{" "}

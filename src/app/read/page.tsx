@@ -53,7 +53,7 @@ export default async function LibraryPage() {
             <li key={v._id}>
               <Link
                 href={`/read/${v._id}`}
-                className="group flex items-center justify-between rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:border-primary/40 hover:bg-accent/40"
+                className="group flex items-center justify-between rounded-xl border border-border bg-card px-5 py-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-accent/40 hover:shadow-sm active:translate-y-0"
               >
                 <span>
                   <span className="block font-serif text-lg font-medium">

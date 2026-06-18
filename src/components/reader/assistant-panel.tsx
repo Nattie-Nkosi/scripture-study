@@ -282,7 +282,12 @@ function Bubble({
   const empty = !message.content;
 
   return (
-    <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
+    <div
+      className={cn(
+        "flex animate-in fade-in slide-in-from-bottom-1 duration-200",
+        isUser ? "justify-end" : "justify-start",
+      )}
+    >
       <div
         className={cn(
           "max-w-[85%] rounded-2xl px-3.5 py-2 text-sm whitespace-pre-wrap",
