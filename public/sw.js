@@ -7,9 +7,15 @@
 // travels over the network — nor anything user-specific: the assistant API and
 // all POST/server-action requests are passed straight through, never stored.
 //
-// Step 2 scope: app shell offline. Static assets are cached-first so the app
-// can boot with no network; navigations are network-first and fall back to a
-// calm offline page. Caching viewed chapters/talks comes in Step 3.
+// Caching: static assets are cached-first so the app can boot with no network;
+// public page navigations are network-first (fresh online, cache only offline)
+// and fall back to a calm offline page. Viewed chapters/talks are cached as the
+// user opens them.
+//
+// Updates (Step 5): a new worker installs and then WAITS instead of taking over
+// mid-session — swapping assets under a running page breaks it. The page shows a
+// quiet "refresh" prompt and only when the user accepts do we skip waiting (via
+// the SKIP_WAITING message below), activate, and reload onto the new version.
 
 const VERSION = "v1";
 const SHELL_CACHE = `shell-${VERSION}`;
@@ -27,13 +33,22 @@ const SHELL_ASSETS = [
 ];
 
 self.addEventListener("install", (event) => {
+  // No skipWaiting here: on an update we stay in "waiting" until the page tells
+  // us to activate. On a first install (no controller yet) the browser still
+  // activates us right away, so offline works on the very first visit.
   event.waitUntil(
     (async () => {
       const cache = await caches.open(SHELL_CACHE);
       await cache.addAll(SHELL_ASSETS);
-      await self.skipWaiting();
     })(),
   );
+});
+
+// The page sends this when the user accepts the "new version" prompt.
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("activate", (event) => {

@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   AlertTriangle,
   Check,
+  CloudOff,
   Copy,
   Loader2,
   MessageCircle,
@@ -19,6 +20,7 @@ import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useDeviceId } from "@/lib/hooks/use-device-id";
+import { useOnlineStatus } from "@/lib/hooks/use-online-status";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -111,6 +113,7 @@ export function ChatPanel({
   ) => unknown;
 }) {
   const deviceId = useDeviceId();
+  const online = useOnlineStatus();
   const [open, setOpen] = React.useState(false);
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [input, setInput] = React.useState("");
@@ -196,6 +199,13 @@ export function ChatPanel({
     const question = text.trim();
     if (!question || streaming || !deviceId) return;
 
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setError(
+        "You’re offline. The study assistant needs a connection — your reading, notes, and highlights stay on this device.",
+      );
+      return;
+    }
+
     setInput("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
     setError(null);
@@ -238,7 +248,13 @@ export function ChatPanel({
       if ((err as Error).name === "AbortError") {
         dropEmptyPlaceholder(); // keep any partial answer; drop if nothing came
       } else {
-        setError((err as Error).message || "Something went wrong.");
+        const offline =
+          typeof navigator !== "undefined" && !navigator.onLine;
+        setError(
+          offline
+            ? "Connection lost. The study assistant needs a connection — your reading and notes are still here."
+            : (err as Error).message || "Something went wrong.",
+        );
         dropEmptyPlaceholder();
       }
     } finally {
@@ -328,6 +344,16 @@ export function ChatPanel({
           <p>{disclaimer}</p>
         </div>
 
+        {!online && (
+          <div className="flex items-start gap-2 border-b border-border bg-amber-500/10 px-4 py-2 text-xs text-foreground/80">
+            <CloudOff className="mt-0.5 size-3.5 shrink-0" />
+            <p>
+              You’re offline. The study assistant needs a connection — your
+              reading, notes, and highlights stay on this device.
+            </p>
+          </div>
+        )}
+
         <div
           ref={scrollRef}
           onScroll={onScroll}
@@ -342,7 +368,7 @@ export function ChatPanel({
                     key={s}
                     type="button"
                     onClick={() => send(s)}
-                    disabled={!deviceId}
+                    disabled={!deviceId || !online}
                     className="rounded-lg border border-border px-3 py-2 text-left text-sm transition-colors hover:bg-accent/40 disabled:opacity-50"
                   >
                     {s}
@@ -389,8 +415,8 @@ export function ChatPanel({
                 }
               }}
               rows={1}
-              placeholder={placeholder}
-              disabled={!deviceId}
+              placeholder={online ? placeholder : "Offline — connect to ask"}
+              disabled={!deviceId || !online}
               className="max-h-40 min-h-[2.5rem] flex-1 resize-none rounded-lg border border-input bg-card px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50"
             />
             {streaming ? (
@@ -408,7 +434,7 @@ export function ChatPanel({
                 type="submit"
                 size="icon"
                 aria-label="Send"
-                disabled={!input.trim() || !deviceId}
+                disabled={!input.trim() || !deviceId || !online}
               >
                 <Send />
               </Button>

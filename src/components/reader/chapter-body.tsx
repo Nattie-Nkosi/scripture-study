@@ -164,10 +164,21 @@ export function ChapterBody({
   const loadSimple = React.useCallback(async () => {
     setLoading(true);
     setError(null);
-    const res = await translateChapterAction(volume, book, chapter);
-    setLoading(false);
-    if (res.ok) setSimple(res.verses);
-    else setError(res.error);
+    try {
+      const res = await translateChapterAction(volume, book, chapter);
+      if (res.ok) setSimple(res.verses);
+      else setError(res.error);
+    } catch {
+      // The server action's request itself failed — almost always offline.
+      // Never leave the spinner hanging; explain that King James still works.
+      setError(
+        typeof navigator !== "undefined" && !navigator.onLine
+          ? "Simple English needs a connection. The King James text is available offline."
+          : "We couldn’t generate the Simple English version right now. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
   }, [volume, book, chapter]);
 
   function showSimple() {

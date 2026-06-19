@@ -2,10 +2,11 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { CloudOff, Search } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useOnlineStatus } from "@/lib/hooks/use-online-status";
 
 const VOLUMES = [
   { id: "", label: "All volumes" },
@@ -28,6 +29,7 @@ export function SearchBox({
   initialScope?: Scope;
 }) {
   const router = useRouter();
+  const online = useOnlineStatus();
   const [q, setQ] = React.useState(initialQuery);
   const [volume, setVolume] = React.useState(initialVolume);
   const [scope, setScope] = React.useState<Scope>(initialScope);
@@ -45,18 +47,28 @@ export function SearchBox({
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const query = q.trim();
-    if (!query) return;
+    if (!query || !online) return;
     router.push(urlFor(query, scope));
   }
 
   function pickScope(next: Scope) {
     setScope(next);
     const query = q.trim();
-    if (query) router.push(urlFor(query, next));
+    if (query && online) router.push(urlFor(query, next));
   }
 
   return (
     <div>
+      {!online && (
+        <div className="mb-3 flex items-start gap-2 rounded-lg border border-border bg-amber-500/10 px-3 py-2 text-sm text-foreground/80">
+          <CloudOff className="mt-0.5 size-4 shrink-0" />
+          <p>
+            Search needs a connection. You’re offline right now — chapters and
+            talks you’ve already opened are still available to read.
+          </p>
+        </div>
+      )}
+
       <div className="mb-3 flex w-fit items-center rounded-full border border-border bg-card p-0.5 text-sm">
         {(
           [
@@ -69,8 +81,9 @@ export function SearchBox({
             type="button"
             onClick={() => pickScope(value)}
             aria-pressed={scope === value}
+            disabled={!online}
             className={cn(
-              "rounded-full px-4 py-1.5 font-medium transition-colors",
+              "rounded-full px-4 py-1.5 font-medium transition-colors disabled:opacity-50",
               scope === value
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground",
@@ -88,19 +101,23 @@ export function SearchBox({
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={
-              scope === "talks"
-                ? "Search conference talks…"
-                : "Search the scriptures…"
+              !online
+                ? "Search is offline…"
+                : scope === "talks"
+                  ? "Search conference talks…"
+                  : "Search the scriptures…"
             }
             autoFocus
-            className="w-full rounded-lg border border-input bg-card py-2.5 pr-3 pl-9 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
+            disabled={!online}
+            className="w-full rounded-lg border border-input bg-card py-2.5 pr-3 pl-9 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50"
           />
         </div>
         {scope === "scripture" && (
           <select
             value={volume}
             onChange={(e) => setVolume(e.target.value)}
-            className="rounded-lg border border-input bg-card px-3 py-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
+            disabled={!online}
+            className="rounded-lg border border-input bg-card px-3 py-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50"
           >
             {VOLUMES.map((v) => (
               <option key={v.id} value={v.id}>
@@ -109,7 +126,7 @@ export function SearchBox({
             ))}
           </select>
         )}
-        <Button type="submit" size="lg">
+        <Button type="submit" size="lg" disabled={!online}>
           Search
         </Button>
       </form>
