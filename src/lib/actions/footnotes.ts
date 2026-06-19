@@ -2,44 +2,8 @@
 
 import { findReferences, getVerse } from "@/lib/scripture/client";
 import { getBookIndexById } from "@/lib/scripture/reference-index";
+import { RESTORATION_BOOKS } from "@/lib/scripture/restoration-refs";
 import type { ParsedReference } from "@/lib/scripture/types";
-
-/** Restoration-scripture books the referencesFinder mis-parses when written out
- *  in full (e.g. it maps "Doctrine and Covenants 88:73" to "Colossians", and
- *  "Articles of Faith 1:13" to "1 Samuel"). Conference talks cite these by full
- *  name constantly, so we detect them ourselves and keep the finder for the
- *  Bible / Book of Mormon references it handles correctly. */
-const RESTORATION_BOOKS: {
-  id: string;
-  volumeId: string;
-  title: string;
-  re: RegExp;
-}[] = [
-  {
-    id: "doctrineandcovenants",
-    volumeId: "doctrineandcovenants",
-    title: "Doctrine and Covenants",
-    re: /\b(?:Doctrine\s+and\s+Covenants|D\.?\s*&\s*C\.?)\s+(\d+)(?::(\d+))?/gi,
-  },
-  {
-    id: "josephsmithhistory",
-    volumeId: "pearlofgreatprice",
-    title: "Joseph Smith—History",
-    re: /\bJoseph\s+Smith\s*[—–-]\s*History\s+(\d+)(?::(\d+))?/gi,
-  },
-  {
-    id: "josephsmithmatthew",
-    volumeId: "pearlofgreatprice",
-    title: "Joseph Smith—Matthew",
-    re: /\bJoseph\s+Smith\s*[—–-]\s*Matthew\s+(\d+)(?::(\d+))?/gi,
-  },
-  {
-    id: "articlesoffaith",
-    volumeId: "pearlofgreatprice",
-    title: "Articles of Faith",
-    re: /\bArticles\s+of\s+Faith\s+(\d+)(?::(\d+))?/gi,
-  },
-];
 
 /** Pull out the Restoration-scripture references and blank their spans so the
  *  finder doesn't mis-parse the same text. Offsets are preserved (same-length

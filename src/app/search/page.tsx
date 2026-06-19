@@ -1,7 +1,12 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 import { searchScriptures, ScriptureApiError } from "@/lib/scripture/client";
 import { getBookIndexByTitle } from "@/lib/scripture/reference-index";
+import {
+  resolveReferenceQuery,
+  type ReferenceJump,
+} from "@/lib/scripture/reference-query";
 import {
   searchConferenceTalks,
   ConferenceApiError,
@@ -104,6 +109,30 @@ function Pager({
   );
 }
 
+function ReferenceJumpCard({ jump }: { jump: ReferenceJump }) {
+  return (
+    <div className="mt-8 animate-in fade-in duration-300">
+      <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        Jump to reference
+      </p>
+      <Link
+        href={jump.url}
+        className="group block rounded-lg border border-primary/40 bg-primary/5 p-4 transition-colors hover:bg-primary/10"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-serif text-base font-semibold text-primary">
+            {jump.label}
+          </p>
+          <ArrowRight className="size-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5" />
+        </div>
+        <p className="mt-1.5 line-clamp-3 text-sm leading-relaxed text-foreground/90">
+          {jump.text}
+        </p>
+      </Link>
+    </div>
+  );
+}
+
 async function ScriptureResults({
   q,
   volume,
@@ -115,6 +144,11 @@ async function ScriptureResults({
   page: number;
   offset: number;
 }) {
+  if (page === 1) {
+    const jump = await resolveReferenceQuery(q);
+    if (jump) return <ReferenceJumpCard jump={jump} />;
+  }
+
   let data;
   try {
     data = await searchScriptures(q, {

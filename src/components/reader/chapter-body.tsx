@@ -127,6 +127,10 @@ export function ChapterBody({
   } | null>(null);
   const [openNote, setOpenNote] = React.useState<number | null>(null);
 
+  // Verse arrived at via a #v{n} deep link (e.g. a search result) — highlight it
+  // so the reader can spot which verse matched, until they tap elsewhere.
+  const [targetVerse, setTargetVerse] = React.useState<number | null>(null);
+
   React.useEffect(() => {
     getHighlights({ volume, book, chapter })
       .then((rows) => {
@@ -160,6 +164,27 @@ export function ChapterBody({
       })
       .catch(() => {});
   }, [volume, book, chapter]);
+
+  React.useEffect(() => {
+    function readHash() {
+      const m = /^#v(\d+)$/.exec(window.location.hash);
+      setTargetVerse(m ? Number(m[1]) : null);
+    }
+    readHash();
+    window.addEventListener("hashchange", readHash);
+    return () => window.removeEventListener("hashchange", readHash);
+  }, [volume, book, chapter]);
+
+  React.useEffect(() => {
+    if (targetVerse === null) return;
+    function onPointerDown(e: PointerEvent) {
+      const el = document.getElementById(`v${targetVerse}`);
+      if (el?.contains(e.target as Node)) return; // tapped the verse itself
+      setTargetVerse(null);
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [targetVerse]);
 
   const loadSimple = React.useCallback(async () => {
     setLoading(true);
@@ -340,7 +365,14 @@ export function ChapterBody({
               const color = highlights[v.n]?.color ?? null;
               const note = notes[v.n];
               return (
-                <div key={v.n} id={`v${v.n}`} className="scroll-mt-24">
+                <div
+                  key={v.n}
+                  id={`v${v.n}`}
+                  className={cn(
+                    "scroll-mt-24 rounded-md transition-[background-color,box-shadow] duration-700",
+                    targetVerse === v.n && "bg-primary/10 ring-2 ring-primary/40",
+                  )}
+                >
                   <p className="text-foreground/90">
                     <button
                       type="button"
