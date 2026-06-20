@@ -30,7 +30,11 @@ export function ReadingProgress() {
   }, []);
 
   return (
-    <div aria-hidden className="fixed inset-x-0 top-14 z-30 h-0.5">
+    <div
+      aria-hidden
+      className="fixed inset-x-0 z-30 h-0.5"
+      style={{ top: "calc(3.5rem + env(safe-area-inset-top))" }}
+    >
       <div
         ref={fillRef}
         className="h-full origin-left bg-primary/70 will-change-transform"

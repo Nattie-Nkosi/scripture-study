@@ -182,6 +182,12 @@
   letter-spacing: 0.06em;
 }
 
+/* Edge-to-edge: let a sticky header's background fill the status-bar / notch
+ * area while its content stays below the inset. No-op when the inset is 0. */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
 /* Smooth in-page jumps (cross-reference "Open", search deep links). */
 @media (prefers-reduced-motion: no-preference) {
   html {

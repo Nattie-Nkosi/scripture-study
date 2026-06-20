@@ -701,7 +701,7 @@ function VerseToolbar({
         onChange={(e) => onNoteChange(e.target.value)}
         placeholder="Add a note…"
         rows={2}
-        className="mt-2 w-full resize-none rounded-md border border-input bg-background px-2.5 py-1.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
+        className="mt-2 w-full resize-none rounded-md border border-input bg-background px-2.5 py-1.5 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 sm:text-sm"
       />
       <div className="mt-1.5 flex justify-end">
         <Button size="sm" onClick={onSave}>

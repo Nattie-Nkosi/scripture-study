@@ -109,7 +109,7 @@ export function SearchBox({
             }
             autoFocus
             disabled={!online}
-            className="w-full rounded-lg border border-input bg-card py-2.5 pr-3 pl-9 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50"
+            className="w-full rounded-lg border border-input bg-card py-2.5 pr-3 pl-9 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50 sm:text-sm"
           />
         </div>
         {scope === "scripture" && (
@@ -117,7 +117,7 @@ export function SearchBox({
             value={volume}
             onChange={(e) => setVolume(e.target.value)}
             disabled={!online}
-            className="rounded-lg border border-input bg-card px-3 py-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50"
+            className="rounded-lg border border-input bg-card px-3 py-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50 sm:text-sm"
           >
             {VOLUMES.map((v) => (
               <option key={v.id} value={v.id}>

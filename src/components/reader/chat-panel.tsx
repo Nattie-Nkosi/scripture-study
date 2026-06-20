@@ -328,7 +328,8 @@ export function ChatPanel({
         aria-label="Open study assistant"
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="fixed right-4 bottom-4 z-30 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95"
+        style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+        className="fixed right-4 z-30 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95"
       >
         <MessageCircle className="size-5" />
         <span className="hidden sm:inline">Ask</span>
@@ -348,6 +349,10 @@ export function ChatPanel({
         role="dialog"
         aria-modal="true"
         aria-label="Study assistant"
+        style={{
+          paddingTop: "env(safe-area-inset-top)",
+          paddingBottom: "env(safe-area-inset-bottom)",
+        }}
         className={cn(
           "fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-border bg-background shadow-xl transition-transform duration-300 sm:w-[26rem]",
           open ? "translate-x-0" : "translate-x-full",
@@ -463,7 +468,7 @@ export function ChatPanel({
               rows={1}
               placeholder={online ? placeholder : "Offline — connect to ask"}
               disabled={!deviceId || !online}
-              className="max-h-40 min-h-[2.5rem] flex-1 resize-none rounded-lg border border-input bg-card px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50"
+              className="max-h-40 min-h-[2.5rem] flex-1 resize-none rounded-lg border border-input bg-card px-3 py-2 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50 sm:text-sm"
             />
             {streaming ? (
               <Button

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Lora, Fraunces } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -41,6 +41,18 @@ export const metadata: Metadata = {
     title: "Scripture",
     statusBarStyle: "default",
   },
+};
+
+// Tint the mobile browser chrome to match the reading surface (paper in light,
+// warm charcoal in dark) so the app feels native on a phone.
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf8f2" },
+    { media: "(prefers-color-scheme: dark)", color: "#211e1b" },
+  ],
+  // Extend the app under the status bar / home indicator on notched phones; the
+  // chrome elements pad themselves back with env(safe-area-inset-*).
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
