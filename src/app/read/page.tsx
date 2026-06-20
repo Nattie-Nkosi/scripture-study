@@ -50,7 +50,7 @@ export default async function LibraryPage() {
           The Standard Works
         </h1>
 
-        <ContinueReading />
+        <ContinueReading className="mt-8" />
 
         <ol className="mt-10 border-y border-border">
           {volumes.map((v, i) => (

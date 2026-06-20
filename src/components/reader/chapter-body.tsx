@@ -449,6 +449,7 @@ export function ChapterBody({
                 <div
                   key={v.n}
                   id={`v${v.n}`}
+                  data-verse={v.n}
                   className={cn(
                     "scroll-mt-24 rounded-md transition-[background-color,box-shadow] duration-700",
                     selectedHere && "bg-primary/5",

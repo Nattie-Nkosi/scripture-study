@@ -4,6 +4,8 @@ import { ArrowRight } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Ornament } from "@/components/ornament";
+import { ContinueReading } from "@/components/reader/continue-reading";
+import { DailyVerse } from "@/components/home/daily-verse";
 import { buttonVariants } from "@/components/ui/button";
 
 const LIBRARY = [
@@ -45,6 +47,11 @@ export default function Home() {
           >
             General Conference
           </Link>
+        </div>
+
+        <div className="mt-12 flex w-full max-w-md flex-col gap-3 text-left">
+          <ContinueReading />
+          <DailyVerse />
         </div>
 
         <div className="mt-16 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 small-caps text-xs text-muted-foreground">

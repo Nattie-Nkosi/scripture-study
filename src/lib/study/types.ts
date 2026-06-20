@@ -43,5 +43,6 @@ export interface Bookmark extends ChapterRef {
 
 export interface LastRead extends ChapterRef {
   bookTitle: string; // denormalized for "Continue reading" without a fetch
+  verse?: number; // last-read verse within the chapter (1 = top); resume target
   updatedAt: number; // only the most recent position is kept
 }

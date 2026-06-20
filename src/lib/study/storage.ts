@@ -218,6 +218,7 @@ export async function setLastRead(input: {
   book: string;
   chapter: number;
   bookTitle: string;
+  verse?: number;
 }): Promise<void> {
   if (!canStore()) return;
   const record: LastRead = { ...input, updatedAt: Date.now() };
