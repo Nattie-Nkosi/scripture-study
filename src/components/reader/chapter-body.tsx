@@ -1,7 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { Bookmark as BookmarkIcon, Loader2, Pencil, Sparkles, X } from "lucide-react";
+import {
+  Bookmark as BookmarkIcon,
+  Check,
+  Copy,
+  Loader2,
+  Pencil,
+  Share2,
+  Sparkles,
+  X,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -118,7 +127,13 @@ export function ChapterBody({
   const [highlights, setHighlights] = React.useState<Record<number, Highlight>>({});
   const [notes, setNotes] = React.useState<Record<number, Note>>({});
   const [bookmarks, setBookmarks] = React.useState<Record<number, Bookmark>>({});
-  const [selected, setSelected] = React.useState<number | null>(null);
+  // A verse selection is an inclusive range between an anchor and a head; a
+  // single tapped verse has anchor === head. Tap selects one; Shift+click (or a
+  // touch long-press) extends the head to make a multi-verse range.
+  const [selection, setSelection] = React.useState<{
+    anchor: number;
+    head: number;
+  } | null>(null);
   const [noteDraft, setNoteDraft] = React.useState("");
 
   const [openFootnote, setOpenFootnote] = React.useState<{
@@ -130,6 +145,15 @@ export function ChapterBody({
   // Verse arrived at via a #v{n} deep link (e.g. a search result) — highlight it
   // so the reader can spot which verse matched, until they tap elsewhere.
   const [targetVerse, setTargetVerse] = React.useState<number | null>(null);
+
+  const longPressTimer = React.useRef<number | null>(null);
+  const longPressedRef = React.useRef(false);
+
+  const selStart = selection ? Math.min(selection.anchor, selection.head) : 0;
+  const selEnd = selection ? Math.max(selection.anchor, selection.head) : 0;
+  const selSize = selection ? selEnd - selStart + 1 : 0;
+  const inSelection = (n: number) =>
+    selection !== null && n >= selStart && n <= selEnd;
 
   React.useEffect(() => {
     getHighlights({ volume, book, chapter })
@@ -229,6 +253,10 @@ export function ChapterBody({
     });
   }
 
+  function applyColorToSelection(color: HighlightColor | null) {
+    for (let n = selStart; n <= selEnd; n++) applyColor(n, color);
+  }
+
   function toggleBookmark(n: number) {
     const existing = bookmarks[n];
     if (existing) {
@@ -257,13 +285,13 @@ export function ChapterBody({
           return next;
         });
       }
-      setSelected(null);
+      setSelection(null);
       return;
     }
     void saveNote({ volume, book, chapter, verse: n, text, bookTitle }).then((saved) => {
       setNotes((m) => ({ ...m, [n]: saved }));
     });
-    setSelected(null);
+    setSelection(null);
   }
 
   function removeNote(n: number) {
@@ -279,35 +307,88 @@ export function ChapterBody({
     setOpenNote(null);
   }
 
-  function selectVerse(n: number) {
+  function selectSingle(n: number) {
     setOpenFootnote(null);
     setOpenNote(null);
-    setSelected(n);
+    setSelection({ anchor: n, head: n });
     setNoteDraft(notes[n]?.text ?? "");
   }
 
   function toggleSelect(n: number) {
-    if (selected === n) {
-      setSelected(null);
+    if (selection && selStart === n && selEnd === n) {
+      setSelection(null);
       return;
     }
-    selectVerse(n);
+    selectSingle(n);
+  }
+
+  // Extend the selection's head to verse n (Shift+click / long-press), or start
+  // a single selection if nothing is selected yet.
+  function extendTo(n: number) {
+    setOpenFootnote(null);
+    setOpenNote(null);
+    setSelection((cur) =>
+      cur ? { anchor: cur.anchor, head: n } : { anchor: n, head: n },
+    );
+  }
+
+  function clearLongPress() {
+    if (longPressTimer.current !== null) {
+      window.clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }
+
+  function onVerseNumberClick(e: React.MouseEvent, n: number) {
+    if (longPressedRef.current) {
+      longPressedRef.current = false;
+      return; // a long-press already handled this verse
+    }
+    if (e.shiftKey && selection) extendTo(n);
+    else toggleSelect(n);
+  }
+
+  // Touch has no Shift key, so a long-press extends the range instead.
+  function onVersePointerDown(e: React.PointerEvent, n: number) {
+    longPressedRef.current = false;
+    clearLongPress();
+    if (e.pointerType === "mouse") return;
+    longPressTimer.current = window.setTimeout(() => {
+      longPressedRef.current = true;
+      extendTo(n);
+      navigator.vibrate?.(10);
+    }, 450);
   }
 
   function showFootnote(verse: number, index: number) {
-    setSelected(null);
+    setSelection(null);
     setOpenNote(null);
     setOpenFootnote({ verse, index });
   }
 
   function showNote(n: number) {
-    setSelected(null);
+    setSelection(null);
     setOpenFootnote(null);
     setOpenNote((cur) => (cur === n ? null : n));
   }
 
   const showingSimple = mode === "simple" && !!simple;
   const verses: Array<Verse | KjvVerse> = showingSimple ? simple! : kjvVerses;
+
+  // For a multi-verse selection: the reference label and a copy/share payload
+  // with each verse numbered (e.g. "1 In the beginning…\n2 And the earth…").
+  const rangeData =
+    selection && selSize > 1
+      ? (() => {
+          const label = `${bookTitle} ${chapter}:${selStart}–${selEnd}`;
+          const body = verses
+            .filter((v) => v.n >= selStart && v.n <= selEnd)
+            .map((v) => `${v.n} ${v.text}`)
+            .join("\n");
+          const attribution = showingSimple ? `${label} (Simple English)` : label;
+          return { label, payload: `${body}\n\n${attribution}` };
+        })()
+      : null;
 
   return (
     <div className="mt-8">
@@ -361,7 +442,7 @@ export function ChapterBody({
             className="reader-prose mx-auto mt-8 max-w-2xl space-y-3 font-serif animate-in fade-in duration-300"
           >
             {verses.map((v) => {
-              const isSelected = selected === v.n;
+              const selectedHere = inSelection(v.n);
               const color = highlights[v.n]?.color ?? null;
               const note = notes[v.n];
               return (
@@ -370,17 +451,23 @@ export function ChapterBody({
                   id={`v${v.n}`}
                   className={cn(
                     "scroll-mt-24 rounded-md transition-[background-color,box-shadow] duration-700",
+                    selectedHere && "bg-primary/5",
                     targetVerse === v.n && "bg-primary/10 ring-2 ring-primary/40",
                   )}
                 >
                   <p className="text-foreground/90">
                     <button
                       type="button"
-                      onClick={() => toggleSelect(v.n)}
+                      onClick={(e) => onVerseNumberClick(e, v.n)}
+                      onPointerDown={(e) => onVersePointerDown(e, v.n)}
+                      onPointerUp={clearLongPress}
+                      onPointerMove={clearLongPress}
+                      onPointerLeave={clearLongPress}
+                      onPointerCancel={clearLongPress}
                       aria-label={`Verse ${v.n} options`}
                       className={cn(
-                        "mr-1.5 cursor-pointer align-baseline font-sans text-[0.62em] font-semibold tabular-nums transition-colors",
-                        isSelected
+                        "mr-1.5 cursor-pointer select-none align-baseline font-sans text-[0.62em] font-semibold tabular-nums transition-colors",
+                        selectedHere
                           ? "text-primary"
                           : "text-primary/45 hover:text-primary",
                       )}
@@ -416,24 +503,37 @@ export function ChapterBody({
                     )}
                   </p>
 
-                  {isSelected && (
-                    <VerseToolbar
-                      color={color}
-                      bookmarked={!!bookmarks[v.n]}
-                      noteDraft={noteDraft}
-                      onColor={(c) => applyColor(v.n, c)}
-                      onToggleBookmark={() => toggleBookmark(v.n)}
-                      onNoteChange={setNoteDraft}
-                      onSave={() => commitNote(v.n)}
-                      onClose={() => setSelected(null)}
-                    />
-                  )}
+                  {selection &&
+                    v.n === selEnd &&
+                    (rangeData ? (
+                      <RangeToolbar
+                        count={selSize}
+                        label={rangeData.label}
+                        payload={rangeData.payload}
+                        onColor={applyColorToSelection}
+                        onClear={() => setSelection(null)}
+                      />
+                    ) : (
+                      <VerseToolbar
+                        color={color}
+                        bookmarked={!!bookmarks[v.n]}
+                        noteDraft={noteDraft}
+                        reference={`${bookTitle} ${chapter}:${v.n}`}
+                        verseText={v.text}
+                        isSimple={showingSimple}
+                        onColor={(c) => applyColor(v.n, c)}
+                        onToggleBookmark={() => toggleBookmark(v.n)}
+                        onNoteChange={setNoteDraft}
+                        onSave={() => commitNote(v.n)}
+                        onClose={() => setSelection(null)}
+                      />
+                    ))}
 
                   {openNote === v.n && note && (
                     <NotePanel
                       key={`note-${v.n}`}
                       text={note.text}
-                      onEdit={() => selectVerse(v.n)}
+                      onEdit={() => selectSingle(v.n)}
                       onRemove={() => removeNote(v.n)}
                       onClose={() => setOpenNote(null)}
                     />
@@ -467,10 +567,25 @@ export function ChapterBody({
   );
 }
 
+const emptySubscribe = () => () => {};
+
+// True only after mount and only where the Web Share API exists. Reads as false
+// during SSR and the first client render (hydration-safe) without setState.
+function useCanShare(): boolean {
+  return React.useSyncExternalStore(
+    emptySubscribe,
+    () => typeof navigator !== "undefined" && typeof navigator.share === "function",
+    () => false,
+  );
+}
+
 function VerseToolbar({
   color,
   bookmarked,
   noteDraft,
+  reference,
+  verseText,
+  isSimple,
   onColor,
   onToggleBookmark,
   onNoteChange,
@@ -480,15 +595,40 @@ function VerseToolbar({
   color: HighlightColor | null;
   bookmarked: boolean;
   noteDraft: string;
+  reference: string;
+  verseText: string;
+  isSimple: boolean;
   onColor: (color: HighlightColor | null) => void;
   onToggleBookmark: () => void;
   onNoteChange: (v: string) => void;
   onSave: () => void;
   onClose: () => void;
 }) {
+  const [copied, setCopied] = React.useState(false);
+  const canShare = useCanShare();
+
+  // Attribute paraphrased verses honestly so a shared Simple English line is
+  // never mistaken for the King James text.
+  const attribution = isSimple ? `${reference} (Simple English)` : reference;
+  const payload = `${verseText}\n\n${attribution}`;
+
+  function copy() {
+    navigator.clipboard
+      ?.writeText(payload)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      })
+      .catch(() => {});
+  }
+
+  function share() {
+    navigator.share({ title: reference, text: payload }).catch(() => {});
+  }
+
   return (
     <div className="my-2.5 ml-5 max-w-md rounded-lg border border-border bg-card p-2.5 font-sans animate-in fade-in slide-in-from-top-1 duration-200">
-      <div className="flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
         {HIGHLIGHTS.map((h) => (
           <button
             key={h.key}
@@ -527,6 +667,28 @@ function VerseToolbar({
         </button>
         <button
           type="button"
+          onClick={copy}
+          aria-label={copied ? "Copied" : "Copy verse"}
+          className="flex size-6 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground"
+        >
+          {copied ? (
+            <Check className="size-3.5 text-primary" />
+          ) : (
+            <Copy className="size-3.5" />
+          )}
+        </button>
+        {canShare && (
+          <button
+            type="button"
+            onClick={share}
+            aria-label="Share verse"
+            className="flex size-6 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Share2 className="size-3.5" />
+          </button>
+        )}
+        <button
+          type="button"
           onClick={onClose}
           className="ml-auto text-xs text-muted-foreground hover:text-foreground"
         >
@@ -545,6 +707,95 @@ function VerseToolbar({
         <Button size="sm" onClick={onSave}>
           Save note
         </Button>
+      </div>
+    </div>
+  );
+}
+
+function RangeToolbar({
+  count,
+  label,
+  payload,
+  onColor,
+  onClear,
+}: {
+  count: number;
+  label: string;
+  payload: string;
+  onColor: (color: HighlightColor | null) => void;
+  onClear: () => void;
+}) {
+  const [copied, setCopied] = React.useState(false);
+  const canShare = useCanShare();
+
+  function copy() {
+    navigator.clipboard
+      ?.writeText(payload)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      })
+      .catch(() => {});
+  }
+
+  function share() {
+    navigator.share({ title: label, text: payload }).catch(() => {});
+  }
+
+  return (
+    <div className="my-2.5 ml-5 max-w-md rounded-lg border border-border bg-card p-2.5 font-sans animate-in fade-in slide-in-from-top-1 duration-200">
+      <p className="mb-2 text-xs text-muted-foreground">
+        <span className="font-medium text-foreground">{count} verses</span>{" "}
+        selected · {label}
+      </p>
+      <div className="flex flex-wrap items-center gap-1.5">
+        {HIGHLIGHTS.map((h) => (
+          <button
+            key={h.key}
+            type="button"
+            onClick={() => onColor(h.key)}
+            aria-label={`Highlight ${h.label}`}
+            className={cn("size-6 rounded-full border border-black/10", h.swatch)}
+          />
+        ))}
+        <button
+          type="button"
+          onClick={() => onColor(null)}
+          aria-label="Remove highlights"
+          className="flex size-6 items-center justify-center rounded-full border border-border text-muted-foreground hover:text-foreground"
+        >
+          <X className="size-3.5" />
+        </button>
+        <span className="mx-0.5 h-5 w-px bg-border" />
+        <button
+          type="button"
+          onClick={copy}
+          aria-label={copied ? "Copied" : "Copy passage"}
+          className="flex size-6 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground"
+        >
+          {copied ? (
+            <Check className="size-3.5 text-primary" />
+          ) : (
+            <Copy className="size-3.5" />
+          )}
+        </button>
+        {canShare && (
+          <button
+            type="button"
+            onClick={share}
+            aria-label="Share passage"
+            className="flex size-6 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Share2 className="size-3.5" />
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={onClear}
+          className="ml-auto text-xs text-muted-foreground hover:text-foreground"
+        >
+          Done
+        </button>
       </div>
     </div>
   );

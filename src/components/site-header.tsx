@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
 
 import { Logo } from "@/components/logo";
 import { ThemeSelector } from "@/components/theme-selector";
+import { CommandPaletteTrigger } from "@/components/command-palette-trigger";
 
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
   return (
@@ -35,13 +35,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           >
             My study
           </Link>
-          <Link
-            href="/search"
-            aria-label="Search"
-            className="flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <Search className="size-4" />
-          </Link>
+          <CommandPaletteTrigger />
           <ThemeSelector />
         </nav>
       </div>

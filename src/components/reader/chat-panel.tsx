@@ -125,6 +125,8 @@ export function ChatPanel({
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const abortRef = React.useRef<AbortController | null>(null);
   const atBottomRef = React.useRef(true);
+  const asideRef = React.useRef<HTMLElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
 
   // Keep the latest callbacks without re-running the history effect on each render.
   const loadRef = React.useRef(loadHistory);
@@ -146,15 +148,55 @@ export function ChatPanel({
       .catch(() => {});
   }, [open, deviceId]);
 
-  // Close on Escape, and focus the input when opened.
+  // While open, behave like a real modal: lock background scroll, keep keyboard
+  // focus inside the panel (so Tab can't wander onto the obscured page), close on
+  // Escape, and return focus to the launcher on close.
   React.useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+
+    const trigger = triggerRef.current;
+    const { body, documentElement } = document;
+    const prevOverflow = body.style.overflow;
+    const prevPadding = body.style.paddingRight;
+    // Compensate for the disappearing scrollbar so the page doesn't jump.
+    const scrollbar = window.innerWidth - documentElement.clientWidth;
+    body.style.overflow = "hidden";
+    if (scrollbar > 0) body.style.paddingRight = `${scrollbar}px`;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const root = asideRef.current;
+      if (!root) return;
+      const focusable = root.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey) {
+        if (active === first || !root.contains(active)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !root.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
     window.addEventListener("keydown", onKey);
     const t = setTimeout(() => textareaRef.current?.focus(), 60);
+
     return () => {
       window.removeEventListener("keydown", onKey);
       clearTimeout(t);
+      body.style.overflow = prevOverflow;
+      body.style.paddingRight = prevPadding;
+      trigger?.focus();
     };
   }, [open]);
 
@@ -280,9 +322,12 @@ export function ChatPanel({
   return (
     <>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open study assistant"
+        aria-haspopup="dialog"
+        aria-expanded={open}
         className="fixed right-4 bottom-4 z-30 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95"
       >
         <MessageCircle className="size-5" />
@@ -299,6 +344,7 @@ export function ChatPanel({
       />
 
       <aside
+        ref={asideRef}
         role="dialog"
         aria-modal="true"
         aria-label="Study assistant"

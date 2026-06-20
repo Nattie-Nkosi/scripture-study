@@ -9,7 +9,10 @@ export interface SimpleVerse {
   text: string;
 }
 
-const MAX_BATCH = 20;
+// Smaller batches mean shorter completions, which the model is far less likely
+// to truncate or break into invalid JSON; they also stay within token limits.
+const MAX_BATCH = 12;
+const MAX_ATTEMPTS = 3;
 
 const SYSTEM_PROMPT = [
   "You rewrite King James Version scripture into clear, plain, modern English",
@@ -18,6 +21,8 @@ const SYSTEM_PROMPT = [
   "do not add, omit, interpret, or editorialize; replace archaic words and",
   "grammar (thee, thou, wherefore, it came to pass) with natural modern wording;",
   "keep each verse separate and self-contained.",
+  "In the text, use only single quotes (') for any quotation — never the",
+  'double-quote character (") inside the text, so the JSON stays valid.',
   'Return ONLY valid JSON of the form {"verses":[{"n":<verse number>,"text":"<plain english>"}]},',
   "with exactly one entry per input verse, reusing the given verse numbers.",
 ].join(" ");
@@ -71,35 +76,30 @@ async function translateVerses(verses: SimpleVerse[]): Promise<SimpleVerse[]> {
   });
 }
 
-async function translateBatch(
-  batch: SimpleVerse[],
-): Promise<Map<number, string>> {
-  const groq = getGroqClient();
+const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-  const user =
-    "Rewrite each of these King James verses into plain modern English, " +
-    "reusing the same verse numbers:\n\n" +
-    batch.map((v) => `${v.n}. ${v.text}`).join("\n");
+/** Retryable when the model emitted unparseable/invalid JSON (Groq's JSON mode
+ *  rejects this with `json_validate_failed`), or on a transient network / rate
+ *  limit / server error. A fresh, lower-temperature sample usually succeeds. */
+function isRetryable(err: unknown): boolean {
+  if (err instanceof SyntaxError) return true; // our own JSON.parse failure
+  const e = err as {
+    status?: number;
+    code?: string;
+    error?: { code?: string; failed_generation?: string };
+  };
+  const code = e?.code ?? e?.error?.code;
+  if (code === "json_validate_failed") return true;
+  if (e?.error?.failed_generation !== undefined) return true;
+  const status = e?.status;
+  if (status === undefined) return true; // network error / our own thrown Error
+  return status === 429 || status >= 500;
+}
 
-  const completion = await groq.chat.completions.create({
-    model: TRANSLATION_MODEL,
-    temperature: 0.3,
-    response_format: { type: "json_object" },
-    messages: [
-      { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: user },
-    ],
-  });
-
-  const content = completion.choices[0]?.message?.content ?? "{}";
-
-  let parsed: { verses?: Array<{ n?: unknown; text?: unknown }> };
-  try {
-    parsed = JSON.parse(content);
-  } catch {
-    throw new Error("The model returned invalid JSON.");
-  }
-
+function parseVerses(content: string): Map<number, string> {
+  const parsed = JSON.parse(content) as {
+    verses?: Array<{ n?: unknown; text?: unknown }>;
+  };
   const map = new Map<number, string>();
   for (const v of parsed.verses ?? []) {
     if (typeof v.n === "number" && typeof v.text === "string" && v.text.trim()) {
@@ -107,4 +107,46 @@ async function translateBatch(
     }
   }
   return map;
+}
+
+async function translateBatch(
+  batch: SimpleVerse[],
+): Promise<Map<number, string>> {
+  const groq = getGroqClient(); // throws on missing key — not worth retrying
+
+  const user =
+    "Rewrite each of these King James verses into plain modern English, " +
+    "reusing the same verse numbers:\n\n" +
+    batch.map((v) => `${v.n}. ${v.text}`).join("\n");
+
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const completion = await groq.chat.completions.create({
+        model: TRANSLATION_MODEL,
+        // Retries drop the temperature so the model sticks closer to clean,
+        // well-formed output.
+        temperature: attempt === 1 ? 0.3 : 0.1,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: user },
+        ],
+      });
+
+      const content = completion.choices[0]?.message?.content ?? "{}";
+      const map = parseVerses(content);
+      if (map.size > 0) return map;
+      throw new Error("The model returned no usable verses.");
+    } catch (err) {
+      lastErr = err;
+      if (attempt < MAX_ATTEMPTS && isRetryable(err)) {
+        await delay(attempt * 400);
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  throw lastErr;
 }

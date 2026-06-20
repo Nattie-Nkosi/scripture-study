@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -50,11 +51,16 @@ export default async function SearchPage({ searchParams }: Props) {
         <SearchBox initialQuery={q} initialVolume={volume} initialScope={scope} />
 
         {q ? (
-          scope === "talks" ? (
-            <TalkResults q={q} page={page} offset={offset} />
-          ) : (
-            <ScriptureResults q={q} volume={volume} page={page} offset={offset} />
-          )
+          <Suspense
+            key={`${scope}:${volume}:${q}:${page}`}
+            fallback={<ResultsSkeleton />}
+          >
+            {scope === "talks" ? (
+              <TalkResults q={q} page={page} offset={offset} />
+            ) : (
+              <ScriptureResults q={q} volume={volume} page={page} offset={offset} />
+            )}
+          </Suspense>
         ) : (
           <p className="mt-10 text-center text-sm text-muted-foreground">
             {scope === "talks" ? (
@@ -105,6 +111,26 @@ function Pager({
       ) : (
         <span />
       )}
+    </div>
+  );
+}
+
+function ResultsSkeleton() {
+  return (
+    <div className="mt-8" aria-hidden>
+      <div className="h-4 w-40 animate-pulse rounded bg-muted" />
+      <ul className="mt-4 divide-y divide-border">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <li key={i} className="py-4">
+            <div className="h-3.5 w-28 animate-pulse rounded bg-muted" />
+            <div className="mt-2 h-3.5 w-full animate-pulse rounded bg-muted" />
+            <div
+              className="mt-1.5 h-3.5 animate-pulse rounded bg-muted"
+              style={{ width: `${72 + ((i * 7) % 24)}%` }}
+            />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { ChevronLeft } from "lucide-react";
 import { ThemeSelector } from "@/components/theme-selector";
 import { FontSizeControl } from "@/components/reader/font-size-control";
 import { ChapterBookmarkButton } from "@/components/reader/chapter-bookmark-button";
+import { CommandPaletteTrigger } from "@/components/command-palette-trigger";
 
 export function ReaderHeader({
   volumeId,
@@ -33,6 +34,7 @@ export function ReaderHeader({
             chapter={chapter}
             bookTitle={bookTitle}
           />
+          <CommandPaletteTrigger iconOnly />
           <FontSizeControl />
           <ThemeSelector />
         </div>

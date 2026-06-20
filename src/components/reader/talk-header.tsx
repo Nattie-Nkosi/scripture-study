@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 
 import { ThemeSelector } from "@/components/theme-selector";
 import { FontSizeControl } from "@/components/reader/font-size-control";
+import { CommandPaletteTrigger } from "@/components/command-palette-trigger";
 
 export function TalkHeader({
   conferenceId,
@@ -22,6 +23,7 @@ export function TalkHeader({
           <span className="truncate font-serif">{conferenceTitle}</span>
         </Link>
         <div className="flex flex-1 items-center justify-end gap-2">
+          <CommandPaletteTrigger iconOnly />
           <FontSizeControl />
           <ThemeSelector />
         </div>
