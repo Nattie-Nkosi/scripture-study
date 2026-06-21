@@ -2,13 +2,21 @@
 
 import Link from "next/link";
 import { Menu } from "@base-ui/react/menu";
-import { Bookmark, Library, Menu as MenuIcon, Mic, Search } from "lucide-react";
+import {
+  Bookmark,
+  Library,
+  Menu as MenuIcon,
+  Mic,
+  Search,
+  Sparkles,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 const ITEMS = [
   { href: "/read", label: "Library", icon: Library },
   { href: "/talks", label: "Conference", icon: Mic },
+  { href: "/ask", label: "Ask", icon: Sparkles },
   { href: "/study", label: "My study", icon: Bookmark },
   { href: "/search", label: "Search", icon: Search },
 ];

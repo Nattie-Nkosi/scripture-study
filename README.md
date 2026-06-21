@@ -32,6 +32,11 @@
   answer lives elsewhere (e.g. who someone's father was), it searches the app's
   own scriptures and talks and answers from the verses it finds, citing the
   reference — rather than relying on the model's memory.
+- **Ask** — a standalone, ChatGPT-style page (`/ask`). It answers anything about
+  the app's resources by searching the standard works and General Conference,
+  grounding every answer in what it finds and citing the reference; it stays on
+  those resources rather than free-associating. The conversation is ephemeral —
+  nothing is stored.
 
 **In the reader**
 
@@ -88,7 +93,9 @@ via **Vercel → Storage → Neon**) and put its pooled connection string in
 - `0004_talk_chat_messages` — conference study-assistant history
 
 The app degrades gracefully without a database: Simple English still translates
-(just uncached) and both assistants still stream (just not saved).
+(just uncached) and the in-reader assistants still stream (their history just
+isn't saved). The standalone Ask page is always ephemeral — it never stores
+conversations.
 
 ## Speaker photos (optional)
 

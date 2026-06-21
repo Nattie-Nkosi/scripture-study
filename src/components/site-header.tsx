@@ -31,6 +31,12 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             Conference
           </Link>
           <Link
+            href="/ask"
+            className="hidden rounded-lg px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:inline-flex"
+          >
+            Ask
+          </Link>
+          <Link
             href="/study"
             className="hidden rounded-lg px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:inline-flex"
           >

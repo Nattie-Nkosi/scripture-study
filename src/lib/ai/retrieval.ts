@@ -152,6 +152,12 @@ export const TALK_TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
   scriptureSearchTool,
 ];
 
+/** Tools offered to the standalone Ask assistant — the whole library. */
+export const ASK_TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
+  scriptureSearchTool,
+  talkSearchTool,
+];
+
 /** Run a tool the scripture assistant requested, returning text for the model. */
 export function runScriptureTool(name: string, argsJson: string): Promise<string> {
   if (name === "search_scriptures") return executeScriptureSearch(parseArgs(argsJson));
@@ -162,5 +168,12 @@ export function runScriptureTool(name: string, argsJson: string): Promise<string
 export function runTalkTool(name: string, argsJson: string): Promise<string> {
   if (name === "search_talks") return executeTalkSearch(parseArgs(argsJson));
   if (name === "search_scriptures") return executeScriptureSearch(parseArgs(argsJson));
+  return Promise.resolve(`Unknown tool "${name}".`);
+}
+
+/** Run a tool the Ask assistant requested (searches the whole library). */
+export function runAskTool(name: string, argsJson: string): Promise<string> {
+  if (name === "search_scriptures") return executeScriptureSearch(parseArgs(argsJson));
+  if (name === "search_talks") return executeTalkSearch(parseArgs(argsJson));
   return Promise.resolve(`Unknown tool "${name}".`);
 }

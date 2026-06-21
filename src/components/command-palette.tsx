@@ -12,6 +12,7 @@ import {
   Loader2,
   Mic,
   Search,
+  Sparkles,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -79,6 +80,7 @@ function splitChapter(query: string): { name: string; chapter: number | null } {
 const NAV_ITEMS: Item[] = [
   { id: "nav-read", group: "Go to", label: "Library", icon: <Library className="size-4" />, href: "/read" },
   { id: "nav-talks", group: "Go to", label: "General Conference", icon: <Mic className="size-4" />, href: "/talks" },
+  { id: "nav-ask", group: "Go to", label: "Ask the assistant", icon: <Sparkles className="size-4" />, href: "/ask" },
   { id: "nav-study", group: "Go to", label: "My study", icon: <Bookmark className="size-4" />, href: "/study" },
   { id: "nav-search", group: "Go to", label: "Search", icon: <Search className="size-4" />, href: "/search" },
   { id: "nav-home", group: "Go to", label: "Home", icon: <House className="size-4" />, href: "/" },
