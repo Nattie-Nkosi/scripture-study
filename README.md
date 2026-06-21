@@ -28,8 +28,10 @@
 - **Simple English** — a per-chapter toggle that rewrites King James verses into
   plain modern English (cached so each verse is only translated once).
 - **Study assistant** — a grounded chat panel that answers questions about the
-  chapter or conference talk you're reading, streaming its response and staying
-  anchored to that text.
+  chapter or conference talk you're reading, streaming its response. When the
+  answer lives elsewhere (e.g. who someone's father was), it searches the app's
+  own scriptures and talks and answers from the verses it finds, citing the
+  reference — rather than relying on the model's memory.
 
 **In the reader**
 

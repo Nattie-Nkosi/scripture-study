@@ -1,8 +1,9 @@
 import type Groq from "groq-sdk";
 
-import { getGroqClient, ASSISTANT_MODEL } from "@/lib/ai/groq";
 import { getChapter } from "@/lib/scripture/client";
 import { buildGroundedMessages } from "@/lib/ai/assistant";
+import { streamAssistantResponse } from "@/lib/ai/chat-runner";
+import { SCRIPTURE_TOOLS, runScriptureTool } from "@/lib/ai/retrieval";
 import { saveChatMessage } from "@/lib/db/chat";
 
 export const runtime = "nodejs";
@@ -58,14 +59,13 @@ export async function POST(req: Request) {
   // Persist the user's message before we start (best effort).
   await saveChatMessage(deviceId, volume, book, chapter, "user", question);
 
-  const groq = getGroqClient();
-  let completion;
   try {
-    completion = await groq.chat.completions.create({
-      model: ASSISTANT_MODEL,
-      temperature: 0.4,
-      stream: true,
+    return await streamAssistantResponse({
       messages: messages as Groq.Chat.Completions.ChatCompletionMessageParam[],
+      tools: SCRIPTURE_TOOLS,
+      runTool: runScriptureTool,
+      onComplete: (full) =>
+        saveChatMessage(deviceId, volume, book, chapter, "assistant", full),
     });
   } catch (err) {
     console.error("[assistant] groq error:", err);
@@ -74,35 +74,4 @@ export async function POST(req: Request) {
       { status: 502 },
     );
   }
-
-  const encoder = new TextEncoder();
-  let full = "";
-
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        for await (const chunk of completion) {
-          const delta = chunk.choices?.[0]?.delta?.content ?? "";
-          if (delta) {
-            full += delta;
-            controller.enqueue(encoder.encode(delta));
-          }
-        }
-      } catch (err) {
-        controller.error(err);
-        return;
-      }
-      controller.close();
-      if (full.trim()) {
-        await saveChatMessage(deviceId, volume, book, chapter, "assistant", full);
-      }
-    },
-  });
-
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "no-store",
-    },
-  });
 }

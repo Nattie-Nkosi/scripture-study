@@ -30,14 +30,14 @@ export function AssistantPanel({
       endpoint="/api/assistant"
       emptyHint={
         <>
-          Ask anything about <span className="font-medium">{label}</span>.
-          Answers stay grounded in this chapter.
+          Ask anything about <span className="font-medium">{label}</span>. Answers
+          start here and can look up related passages across the scriptures.
         </>
       }
       disclaimer={
         <>
           Study aid — <strong>not</strong> an official source of Church doctrine.
-          Answers are AI-generated from this chapter’s text.
+          Answers are AI-generated from this chapter and the scriptures it cites.
         </>
       }
       loadHistory={(deviceId) =>

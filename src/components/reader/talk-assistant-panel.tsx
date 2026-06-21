@@ -30,13 +30,13 @@ export function TalkAssistantPanel({
       emptyHint={
         <>
           Ask anything about <span className="font-medium">“{title}”</span>.
-          Answers stay grounded in this talk.
+          Answers start here and can look up related talks and scriptures.
         </>
       }
       disclaimer={
         <>
           Study aid — <strong>not</strong> an official source of Church doctrine.
-          Answers are AI-generated from this talk’s text.
+          Answers are AI-generated from this talk and the library it cites.
         </>
       }
       loadHistory={(deviceId) => loadTalkChatHistory(deviceId, talkId)}
