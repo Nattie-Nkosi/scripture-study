@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { AssistantMarkdown } from "@/components/chat/assistant-markdown";
+import { AssistantAnswer } from "@/components/chat/assistant-answer";
 import { useDeviceId } from "@/lib/hooks/use-device-id";
 import { useOnlineStatus } from "@/lib/hooks/use-online-status";
 
@@ -456,50 +456,54 @@ function Bubble({
       .catch(() => {});
   }
 
+  if (isUser) {
+    return (
+      <div className="flex flex-col items-end animate-in fade-in slide-in-from-bottom-1 duration-200">
+        <div className="max-w-[85%] rounded-2xl bg-primary px-3.5 py-2 text-sm whitespace-pre-wrap break-words text-primary-foreground">
+          {message.content}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div
-      className={cn(
-        "group flex flex-col animate-in fade-in slide-in-from-bottom-1 duration-200",
-        isUser ? "items-end" : "items-start",
-      )}
-    >
-      <div
-        className={cn(
-          "max-w-[85%] rounded-2xl px-3.5 py-2 text-sm break-words",
-          isUser
-            ? "bg-primary whitespace-pre-wrap text-primary-foreground"
-            : "bg-muted text-foreground",
-        )}
+    <div className="group flex w-full gap-2.5 animate-in fade-in slide-in-from-bottom-1 duration-200">
+      <span
+        aria-hidden
+        className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"
       >
-        {empty && streaming ? (
-          <span className="flex items-center gap-1.5 text-muted-foreground">
-            <Loader2 className="size-3.5 animate-spin" /> Thinking…
-          </span>
-        ) : isUser ? (
-          message.content
-        ) : (
-          <AssistantMarkdown content={message.content} />
+        <Sparkles className="size-3.5" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm break-words text-foreground">
+          {empty && streaming ? (
+            <span className="flex items-center gap-1.5 text-muted-foreground">
+              <Loader2 className="size-3.5 animate-spin" /> Thinking…
+            </span>
+          ) : (
+            <AssistantAnswer content={message.content} linkify={!streaming} />
+          )}
+        </div>
+
+        {!empty && !streaming && (
+          <button
+            type="button"
+            onClick={copy}
+            aria-label="Copy answer"
+            className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground opacity-100 transition-opacity hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
+          >
+            {copied ? (
+              <>
+                <Check className="size-3 animate-in zoom-in duration-200" /> Copied
+              </>
+            ) : (
+              <>
+                <Copy className="size-3" /> Copy
+              </>
+            )}
+          </button>
         )}
       </div>
-
-      {!isUser && !empty && !streaming && (
-        <button
-          type="button"
-          onClick={copy}
-          aria-label="Copy answer"
-          className="mt-1 flex items-center gap-1 text-xs text-muted-foreground opacity-100 transition-opacity hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100"
-        >
-          {copied ? (
-            <>
-              <Check className="size-3" /> Copied
-            </>
-          ) : (
-            <>
-              <Copy className="size-3" /> Copy
-            </>
-          )}
-        </button>
-      )}
     </div>
   );
 }

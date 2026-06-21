@@ -1,27 +1,71 @@
 "use server";
 
 import { findReferences } from "@/lib/scripture/client";
-import { getBookIndexById } from "@/lib/scripture/reference-index";
+import {
+  getBookIndexById,
+  getBookIndexByTitle,
+} from "@/lib/scripture/reference-index";
 import { RESTORATION_BOOKS } from "@/lib/scripture/restoration-refs";
 
 type Span = { start: number; end: number; url: string };
 
 const MAX_INPUT = 20000;
 
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 /** Turn scripture references in assistant text into markdown links to the
  *  reader (e.g. "John 3:16" -> "[John 3:16](/read/newtestament/john/3#v16)").
- *  Restoration scriptures (D&C, Joseph Smith—History, etc.) are matched directly
- *  because the finder mis-parses them; everything else goes through the cached
- *  referencesFinder. Returns the text unchanged on any failure. */
+ *
+ *  Two classes of reference are matched directly, then masked (same length) so
+ *  the Open Scripture finder doesn't re-parse them: numbered books (1 Nephi,
+ *  2 Corinthians, …) — which the finder mis-merges when they follow a comma,
+ *  e.g. "Psalm 23:1, 2 Nephi 2:25" — and Restoration scriptures (D&C, Joseph
+ *  Smith—History, …) it mishandles. Everything else goes through the cached
+ *  finder. Returns the text unchanged on any failure. */
 export async function linkifyScriptureReferences(text: string): Promise<string> {
   if (!text || text.length > MAX_INPUT) return text;
 
   try {
+    const byTitle = await getBookIndexByTitle();
     const spans: Span[] = [];
-    // Mask Restoration references (same length) so the finder doesn't re-parse
-    // them, while keeping every other reference's offsets aligned to `text`.
     let masked = text;
 
+    const maskOut = (start: number, len: number) => {
+      masked =
+        masked.slice(0, start) + " ".repeat(len) + masked.slice(start + len);
+    };
+
+    // 1. Numbered books, resolved through the app's own title index.
+    const numberedTitles = [...byTitle.keys()]
+      .filter((t) => /^\d/.test(t))
+      .sort((a, b) => b.length - a.length);
+
+    if (numberedTitles.length > 0) {
+      const alt = numberedTitles
+        .map((t) => t.split(/\s+/).map(escapeRegExp).join("\\s+"))
+        .join("|");
+      const re = new RegExp(
+        `\\b(${alt})\\s+(\\d+)(?::(\\d+))?(?:\\s*[\\u2013\\u2014-]\\s*\\d+)?`,
+        "gi",
+      );
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(text)) !== null) {
+        const ref = byTitle.get(m[1].toLowerCase().replace(/\s+/g, " "));
+        if (!ref) continue;
+        const chapter = Number(m[2]);
+        const verse = m[3] ? Number(m[3]) : null;
+        spans.push({
+          start: m.index,
+          end: m.index + m[0].length,
+          url: `/read/${ref.volumeId}/${ref.bookId}/${chapter}${verse ? `#v${verse}` : ""}`,
+        });
+        maskOut(m.index, m[0].length);
+      }
+    }
+
+    // 2. Restoration scriptures (D&C, Joseph Smith—History, etc.).
     for (const book of RESTORATION_BOOKS) {
       book.re.lastIndex = 0;
       let m: RegExpExecArray | null;
@@ -33,13 +77,11 @@ export async function linkifyScriptureReferences(text: string): Promise<string> 
           end: m.index + m[0].length,
           url: `/read/${book.volumeId}/${book.id}/${chapter}${verse ? `#v${verse}` : ""}`,
         });
-        masked =
-          masked.slice(0, m.index) +
-          " ".repeat(m[0].length) +
-          masked.slice(m.index + m[0].length);
+        maskOut(m.index, m[0].length);
       }
     }
 
+    // 3. Everything else via the cached finder, on the masked text.
     const [res, bookIndex] = await Promise.all([
       findReferences(masked),
       getBookIndexById(),

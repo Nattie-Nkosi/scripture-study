@@ -5,14 +5,20 @@ import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 const mdComponents: Components = {
-  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+  p: ({ children }) => <p className="mb-2.5 first:mt-0 last:mb-0">{children}</p>,
   ul: ({ children }) => (
-    <ul className="mb-2 list-disc space-y-1 pl-4 last:mb-0">{children}</ul>
+    <ul className="mb-2.5 list-disc space-y-1 pl-5 marker:text-foreground/40 last:mb-0">
+      {children}
+    </ul>
   ),
   ol: ({ children }) => (
-    <ol className="mb-2 list-decimal space-y-1 pl-4 last:mb-0">{children}</ol>
+    <ol className="mb-2.5 list-decimal space-y-1 pl-5 marker:text-foreground/40 last:mb-0">
+      {children}
+    </ol>
   ),
-  li: ({ children }) => <li className="pl-0.5">{children}</li>,
+  // Zero the margin on a list item's wrapping <p> (GFM "loose" lists) so bulleted
+  // answers stay tight instead of double-spaced.
+  li: ({ children }) => <li className="pl-1 [&>p]:mb-0">{children}</li>,
   strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
   em: ({ children }) => <em className="italic">{children}</em>,
   a: ({ href, children }) => {
@@ -22,7 +28,7 @@ const mdComponents: Components = {
       return (
         <Link
           href={href}
-          className="rounded bg-primary/10 px-1 py-px font-medium whitespace-nowrap text-primary no-underline transition-colors hover:bg-primary/20"
+          className="rounded-md bg-primary/10 px-1.5 py-0.5 font-medium whitespace-nowrap text-primary no-underline ring-1 ring-inset ring-primary/15 transition-colors hover:bg-primary/20 hover:ring-primary/30"
         >
           {children}
         </Link>
