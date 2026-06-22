@@ -2,6 +2,7 @@ import "server-only";
 import type Groq from "groq-sdk";
 
 import { getGroqClient, ASSISTANT_MODEL } from "./groq";
+import { NOTICE_PREFIX } from "./stream-markers";
 
 // How many times the model may search before it must answer. Two rounds is
 // plenty (a reformulated follow-up search at most); the final round drops the
@@ -73,6 +74,58 @@ function failedGeneration(err: unknown): string | null {
   return typeof e?.error?.failed_generation === "string"
     ? e.error.failed_generation
     : "";
+}
+
+/** Seconds to wait, from a 429's `retry-after` header, if present. */
+function retryAfterSeconds(err: unknown): number | null {
+  const h = (err as { headers?: unknown }).headers;
+  let raw: string | null = null;
+  if (h && typeof (h as Headers).get === "function") {
+    raw = (h as Headers).get("retry-after");
+  } else if (h && typeof h === "object") {
+    raw = (h as Record<string, string>)["retry-after"] ?? null;
+  }
+  const secs = raw ? parseInt(raw, 10) : NaN;
+  return Number.isFinite(secs) && secs > 0 ? secs : null;
+}
+
+/** A rough, human wait like "about 17 minutes" or "about 2 hours". */
+function humanizeWait(secs: number): string {
+  const mins = Math.ceil(secs / 60);
+  if (mins < 60) return `about ${mins} minute${mins === 1 ? "" : "s"}`;
+  const hours = Math.round(mins / 60);
+  return `about ${hours} hour${hours === 1 ? "" : "s"}`;
+}
+
+/** A reader-facing message for an error that surfaces mid-stream, so we can show
+ *  something calm and explanatory instead of aborting the response (which the
+ *  client sees as a dropped request / 500). */
+function friendlyMessage(err: unknown): string {
+  const e = err as { status?: number; error?: { error?: { code?: string } } };
+  const status = e?.status;
+  const code = e?.error?.error?.code;
+
+  if (status === 429 || code === "rate_limit_exceeded") {
+    const secs = retryAfterSeconds(err);
+    const when = secs
+      ? `It should be available again in ${humanizeWait(secs)} — please try your question then.`
+      : "Please give it a little while, then try your question again.";
+    return (
+      "The study assistant runs on a free AI service that allows a limited " +
+      "amount of use each day, and today's allowance is used up for now. " +
+      when
+    );
+  }
+  if (status === 503 || status === 529 || status === 502) {
+    return (
+      "The study assistant is busy right now. This usually clears up quickly — " +
+      "please wait a moment and try your question again."
+    );
+  }
+  return (
+    "Something went wrong reaching the study assistant. This is usually " +
+    "temporary — please try your question again in a moment."
+  );
 }
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -287,7 +340,23 @@ export async function streamAssistantResponse(opts: {
           }
         }
       } catch (err) {
-        controller.error(err);
+        // A mid-stream failure (e.g. Groq 429 rate limit) would otherwise abort
+        // the response — the client sees a dropped request and a 500 is logged.
+        // Instead, surface a calm message in the stream and close cleanly. The
+        // error is left out of `onComplete`, so it's never saved as a real turn.
+        console.error("[chat-runner] stream error:", err);
+        try {
+          // NOTICE_PREFIX marks this as a system notice so the client renders it
+          // as a warning rather than a normal answer.
+          await emitChunked(controller, encoder, NOTICE_PREFIX + friendlyMessage(err));
+          controller.close();
+        } catch {
+          try {
+            controller.close();
+          } catch {
+            // Stream already torn down — nothing more we can do.
+          }
+        }
         return;
       }
 
