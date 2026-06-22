@@ -33,10 +33,11 @@
   own scriptures and talks and answers from the verses it finds, citing the
   reference — rather than relying on the model's memory.
 - **Ask** — a standalone, ChatGPT-style page (`/ask`). It answers anything about
-  the app's resources by searching the standard works and General Conference,
-  grounding every answer in what it finds and citing the reference; it stays on
-  those resources rather than free-associating. The conversation is ephemeral —
-  nothing is stored.
+  the app's resources by searching the standard works and General Conference —
+  **semantically, by meaning, not just keywords** (see [Semantic
+  search](#semantic-search)) — grounding every answer in what it finds and citing
+  the reference; it stays on those resources rather than free-associating. The
+  conversation is ephemeral — nothing is stored.
 
 **In the reader**
 
@@ -48,8 +49,11 @@
 
 - Next.js (App Router, TypeScript) · Tailwind CSS v4 · shadcn/ui (Base UI
   primitives) · lucide icons · next-themes
-- Neon (serverless Postgres) for the translation cache, chat history, and notes
-- Groq for the AI features (free, no credit card)
+- Neon (serverless Postgres) for the translation cache, chat history, notes, and
+  the semantic-search index (`pgvector`)
+- Groq for the chat AI; `all-MiniLM-L6-v2` sentence embeddings for semantic
+  search — run locally via Transformers.js in dev, Hugging Face Inference in
+  production. All free, no credit card.
 - Text from the [Open Scripture API](https://openscriptureapi.org) — both the
   scripture and General Conference endpoints (no key)
 - Deploys to Vercel
@@ -74,7 +78,13 @@ is ever exposed to the browser.
    ```bash
    npm run db:migrate
    ```
-4. Run the app:
+4. (Optional) Build the semantic-search index — embeds the standard works into
+   `pgvector` so Ask can search by meaning. It's resumable, and the app falls
+   back to keyword search without it. See [Semantic search](#semantic-search).
+   ```bash
+   npm run db:embed
+   ```
+5. Run the app:
    ```bash
    npm run dev
    ```
@@ -91,11 +101,29 @@ via **Vercel → Storage → Neon**) and put its pooled connection string in
 - `0002_chat_messages` — scripture study-assistant history
 - `0003_verse_annotations` — highlights and notes
 - `0004_talk_chat_messages` — conference study-assistant history
+- `0005_scripture_embeddings` — `pgvector` index for semantic Ask search
 
 The app degrades gracefully without a database: Simple English still translates
 (just uncached) and the in-reader assistants still stream (their history just
 isn't saved). The standalone Ask page is always ephemeral — it never stores
 conversations.
+
+## Semantic search
+
+**Ask** (and the assistants' scripture lookups) retrieve verses by meaning, not
+just keywords, using `all-MiniLM-L6-v2` sentence embeddings stored in Neon
+(`pgvector`). Semantic hits are blended with the keyword search, so exact names
+and phrases still land.
+
+- **Index the corpus once** with `npm run db:embed` (resumable; ~42k verses). The
+  model is loaded from `.models/` — fetched on first run, or pre-downloaded there
+  if your network can't reach the Hugging Face CDN.
+- **Query embeddings:** in dev the model runs locally (no key). Serverless
+  (production) can't run it, so set `HF_TOKEN` and the query is embedded via
+  Hugging Face's hosted inference for the *same* model — keeping the vectors
+  compatible with the index.
+- **Always safe:** with no index, no `HF_TOKEN` in production, or Hugging Face
+  unavailable, Ask falls back to keyword search — it never breaks.
 
 ## Speaker photos (optional)
 
@@ -112,9 +140,14 @@ details (including remote/CDN sources).
    automatically. Otherwise add it under **Settings → Environment Variables**.
 3. Add **`GROQ_API_KEY`** (and optionally `GROQ_TRANSLATION_MODEL` /
    `GROQ_ASSISTANT_MODEL`) under Environment Variables.
-4. Apply migrations to the production database once (the same Neon DB used in
-   `.env.local` is fine): `npm run db:migrate`.
-5. Deploy.
+4. For semantic Ask search in production, add **`HF_TOKEN`** — a free read token
+   from <https://huggingface.co/settings/tokens>. Serverless can't run the local
+   embedding model, so the query is embedded via Hugging Face's hosted inference;
+   without it, Ask falls back to keyword search.
+5. Apply migrations to the production database once (the same Neon DB used in
+   `.env.local` is fine): `npm run db:migrate`. Then build the semantic index
+   against it with `npm run db:embed`.
+6. Deploy.
 
 ## Notes
 
