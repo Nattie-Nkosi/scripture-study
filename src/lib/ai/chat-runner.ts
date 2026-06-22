@@ -91,6 +91,68 @@ async function emitChunked(
   }
 }
 
+// Tool-call tags the model can leak even when no tools are offered. While the
+// final answer streams live, we must never let one — or a partial prefix of one
+// — reach the reader, so the streamer holds back a short tail until it resolves
+// and stops emitting once a tag actually opens.
+const SENTINEL_HEADS = ["<function", "<tool_call"] as const;
+const MAX_SENTINEL_HEAD = 10;
+
+/** The offset from which `buf` might be starting to build a sentinel head;
+ *  everything from there on is held back until the next delta resolves it. */
+function partialSentinelStart(buf: string): number {
+  const from = Math.max(0, buf.length - MAX_SENTINEL_HEAD);
+  for (let i = from; i < buf.length; i++) {
+    const tail = buf.slice(i);
+    if (SENTINEL_HEADS.some((h) => h.startsWith(tail))) return i;
+  }
+  return buf.length;
+}
+
+/** Streams a final answer to the reader token-by-token while guarding against a
+ *  leaked tool-call tag: clean text flushes immediately, a partial-tag tail is
+ *  held back, and once a full tag opens the remainder is dropped (and stripped
+ *  from the returned text). Tools are disabled on this turn, so a tag here is a
+ *  rare model slip, not a real call. */
+function makeAnswerStreamer(
+  controller: ReadableStreamDefaultController<Uint8Array>,
+  encoder: TextEncoder,
+) {
+  let buf = "";
+  let sent = 0;
+  let blocked = false;
+
+  function emitTo(idx: number) {
+    if (idx > sent) {
+      controller.enqueue(encoder.encode(buf.slice(sent, idx)));
+      sent = idx;
+    }
+  }
+
+  return {
+    push(text: string) {
+      if (!text) return;
+      buf += text;
+      if (blocked) return;
+      let head = -1;
+      for (const h of SENTINEL_HEADS) {
+        const idx = buf.indexOf(h, sent);
+        if (idx !== -1 && (head === -1 || idx < head)) head = idx;
+      }
+      if (head !== -1) {
+        emitTo(head);
+        blocked = true;
+        return;
+      }
+      emitTo(partialSentinelStart(buf));
+    },
+    finish(): string {
+      if (!blocked) emitTo(buf.length);
+      return stripToolTags(buf);
+    },
+  };
+}
+
 /** Stream a grounded answer, letting the model call retrieval tools first.
  *
  *  Each round is buffered, not streamed live: we read the whole turn, decide
@@ -107,9 +169,14 @@ export async function streamAssistantResponse(opts: {
   tools: Groq.Chat.Completions.ChatCompletionTool[];
   runTool: ToolRunner;
   onComplete?: (full: string) => Promise<void> | void;
+  /** How many tool-offered rounds to allow before the model must answer. The
+   *  answer round (tools disabled) streams live, so a caller that wants live
+   *  streaming after a single search pass can set this to 1. */
+  maxToolRounds?: number;
 }): Promise<Response> {
   const groq = getGroqClient();
   const encoder = new TextEncoder();
+  const maxRounds = opts.maxToolRounds ?? MAX_TOOL_ROUNDS;
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -119,12 +186,19 @@ export async function streamAssistantResponse(opts: {
 
       try {
         for (let round = 0; ; round++) {
-          const offerTools = !toolsDisabled && round < MAX_TOOL_ROUNDS;
+          const offerTools = !toolsDisabled && round < maxRounds;
 
           const native = new Map<number, Call>();
           let content = "";
           let calls: Call[] = [];
           let fromTool = false; // calls came from a tool turn (drop any preamble)
+
+          // With tools disabled this round is the final answer: stream it live.
+          // Tool-offered rounds stay buffered so a preamble that turns out to be
+          // a tool call (or an ungrounded guess) never reaches the reader.
+          const answerStreamer = offerTools
+            ? null
+            : makeAnswerStreamer(controller, encoder);
 
           try {
             const completion = await groq.chat.completions.create({
@@ -139,7 +213,10 @@ export async function streamAssistantResponse(opts: {
             for await (const chunk of completion) {
               const delta = chunk.choices?.[0]?.delta;
               if (!delta) continue;
-              if (delta.content) content += delta.content; // buffered, not shown
+              if (delta.content) {
+                content += delta.content;
+                answerStreamer?.push(delta.content); // live when tools are off
+              }
               for (const tc of delta.tool_calls ?? []) {
                 const cur = native.get(tc.index) ?? { id: "", name: "", args: "" };
                 if (tc.id) cur.id = tc.id;
@@ -159,6 +236,19 @@ export async function streamAssistantResponse(opts: {
             }
             calls = recovered;
             fromTool = true;
+          }
+
+          // Tools were disabled, so this round was the final answer, already
+          // streamed live above. No tool-call detection needed.
+          if (answerStreamer) {
+            const answer = answerStreamer.finish();
+            if (answer) {
+              full = answer;
+            } else {
+              full = "(No response — please try again.)";
+              await emitChunked(controller, encoder, full);
+            }
+            break;
           }
 
           // Native tool call, else a text-format call in the streamed content.

@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Transformers.js (and its onnx runtime) is loaded at runtime in the Node
+  // assistant routes to embed the user's query — keep it out of the bundle.
+  serverExternalPackages: ["@xenova/transformers"],
   async headers() {
     return [
       {

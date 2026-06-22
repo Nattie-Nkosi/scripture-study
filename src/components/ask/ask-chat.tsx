@@ -210,6 +210,7 @@ export function AskChat() {
           <span className="flex items-center gap-1.5 font-display text-sm font-semibold">
             <Sparkles className="size-4 text-primary" />
             Ask
+            <BetaBadge />
           </span>
           <Button variant="ghost" size="sm" onClick={newChat} className="text-muted-foreground">
             <Plus className="size-4" /> New chat
@@ -362,6 +363,17 @@ export function AskChat() {
   );
 }
 
+function BetaBadge() {
+  return (
+    <span
+      title="This feature is in beta and still improving."
+      className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide leading-none text-primary"
+    >
+      Beta
+    </span>
+  );
+}
+
 function EmptyState({
   disabled,
   onPick,
@@ -374,9 +386,12 @@ function EmptyState({
       <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
         <Sparkles className="size-6" />
       </span>
-      <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight">
-        Ask about the scriptures
-      </h1>
+      <div className="mt-5 flex items-center gap-2">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
+          Ask about the scriptures
+        </h1>
+        <BetaBadge />
+      </div>
       <p className="mt-2 max-w-md font-serif leading-relaxed text-muted-foreground text-pretty">
         Questions about the standard works or General Conference — answered from the
         text in this app, with references you can open.

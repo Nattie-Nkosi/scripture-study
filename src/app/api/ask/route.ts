@@ -31,6 +31,10 @@ export async function POST(req: Request) {
       messages: messages as Groq.Chat.Completions.ChatCompletionMessageParam[],
       tools: ASK_TOOLS,
       runTool: runAskTool,
+      // Allow one reformulation: the model can search, read the results, and
+      // search again (e.g. follow a name it just found) before answering. The
+      // final answer round runs with tools disabled and streams live.
+      maxToolRounds: 2,
     });
   } catch (err) {
     console.error("[ask] groq error:", err);
