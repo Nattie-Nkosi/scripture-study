@@ -493,7 +493,7 @@ function Bubble({
               <Loader2 className="size-3.5 animate-spin" /> Searching the library…
             </span>
           ) : (
-            <AssistantAnswer content={message.content} linkify={!streaming} />
+            <AssistantAnswer content={message.content} complete={!streaming} />
           )}
         </div>
 

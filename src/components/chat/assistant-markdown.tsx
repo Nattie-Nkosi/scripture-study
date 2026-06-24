@@ -22,8 +22,7 @@ const mdComponents: Components = {
   strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
   em: ({ children }) => <em className="italic">{children}</em>,
   a: ({ href, children }) => {
-    // Internal links are scripture references injected by linkifyScriptureReferences —
-    // render them as highlighted, in-app reference chips. External links open out.
+    // In-app links render as highlighted reference chips; external links open out.
     if (href && href.startsWith("/")) {
       return (
         <Link
