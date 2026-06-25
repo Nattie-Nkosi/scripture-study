@@ -10,18 +10,31 @@ import {
   HelpCircle,
   Loader2,
   Mic,
+  PanelLeft,
   Plus,
   RotateCcw,
   Send,
   Sparkles,
   Square,
   TriangleAlert,
+  X,
 } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AssistantAnswer } from "@/components/chat/assistant-answer";
+import { SavedChatsPanel } from "@/components/ask/conversations-sidebar";
 import { NOTICE_PREFIX } from "@/lib/ai/stream-markers";
 import { useOnlineStatus } from "@/lib/hooks/use-online-status";
+import { useDeviceId } from "@/lib/hooks/use-device-id";
+import type { AskConversationSummary } from "@/lib/ask/saved-chats";
+import {
+  listSavedChats,
+  loadSavedChat,
+  saveChat,
+  renameSavedChat,
+  deleteSavedChat,
+} from "@/lib/actions/ask-conversations";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -32,11 +45,13 @@ const SUGGESTIONS: { text: string; icon: React.ComponentType<{ className?: strin
   { text: "Explain the Atonement, with scriptures", icon: Sparkles },
 ];
 
-/** A single-thread, ChatGPT-style assistant for the whole library. The
- *  conversation lives only in memory — refreshing or "New chat" clears it,
- *  nothing is stored. */
+/** A ChatGPT-style assistant for the whole library. Chats are auto-saved to a
+ *  "Saved chats" panel, scoped to this device, and pruned a week after they
+ *  start — see src/lib/db/ask-conversations.ts. Without a database everything
+ *  still works, just unsaved (in-memory) for the session. */
 export function AskChat() {
   const online = useOnlineStatus();
+  const deviceId = useDeviceId();
 
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [input, setInput] = React.useState("");
@@ -44,10 +59,90 @@ export function AskChat() {
   const [error, setError] = React.useState<string | null>(null);
   const [showJump, setShowJump] = React.useState(false);
 
+  const [conversations, setConversations] = React.useState<
+    AskConversationSummary[]
+  >([]);
+  const [activeId, setActiveId] = React.useState<string | null>(null);
+  const [listLoading, setListLoading] = React.useState(true);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const abortRef = React.useRef<AbortController | null>(null);
   const atBottomRef = React.useRef(true);
+  // The active id is read inside async stream handlers, so mirror it in a ref.
+  const activeIdRef = React.useRef<string | null>(null);
+
+  function setActive(id: string | null) {
+    activeIdRef.current = id;
+    setActiveId(id);
+  }
+
+  // Load this device's saved chats once it's known. `listLoading` starts true,
+  // so the panel shows a loading hint until this first fetch resolves.
+  React.useEffect(() => {
+    if (!deviceId) return;
+    let cancelled = false;
+    listSavedChats(deviceId)
+      .then((list) => {
+        if (!cancelled) setConversations(list);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setListLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [deviceId]);
+
+  async function refreshConversations() {
+    if (!deviceId) return;
+    const list = await listSavedChats(deviceId).catch(() => null);
+    if (list) setConversations(list);
+  }
+
+  // Persist the finished turn, creating the chat on first save.
+  async function persist(finalMessages: ChatMessage[]) {
+    if (!deviceId) return;
+    const saved = await saveChat(deviceId, activeIdRef.current, finalMessages);
+    if (!saved) return;
+    if (activeIdRef.current !== saved.id) setActive(saved.id);
+    await refreshConversations();
+  }
+
+  async function openChat(id: string) {
+    if (streaming) return;
+    setDrawerOpen(false);
+    if (id === activeIdRef.current) return;
+    abortRef.current?.abort();
+    setError(null);
+    setActive(id);
+    if (!deviceId) return;
+    const msgs = await loadSavedChat(deviceId, id);
+    if (msgs && activeIdRef.current === id) {
+      setMessages(msgs);
+      atBottomRef.current = true;
+      setShowJump(false);
+    }
+  }
+
+  async function renameChat(id: string, title: string) {
+    setConversations((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, title } : c)),
+    );
+    if (deviceId) await renameSavedChat(deviceId, id, title);
+  }
+
+  async function deleteChat(id: string) {
+    setConversations((prev) => prev.filter((c) => c.id !== id));
+    if (activeIdRef.current === id) {
+      setActive(null);
+      setMessages([]);
+      setError(null);
+    }
+    if (deviceId) await deleteSavedChat(deviceId, id);
+  }
 
   // Focus the composer on load, but only with a real pointer — on touch we don't
   // want the keyboard springing up over the suggestions.
@@ -88,10 +183,12 @@ export function AskChat() {
 
   function newChat() {
     abortRef.current?.abort();
+    setActive(null);
     setMessages([]);
     setError(null);
     setInput("");
     setShowJump(false);
+    setDrawerOpen(false);
     if (textareaRef.current) textareaRef.current.style.height = "auto";
     setTimeout(() => textareaRef.current?.focus(), 0);
   }
@@ -135,6 +232,14 @@ export function AskChat() {
     const controller = new AbortController();
     abortRef.current = controller;
 
+    let acc = "";
+    const saveTurn = () =>
+      void persist([
+        ...prior,
+        { role: "user", content: question },
+        { role: "assistant", content: acc },
+      ]);
+
     try {
       const res = await fetch("/api/ask", {
         method: "POST",
@@ -150,7 +255,6 @@ export function AskChat() {
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      let acc = "";
       for (;;) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -158,9 +262,11 @@ export function AskChat() {
         updateLastAssistant(acc);
       }
       if (!acc.trim()) updateLastAssistant("(No response — please try again.)");
+      else saveTurn();
     } catch (err) {
       if ((err as Error).name === "AbortError") {
         dropEmptyPlaceholder();
+        if (acc.trim()) saveTurn(); // keep a stopped-but-partial answer
       } else {
         const offline = typeof navigator !== "undefined" && !navigator.onLine;
         setError(
@@ -205,20 +311,79 @@ export function AskChat() {
 
   const empty = messages.length === 0;
 
+  const savedPanel = (
+    <SavedChatsPanel
+      conversations={conversations}
+      activeId={activeId}
+      loading={listLoading}
+      onNew={newChat}
+      onSelect={openChat}
+      onRename={renameChat}
+      onDelete={deleteChat}
+    />
+  );
+
   return (
-    <div className="flex h-full flex-col">
-      {!empty && (
-        <div className="flex items-center justify-between border-b border-border px-4 py-2">
-          <span className="flex items-center gap-1.5 font-display text-sm font-semibold">
-            <Sparkles className="size-4 text-primary" />
-            Ask
-            <BetaBadge />
-          </span>
+    <div className="flex h-full">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-muted/20 md:flex">
+        <div className="border-b border-border px-3 py-[0.6875rem]">
+          <span className="font-display text-sm font-semibold">Saved chats</span>
+        </div>
+        <div className="min-h-0 flex-1">{savedPanel}</div>
+      </aside>
+
+      <div
+        onClick={() => setDrawerOpen(false)}
+        className={cn(
+          "fixed inset-0 z-40 bg-black/30 transition-opacity md:hidden",
+          drawerOpen ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+        aria-hidden
+      />
+      <aside
+        aria-label="Saved chats"
+        aria-hidden={!drawerOpen}
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85%] flex-col border-r border-border bg-background shadow-xl transition-transform duration-300 md:hidden",
+          drawerOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        <div className="flex items-center justify-between border-b border-border px-3 py-2">
+          <span className="font-display text-sm font-semibold">Saved chats</span>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Close saved chats"
+            onClick={() => setDrawerOpen(false)}
+          >
+            <X />
+          </Button>
+        </div>
+        <div className="min-h-0 flex-1">{savedPanel}</div>
+      </aside>
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex items-center justify-between border-b border-border px-3 py-2">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="md:hidden"
+              aria-label="Open saved chats"
+              onClick={() => setDrawerOpen(true)}
+            >
+              <PanelLeft />
+            </Button>
+            <span className="flex items-center gap-1.5 font-display text-sm font-semibold">
+              <Sparkles className="size-4 text-primary" />
+              Ask
+              <BetaBadge />
+            </span>
+          </div>
           <Button variant="ghost" size="sm" onClick={newChat} className="text-muted-foreground">
             <Plus className="size-4" /> New chat
           </Button>
         </div>
-      )}
 
       {!online && (
         <div className="flex items-start gap-2 border-b border-border bg-amber-500/10 px-4 py-2 text-xs text-foreground/80">
@@ -360,6 +525,7 @@ export function AskChat() {
             </p>
           </div>
         </form>
+      </div>
       </div>
     </div>
   );
