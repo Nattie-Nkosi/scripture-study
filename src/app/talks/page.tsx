@@ -10,6 +10,7 @@ import { conferenceShortTitle, monthName, talkCount } from "@/lib/conference/for
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Ornament } from "@/components/ornament";
+import { ContinueTalk } from "@/components/reader/continue-talk";
 import type { Conference } from "@/lib/conference/types";
 
 export const metadata = {
@@ -85,6 +86,8 @@ export default async function TalksPage() {
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
           </span>
         </Link>
+
+        <ContinueTalk className="mt-4" />
 
         <div className="mt-4 flex flex-wrap gap-3">
           <Link

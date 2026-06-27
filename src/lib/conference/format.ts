@@ -16,3 +16,12 @@ export function conferenceShortTitle(year: number, month: number): string {
 export function talkCount(conference: Conference): number {
   return conference.sessions.reduce((n, s) => n + s.talkIds.length, 0);
 }
+
+/** Estimated reading time in whole minutes (≥1) at an unhurried ~200 wpm. */
+export function readingTimeMinutes(paragraphs: { text: string }[]): number {
+  const words = paragraphs.reduce(
+    (n, p) => n + (p.text.trim() ? p.text.trim().split(/\s+/).length : 0),
+    0,
+  );
+  return Math.max(1, Math.round(words / 200));
+}

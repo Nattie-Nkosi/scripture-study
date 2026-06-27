@@ -32,6 +32,7 @@ import {
 } from "@/lib/study/storage";
 import { FootnoteReferences } from "@/components/reader/footnote-references";
 import { JumpToVerse } from "@/components/reader/jump-to-verse";
+import { HIGHLIGHTS, highlightClass } from "@/lib/study/highlight-colors";
 import type { FootNote } from "@/lib/scripture/types";
 
 /** Above this many verses, offer a "Jump to verse" picker so readers of long
@@ -93,17 +94,6 @@ function renderVerseText(
   });
   nodes.push(text.slice(cursor));
   return nodes;
-}
-
-const HIGHLIGHTS: { key: HighlightColor; label: string; swatch: string; text: string }[] = [
-  { key: "yellow", label: "Yellow", swatch: "bg-yellow-300", text: "bg-yellow-200/70 dark:bg-yellow-300/20" },
-  { key: "green", label: "Green", swatch: "bg-green-300", text: "bg-green-200/70 dark:bg-green-300/20" },
-  { key: "blue", label: "Blue", swatch: "bg-sky-300", text: "bg-sky-200/70 dark:bg-sky-300/20" },
-  { key: "pink", label: "Pink", swatch: "bg-pink-300", text: "bg-pink-200/70 dark:bg-pink-300/20" },
-];
-
-function highlightClass(color: HighlightColor | null): string {
-  return HIGHLIGHTS.find((h) => h.key === color)?.text ?? "";
 }
 
 export function ChapterBody({

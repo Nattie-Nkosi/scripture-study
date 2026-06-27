@@ -3,10 +3,13 @@ import type { Metadata } from "next";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { getTalk, fetchConferenceOrNotFound } from "@/lib/conference/client";
-import { conferenceShortTitle } from "@/lib/conference/format";
+import { conferenceShortTitle, readingTimeMinutes } from "@/lib/conference/format";
 import { TalkHeader } from "@/components/reader/talk-header";
 import { TalkBody } from "@/components/reader/talk-body";
 import { TalkAssistantPanel } from "@/components/reader/talk-assistant-panel";
+import { RecordTalkPosition } from "@/components/reader/record-talk-position";
+import { ReadingProgress } from "@/components/reader/reading-progress";
+import { BackToTop } from "@/components/reader/back-to-top";
 import { Ornament } from "@/components/ornament";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -24,6 +27,7 @@ export default async function TalkPage({ params }: Props) {
   const { talk } = await params;
   const data = await fetchConferenceOrNotFound(() => getTalk(talk));
   const { content } = data;
+  const minutes = readingTimeMinutes(content.paragraphs);
 
   const prevHref = data.prevTalkId
     ? `/talks/${data.conferenceId}/${data.prevTalkId}`
@@ -34,10 +38,17 @@ export default async function TalkPage({ params }: Props) {
 
   return (
     <>
+      <RecordTalkPosition
+        talkId={data._id}
+        conferenceId={data.conferenceId}
+        title={data.title}
+        speaker={data.speaker}
+      />
       <TalkHeader
         conferenceId={data.conferenceId}
         conferenceTitle={conferenceShortTitle(data.year, data.month)}
       />
+      <ReadingProgress />
 
       <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
         <div className="text-center animate-in fade-in duration-500">
@@ -53,10 +64,19 @@ export default async function TalkPage({ params }: Props) {
               {data.role}
             </p>
           )}
+          <p className="mt-3 small-caps text-xs text-muted-foreground">
+            {minutes} min read
+          </p>
           <Ornament className="mt-7" />
         </div>
 
-        <TalkBody paragraphs={content.paragraphs} />
+        <TalkBody
+          paragraphs={content.paragraphs}
+          talkId={data._id}
+          conferenceId={data.conferenceId}
+          title={data.title}
+          speaker={data.speaker}
+        />
 
         <nav className="mx-auto mt-14 flex max-w-2xl items-center justify-between gap-3 border-t pt-6">
           {prevHref ? (
@@ -81,6 +101,8 @@ export default async function TalkPage({ params }: Props) {
           )}
         </nav>
       </main>
+
+      <BackToTop />
 
       <TalkAssistantPanel
         talkId={data._id}

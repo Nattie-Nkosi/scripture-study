@@ -18,6 +18,11 @@ import type {
   HighlightColor,
   LastRead,
   Note,
+  TalkBookmark,
+  TalkHighlight,
+  TalkLastRead,
+  TalkNote,
+  TalkParaRef,
   VerseRef,
 } from "./types";
 
@@ -28,6 +33,11 @@ export type {
   HighlightColor,
   LastRead,
   Note,
+  TalkBookmark,
+  TalkHighlight,
+  TalkLastRead,
+  TalkNote,
+  TalkParaRef,
   VerseRef,
 };
 
@@ -36,6 +46,10 @@ const KEYS = {
   notes: "study:notes",
   bookmarks: "study:bookmarks",
   lastRead: "study:last-read",
+  talkHighlights: "study:talk-highlights",
+  talkNotes: "study:talk-notes",
+  talkBookmarks: "study:talk-bookmarks",
+  talkLastRead: "study:talk-last-read",
 } as const;
 
 function canStore(): boolean {
@@ -224,6 +238,135 @@ export async function setLastRead(input: {
   const record: LastRead = { ...input, updatedAt: Date.now() };
   try {
     window.localStorage.setItem(KEYS.lastRead, JSON.stringify(record));
+  } catch {
+    // Fail quietly — convenience data.
+  }
+}
+
+// --- Talk highlights / notes / bookmarks ------------------------------------
+// Mirror the scripture functions above, anchored by talkId + paragraph. Kept in
+// separate localStorage keys so the two data sets never collide.
+
+function sameTalkPara(a: TalkParaRef, b: TalkParaRef): boolean {
+  return a.talkId === b.talkId && a.paragraph === b.paragraph;
+}
+
+export async function getTalkHighlights(talkId?: string): Promise<TalkHighlight[]> {
+  const all = readList<TalkHighlight>(KEYS.talkHighlights);
+  return talkId ? all.filter((h) => h.talkId === talkId) : all;
+}
+
+export async function saveTalkHighlight(
+  input: TalkParaRef & { color: HighlightColor; title: string; speaker: string },
+): Promise<TalkHighlight> {
+  const list = readList<TalkHighlight>(KEYS.talkHighlights);
+  const now = Date.now();
+  const i = list.findIndex((h) => sameTalkPara(h, input));
+  let record: TalkHighlight;
+  if (i >= 0) {
+    record = { ...list[i], color: input.color, title: input.title, speaker: input.speaker, updatedAt: now };
+    list[i] = record;
+  } else {
+    record = { id: newId(), ...input, createdAt: now, updatedAt: now };
+    list.push(record);
+  }
+  writeList(KEYS.talkHighlights, list);
+  return record;
+}
+
+export async function deleteTalkHighlight(id: string): Promise<void> {
+  writeList(
+    KEYS.talkHighlights,
+    readList<TalkHighlight>(KEYS.talkHighlights).filter((h) => h.id !== id),
+  );
+}
+
+export async function getTalkNotes(talkId?: string): Promise<TalkNote[]> {
+  const all = readList<TalkNote>(KEYS.talkNotes);
+  return talkId ? all.filter((n) => n.talkId === talkId) : all;
+}
+
+export async function saveTalkNote(
+  input: TalkParaRef & { text: string; title: string; speaker: string },
+): Promise<TalkNote> {
+  const list = readList<TalkNote>(KEYS.talkNotes);
+  const now = Date.now();
+  const i = list.findIndex((n) => sameTalkPara(n, input));
+  let record: TalkNote;
+  if (i >= 0) {
+    record = { ...list[i], text: input.text, title: input.title, speaker: input.speaker, updatedAt: now };
+    list[i] = record;
+  } else {
+    record = { id: newId(), ...input, createdAt: now, updatedAt: now };
+    list.push(record);
+  }
+  writeList(KEYS.talkNotes, list);
+  return record;
+}
+
+export async function deleteTalkNote(id: string): Promise<void> {
+  writeList(
+    KEYS.talkNotes,
+    readList<TalkNote>(KEYS.talkNotes).filter((n) => n.id !== id),
+  );
+}
+
+export async function getTalkBookmarks(talkId?: string): Promise<TalkBookmark[]> {
+  const all = readList<TalkBookmark>(KEYS.talkBookmarks).sort(
+    (a, b) => b.createdAt - a.createdAt,
+  );
+  return talkId ? all.filter((b) => b.talkId === talkId) : all;
+}
+
+export async function saveTalkBookmark(input: {
+  talkId: string;
+  conferenceId: string;
+  paragraph: number | null;
+  title: string;
+  speaker: string;
+}): Promise<TalkBookmark> {
+  const list = readList<TalkBookmark>(KEYS.talkBookmarks);
+  const existing = list.find(
+    (b) => b.talkId === input.talkId && b.paragraph === input.paragraph,
+  );
+  if (existing) return existing;
+  const record: TalkBookmark = { id: newId(), ...input, createdAt: Date.now() };
+  list.push(record);
+  writeList(KEYS.talkBookmarks, list);
+  return record;
+}
+
+export async function deleteTalkBookmark(id: string): Promise<void> {
+  writeList(
+    KEYS.talkBookmarks,
+    readList<TalkBookmark>(KEYS.talkBookmarks).filter((b) => b.id !== id),
+  );
+}
+
+// --- Talk reading position --------------------------------------------------
+// A single most-recent talk powers "Continue talk" on the conference page.
+
+export async function getTalkLastRead(): Promise<TalkLastRead | null> {
+  if (!canStore()) return null;
+  try {
+    const raw = window.localStorage.getItem(KEYS.talkLastRead);
+    return raw ? (JSON.parse(raw) as TalkLastRead) : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function setTalkLastRead(input: {
+  talkId: string;
+  conferenceId: string;
+  title: string;
+  speaker: string;
+  paragraph?: number;
+}): Promise<void> {
+  if (!canStore()) return;
+  const record: TalkLastRead = { ...input, updatedAt: Date.now() };
+  try {
+    window.localStorage.setItem(KEYS.talkLastRead, JSON.stringify(record));
   } catch {
     // Fail quietly — convenience data.
   }
