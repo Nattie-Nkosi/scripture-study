@@ -61,15 +61,29 @@
 All Groq, database, and external API calls happen on the server. No secret key
 is ever exposed to the browser.
 
+## Monorepo
+
+This repo is an npm-workspaces monorepo:
+
+- `apps/web` — the public reader app (everything above).
+- `apps/admin` — a separate, password-gated admin console (see [Admin
+  console](#admin-console)).
+- `packages/db` — the shared, server-only data layer (`@gospel/db`) that both
+  apps use to talk to Neon.
+
+Run `npm install` once at the root, then use the root scripts: `npm run dev:web`
+/ `npm run dev:admin`, and `npm run build:web` / `npm run build:admin`. The
+`db:migrate` / `db:embed` scripts also run from the root.
+
 ## Local setup
 
-1. Install dependencies:
+1. Install dependencies (at the repo root):
    ```bash
    npm install
    ```
-2. Copy the env template and fill it in:
+2. Copy the web env template and fill it in:
    ```bash
-   cp .env.example .env.local
+   cp apps/web/.env.example apps/web/.env.local
    ```
    - `GROQ_API_KEY` — from <https://console.groq.com/keys>
    - `DATABASE_URL` — a Neon connection string (see below)
@@ -86,7 +100,7 @@ is ever exposed to the browser.
    ```
 5. Run the app:
    ```bash
-   npm run dev
+   npm run dev:web
    ```
    Open <http://localhost:3000>.
 
@@ -102,6 +116,8 @@ via **Vercel → Storage → Neon**) and put its pooled connection string in
 - `0003_verse_annotations` — highlights and notes
 - `0004_talk_chat_messages` — conference study-assistant history
 - `0005_scripture_embeddings` — `pgvector` index for semantic Ask search
+- `0006_ask_conversations` / `0007_ask_expiry_by_activity` /
+  `0008_ask_conversations_rebuild` — saved Ask chats (auto-pruned by activity)
 
 The app degrades gracefully without a database: Simple English still translates
 (just uncached) and the in-reader assistants still stream (their history just
@@ -133,9 +149,39 @@ by speaker id into `public/speakers/` (e.g. `dallinhoaks.jpg`) and set
 image shows a monogram avatar instead. See `public/speakers/README.md` for
 details (including remote/CDN sources).
 
+## Admin console
+
+`apps/admin` is a **separate** Next.js app for administering the whole app. It's
+gated by HTTP Basic Auth (the browser's native prompt — no login UI) and reads
+the same Neon database via `@gospel/db`.
+
+1. Configure its env:
+   ```bash
+   cp apps/admin/.env.example apps/admin/.env.local
+   ```
+   - `DATABASE_URL` — the same Neon connection string as the web app
+   - `ADMIN_USER` / `ADMIN_PASSWORD` — the Basic Auth credentials
+   - `ADMIN_IP_ALLOWLIST` — optional, comma-separated client IP allowlist
+2. Run it (port 3001):
+   ```bash
+   npm run dev:admin
+   ```
+   Open <http://localhost:3001> and sign in with the credentials above.
+
+It provides four sections: an **Overview** of usage and content metrics; **Saved
+chats** (browse, search, view, and delete Ask conversations across all devices);
+**Embeddings** corpus status; and **Database** health plus the AI translation
+cache. Re-embedding stays on the CLI (`npm run db:embed`) — it's a long, local
+model job that can't run from a serverless request.
+
+On Vercel, deploy it as a **second project** with root directory `apps/admin`,
+and set the four env vars above.
+
 ## Deploying to Vercel
 
-1. Push to a Git repo and import it in Vercel.
+1. Push to a Git repo and import it in Vercel. Set the project's **root
+   directory** to `apps/web` (the admin console is a second project — see
+   [Admin console](#admin-console)).
 2. If you created Neon through Vercel Storage, `DATABASE_URL` is added
    automatically. Otherwise add it under **Settings → Environment Variables**.
 3. Add **`GROQ_API_KEY`** (and optionally `GROQ_TRANSLATION_MODEL` /
