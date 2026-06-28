@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/logo.svg" alt="Scripture Study logo" width="96" height="96" />
+  <img src="apps/web/public/logo.svg" alt="Scripture Study logo" width="96" height="96" />
 </p>
 
 <h1 align="center">Scripture Study</h1>
@@ -71,6 +71,15 @@ This repo is an npm-workspaces monorepo:
 - `packages/db` — the shared, server-only data layer (`@gospel/db`) that both
   apps use to talk to Neon.
 
+```text
+.
+├─ apps/
+│  ├─ web/     # public reader app (Next.js)        → :3000
+│  └─ admin/   # admin console (Next.js, Basic Auth) → :3001
+└─ packages/
+   └─ db/      # @gospel/db — shared, server-only Neon data layer
+```
+
 Run `npm install` once at the root, then use the root scripts: `npm run dev:web`
 / `npm run dev:admin`, and `npm run build:web` / `npm run build:admin`. The
 `db:migrate` / `db:embed` scripts also run from the root.
@@ -109,7 +118,7 @@ Run `npm install` once at the root, then use the root scripts: `npm run dev:web`
 Create a Neon Postgres database (directly at [neon.tech](https://neon.tech) or
 via **Vercel → Storage → Neon**) and put its pooled connection string in
 `DATABASE_URL`. Then run `npm run db:migrate` to apply everything in
-`/migrations`:
+`apps/web/migrations`:
 
 - `0001_ai_translations` — Simple English cache
 - `0002_chat_messages` — scripture study-assistant history
@@ -144,10 +153,10 @@ and phrases still land.
 ## Speaker photos (optional)
 
 Speaker portraits aren't provided by the API. To add your own, drop images named
-by speaker id into `public/speakers/` (e.g. `dallinhoaks.jpg`) and set
+by speaker id into `apps/web/public/speakers/` (e.g. `dallinhoaks.jpg`) and set
 `NEXT_PUBLIC_SPEAKER_PHOTO_URL="/speakers/{id}.jpg"`. Any speaker without an
-image shows a monogram avatar instead. See `public/speakers/README.md` for
-details (including remote/CDN sources).
+image shows a monogram avatar instead. See `apps/web/public/speakers/README.md`
+for details (including remote/CDN sources).
 
 ## Admin console
 
