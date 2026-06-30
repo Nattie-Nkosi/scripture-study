@@ -4,19 +4,29 @@ import type Groq from "groq-sdk";
 import { getGroqClient, ASSISTANT_MODEL } from "./groq";
 import { NOTICE_PREFIX } from "./stream-markers";
 
-// How many times the model may search before it must answer. Two rounds is
-// plenty (a reformulated follow-up search at most); the final round drops the
-// tools so the loop always terminates in a written answer.
+// How many search rounds the model gets before we press it for a written
+// answer. Two is plenty (a reformulated follow-up search at most).
 const MAX_TOOL_ROUNDS = 2;
+
+// Rounds past the search budget the model may still spend before we stop and
+// answer with whatever we have. Keeps the loop terminating even if the model
+// keeps trying to search after being told to answer.
+const EXTRA_ANSWER_ROUNDS = 2;
+
+// Injected once the search budget is spent, to steer the model off further tool
+// calls and into a final prose answer (we keep tools offered — see the loop).
+const ANSWER_NOW =
+  "You now have enough from the searches above. Answer the question directly " +
+  "in prose, citing the relevant scripture or talk references. Do not search again.";
 
 type ToolRunner = (name: string, argsJson: string) => Promise<string>;
 
 type Call = { id: string; name: string; args: string };
 
-// Llama on Groq is unreliable at native tool calls: it often emits a call as
-// TEXT in the content stream (`<function=search_scriptures>{…}</function>`), and
-// sometimes emits malformed syntax (a missing `>`) that Groq itself rejects with
-// a `tool_use_failed` 400 — handing the botched call back in `failed_generation`.
+// Open models on Groq are loose with native tool calls: a call can arrive as
+// TEXT in the content stream (`<function=search_scriptures>{…}</function>`), or
+// as malformed syntax (a missing `>`) that Groq itself rejects with a
+// `tool_use_failed` 400 — handing the botched call back in `failed_generation`.
 // This lenient matcher recovers the call from any of those forms (the `>` and
 // the closing tag are both optional) so the search still runs.
 const FUNCTION_TAG =
@@ -53,7 +63,7 @@ function toCalls(round: number, parsed: { name: string; args: string }[]): Call[
 }
 
 /** Remove any leaked tool-call tags from a final answer (belt-and-suspenders for
- *  a model that emits one even when no tools were offered). */
+ *  a model that emits one mid-prose). */
 function stripToolTags(content: string): string {
   return content
     .replace(FUNCTION_TAG, "")
@@ -139,71 +149,13 @@ async function emitChunked(
 ): Promise<void> {
   const CHUNK = 24;
   for (let i = 0; i < text.length; i += CHUNK) {
-    controller.enqueue(encoder.encode(text.slice(i, i + CHUNK)));
+    try {
+      controller.enqueue(encoder.encode(text.slice(i, i + CHUNK)));
+    } catch {
+      return; // consumer disconnected (e.g. user hit Stop) — nothing to emit to
+    }
     if (i + CHUNK < text.length) await delay(10);
   }
-}
-
-// Tool-call tags the model can leak even when no tools are offered. While the
-// final answer streams live, we must never let one — or a partial prefix of one
-// — reach the reader, so the streamer holds back a short tail until it resolves
-// and stops emitting once a tag actually opens.
-const SENTINEL_HEADS = ["<function", "<tool_call"] as const;
-const MAX_SENTINEL_HEAD = 10;
-
-/** The offset from which `buf` might be starting to build a sentinel head;
- *  everything from there on is held back until the next delta resolves it. */
-function partialSentinelStart(buf: string): number {
-  const from = Math.max(0, buf.length - MAX_SENTINEL_HEAD);
-  for (let i = from; i < buf.length; i++) {
-    const tail = buf.slice(i);
-    if (SENTINEL_HEADS.some((h) => h.startsWith(tail))) return i;
-  }
-  return buf.length;
-}
-
-/** Streams a final answer to the reader token-by-token while guarding against a
- *  leaked tool-call tag: clean text flushes immediately, a partial-tag tail is
- *  held back, and once a full tag opens the remainder is dropped (and stripped
- *  from the returned text). Tools are disabled on this turn, so a tag here is a
- *  rare model slip, not a real call. */
-function makeAnswerStreamer(
-  controller: ReadableStreamDefaultController<Uint8Array>,
-  encoder: TextEncoder,
-) {
-  let buf = "";
-  let sent = 0;
-  let blocked = false;
-
-  function emitTo(idx: number) {
-    if (idx > sent) {
-      controller.enqueue(encoder.encode(buf.slice(sent, idx)));
-      sent = idx;
-    }
-  }
-
-  return {
-    push(text: string) {
-      if (!text) return;
-      buf += text;
-      if (blocked) return;
-      let head = -1;
-      for (const h of SENTINEL_HEADS) {
-        const idx = buf.indexOf(h, sent);
-        if (idx !== -1 && (head === -1 || idx < head)) head = idx;
-      }
-      if (head !== -1) {
-        emitTo(head);
-        blocked = true;
-        return;
-      }
-      emitTo(partialSentinelStart(buf));
-    },
-    finish(): string {
-      if (!blocked) emitTo(buf.length);
-      return stripToolTags(buf);
-    },
-  };
 }
 
 /** Stream a grounded answer, letting the model call retrieval tools first.
@@ -212,8 +164,12 @@ function makeAnswerStreamer(
  *  whether it's a tool call or the final answer, run any searches, and only then
  *  reveal the vetted answer. Tool calls are recovered from the native field, from
  *  text in the content, or from `failed_generation` when Groq 400s on malformed
- *  syntax — so a flaky tool call never leaks a raw tag or 500s the request. The
- *  final round drops the tools so the loop always ends in a written answer.
+ *  syntax — so a flaky tool call never leaks a raw tag or 500s the request.
+ *
+ *  Tools stay offered every round: gpt-oss returns a 400 (`tool_use_failed`,
+ *  "tool choice is none, but model called a tool") if we drop them to force an
+ *  answer, so once the search budget is spent we press for prose with an
+ *  instruction instead, and a hard round cap guarantees the loop terminates.
  *
  *  `getGroqClient()` is called up front so a missing key rejects before we
  *  commit to a streaming Response (the caller can still return a clean error). */
@@ -222,36 +178,32 @@ export async function streamAssistantResponse(opts: {
   tools: Groq.Chat.Completions.ChatCompletionTool[];
   runTool: ToolRunner;
   onComplete?: (full: string) => Promise<void> | void;
-  /** How many tool-offered rounds to allow before the model must answer. The
-   *  answer round (tools disabled) streams live, so a caller that wants live
-   *  streaming after a single search pass can set this to 1. */
+  /** How many search rounds to allow before pressing the model for an answer. */
   maxToolRounds?: number;
 }): Promise<Response> {
   const groq = getGroqClient();
   const encoder = new TextEncoder();
   const maxRounds = opts.maxToolRounds ?? MAX_TOOL_ROUNDS;
+  const hardCap = maxRounds + EXTRA_ANSWER_ROUNDS;
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const work = [...opts.messages];
       let full = "";
-      let toolsDisabled = false; // set after an unrecoverable tool failure
 
       try {
         for (let round = 0; ; round++) {
-          const offerTools = !toolsDisabled && round < maxRounds;
+          // Once the search budget is spent, press for a written answer. Tools
+          // stay offered (gpt-oss 400s if asked to answer with tools removed),
+          // so we steer with an instruction rather than `tool_choice`.
+          if (round === maxRounds) {
+            work.push({ role: "user", content: ANSWER_NOW });
+          }
 
           const native = new Map<number, Call>();
           let content = "";
           let calls: Call[] = [];
           let fromTool = false; // calls came from a tool turn (drop any preamble)
-
-          // With tools disabled this round is the final answer: stream it live.
-          // Tool-offered rounds stay buffered so a preamble that turns out to be
-          // a tool call (or an ungrounded guess) never reaches the reader.
-          const answerStreamer = offerTools
-            ? null
-            : makeAnswerStreamer(controller, encoder);
 
           try {
             const completion = await groq.chat.completions.create({
@@ -259,17 +211,14 @@ export async function streamAssistantResponse(opts: {
               temperature: 0.4,
               stream: true,
               messages: work,
-              tools: offerTools ? opts.tools : undefined,
-              tool_choice: offerTools ? "auto" : undefined,
+              tools: opts.tools,
+              tool_choice: "auto",
             });
 
             for await (const chunk of completion) {
               const delta = chunk.choices?.[0]?.delta;
               if (!delta) continue;
-              if (delta.content) {
-                content += delta.content;
-                answerStreamer?.push(delta.content); // live when tools are off
-              }
+              if (delta.content) content += delta.content;
               for (const tc of delta.tool_calls ?? []) {
                 const cur = native.get(tc.index) ?? { id: "", name: "", args: "" };
                 if (tc.id) cur.id = tc.id;
@@ -279,36 +228,21 @@ export async function streamAssistantResponse(opts: {
               }
             }
           } catch (err) {
-            // Groq rejected a malformed tool call — recover it from the payload.
-            const failed = offerTools ? failedGeneration(err) : null;
+            // Groq rejected a malformed/disallowed tool call — recover it from
+            // the payload so the search still runs.
+            const failed = failedGeneration(err);
             if (failed === null) throw err;
             const recovered = toCalls(round, parseTextualToolCalls(failed));
-            if (recovered.length === 0) {
-              toolsDisabled = true; // give up on tools; answer plainly next round
-              continue;
-            }
+            if (recovered.length === 0) throw err;
             calls = recovered;
             fromTool = true;
           }
 
-          // Tools were disabled, so this round was the final answer, already
-          // streamed live above. No tool-call detection needed.
-          if (answerStreamer) {
-            const answer = answerStreamer.finish();
-            if (answer) {
-              full = answer;
-            } else {
-              full = "(No response — please try again.)";
-              await emitChunked(controller, encoder, full);
-            }
-            break;
-          }
-
-          // Native tool call, else a text-format call in the streamed content.
+          // Native tool call, else a text-format call leaked into the content.
           if (calls.length === 0) {
             calls = [...native.values()].filter((c) => c.id && c.name);
             if (calls.length > 0) fromTool = true;
-            else if (offerTools) {
+            else {
               const textual = toCalls(round, parseTextualToolCalls(content));
               if (textual.length > 0) {
                 calls = textual;
@@ -317,7 +251,9 @@ export async function streamAssistantResponse(opts: {
             }
           }
 
-          if (calls.length === 0) {
+          // No tool call — or we've hit the ceiling — so this round is the
+          // answer: vet it and reveal it.
+          if (calls.length === 0 || round >= hardCap) {
             full = stripToolTags(content) || "(No response — please try again.)";
             await emitChunked(controller, encoder, full);
             break;

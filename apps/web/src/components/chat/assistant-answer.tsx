@@ -4,19 +4,24 @@ import * as React from "react";
 import Link from "next/link";
 
 import { AssistantMarkdown } from "./assistant-markdown";
+import { useSmoothStream } from "@/lib/hooks/use-smooth-stream";
 import {
   extractScriptureReferences,
   type ScriptureReference,
 } from "@/lib/actions/references";
 
+// A block caret appended to the text while it's still typing out.
+const CARET = "▍";
+
 // Resolved references, keyed by the original answer text. Persists across
 // re-renders and message remounts so a finished answer is parsed once.
 const CACHE = new Map<string, ScriptureReference[]>();
 
-/** Renders an assistant answer as plain prose, then — once the message is
- *  complete (`complete` true) — lists the scripture references it cites below
- *  as clickable reader links. References resolve a beat after the answer
- *  finishes; while streaming, only the prose shows. */
+/** Renders an assistant answer as prose that types out smoothly (see
+ *  `useSmoothStream`), then — once the text has fully landed and the message is
+ *  complete — lists the scripture references it cites below as clickable reader
+ *  links. References resolve a beat after the answer settles; while it's still
+ *  typing, only the prose shows, trailed by a caret. */
 export function AssistantAnswer({
   content,
   complete,
@@ -25,9 +30,12 @@ export function AssistantAnswer({
   complete: boolean;
 }) {
   const [, force] = React.useReducer((n: number) => n + 1, 0);
+  const displayed = useSmoothStream(content, complete);
+  const settled = complete && displayed.length >= content.length;
+  const typing = !settled && content.trim().length > 0;
 
   React.useEffect(() => {
-    if (!complete || !content.trim() || CACHE.has(content)) return;
+    if (!settled || !content.trim() || CACHE.has(content)) return;
     let alive = true;
     extractScriptureReferences(content)
       .then((refs) => {
@@ -38,13 +46,16 @@ export function AssistantAnswer({
     return () => {
       alive = false;
     };
-  }, [content, complete]);
+  }, [content, settled]);
 
-  const references = complete ? CACHE.get(content) : undefined;
+  const references = settled ? CACHE.get(content) : undefined;
+  // Drop trailing blank lines before the caret so it hugs the last line of text
+  // rather than dropping to a new paragraph between chunks.
+  const text = typing ? `${displayed.replace(/\n+$/, "")}${CARET}` : displayed;
 
   return (
     <>
-      <AssistantMarkdown content={content} />
+      <AssistantMarkdown content={text} />
       {references && references.length > 0 && (
         <ReferenceList references={references} />
       )}
