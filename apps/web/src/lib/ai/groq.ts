@@ -16,7 +16,7 @@ export function getGroqClient(): Groq {
 }
 
 export const TRANSLATION_MODEL =
-  process.env.GROQ_TRANSLATION_MODEL || "llama-3.3-70b-versatile";
+  process.env.GROQ_TRANSLATION_MODEL || "openai/gpt-oss-120b";
 
 export const ASSISTANT_MODEL =
-  process.env.GROQ_ASSISTANT_MODEL || "llama-3.3-70b-versatile";
+  process.env.GROQ_ASSISTANT_MODEL || "openai/gpt-oss-120b";
