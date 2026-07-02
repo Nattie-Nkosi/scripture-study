@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AssistantAnswer } from "@/components/chat/assistant-answer";
+import { NOTICE_PREFIX } from "@/lib/ai/stream-markers";
 import { useDeviceId } from "@/lib/hooks/use-device-id";
 import { useOnlineStatus } from "@/lib/hooks/use-online-status";
 
@@ -211,6 +212,16 @@ export function ChatPanel({
 
       if (!res.ok || !res.body) {
         const data = await res.json().catch(() => null);
+        if (res.status === 429) {
+          // Throttled: show the limit as a calm notice (not a red error),
+          // matching how a mid-stream rate limit is surfaced.
+          updateLastAssistant(
+            NOTICE_PREFIX +
+              (data?.error ??
+                "You’ve reached the current usage limit. Please wait a little while, then try again."),
+          );
+          return;
+        }
         throw new Error(data?.error ?? "The assistant couldn’t respond.");
       }
 
@@ -444,6 +455,12 @@ function Bubble({
 }) {
   const isUser = message.role === "user";
   const empty = !message.content;
+  // A system notice (e.g. a rate-limit warning) is flagged with a leading marker
+  // by the server — render it as a warning, not as an answer.
+  const isNotice = !isUser && message.content.startsWith(NOTICE_PREFIX);
+  const noticeText = isNotice
+    ? message.content.slice(NOTICE_PREFIX.length).trim()
+    : "";
   const [copied, setCopied] = React.useState(false);
 
   function copy() {
@@ -461,6 +478,22 @@ function Bubble({
       <div className="flex flex-col items-end animate-in fade-in slide-in-from-bottom-1 duration-200">
         <div className="max-w-[85%] rounded-2xl bg-primary px-3.5 py-2 text-sm whitespace-pre-wrap break-words text-primary-foreground">
           {message.content}
+        </div>
+      </div>
+    );
+  }
+
+  if (isNotice) {
+    return (
+      <div className="flex w-full animate-in fade-in slide-in-from-bottom-1 duration-200">
+        <div
+          role="status"
+          className="flex w-full items-start gap-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3.5 py-3 text-sm text-foreground/90"
+        >
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-500" />
+          <p className="min-w-0 flex-1 whitespace-pre-wrap break-words">
+            {noticeText}
+          </p>
         </div>
       </div>
     );

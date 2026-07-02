@@ -5,12 +5,22 @@ import { conferenceShortTitle } from "@/lib/conference/format";
 import { buildTalkGroundedMessages } from "@/lib/ai/talk-assistant";
 import { streamAssistantResponse } from "@/lib/ai/chat-runner";
 import { TALK_TOOLS, runTalkTool } from "@/lib/ai/retrieval";
+import {
+  MAX_QUESTION_CHARS,
+  clampHistory,
+  normalizeQuestion,
+  questionTooLong,
+} from "@/lib/ai/chat-input";
+import { AI_CHAT_RULES, enforceApiRateLimit } from "@/lib/rate-limit";
 import { saveTalkChatMessage } from "@gospel/db";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  const limited = await enforceApiRateLimit(req, AI_CHAT_RULES);
+  if (limited) return limited;
+
   let body: Record<string, unknown>;
   try {
     body = await req.json();
@@ -20,13 +30,17 @@ export async function POST(req: Request) {
 
   const deviceId = typeof body.deviceId === "string" ? body.deviceId : "";
   const talkId = typeof body.talkId === "string" ? body.talkId : "";
-  const question = typeof body.question === "string" ? body.question.trim() : "";
-  const history = Array.isArray(body.history)
-    ? (body.history as { role: "user" | "assistant"; content: string }[])
-    : [];
+  const question = normalizeQuestion(body.question);
+  const history = clampHistory(body.history);
 
   if (!question) {
     return Response.json({ error: "A question is required." }, { status: 400 });
+  }
+  if (questionTooLong(question)) {
+    return Response.json(
+      { error: `Please shorten your question to ${MAX_QUESTION_CHARS} characters or fewer.` },
+      { status: 400 },
+    );
   }
   if (!talkId) {
     return Response.json({ error: "Missing talk context." }, { status: 400 });

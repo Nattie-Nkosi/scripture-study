@@ -250,6 +250,16 @@ export function AskChat() {
 
       if (!res.ok || !res.body) {
         const data = await res.json().catch(() => null);
+        if (res.status === 429) {
+          // Throttled: show the limit as a calm notice (not a red error),
+          // matching how a mid-stream rate limit is surfaced.
+          updateLastAssistant(
+            NOTICE_PREFIX +
+              (data?.error ??
+                "You’ve reached the current usage limit. Please wait a little while, then try again."),
+          );
+          return;
+        }
         throw new Error(data?.error ?? "The assistant couldn’t respond.");
       }
 
@@ -578,6 +588,9 @@ function EmptyState({
           </button>
         ))}
       </div>
+      <p className="mt-6 text-xs text-muted-foreground">
+        Runs on a free AI service, so daily use is limited.
+      </p>
     </div>
   );
 }
