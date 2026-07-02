@@ -23,9 +23,12 @@ function l2normalize(v: number[]): number[] {
 
 // --- Hosted backend (Hugging Face Inference API) ---------------------------
 
+// Hugging Face migrated serverless inference to router.huggingface.co; the old
+// api-inference.huggingface.co host no longer responds. This is the current
+// canonical endpoint for the sentence-transformers feature-extraction pipeline.
 const HF_EMBED_URL =
   process.env.HF_EMBED_URL ||
-  "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2";
+  "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/feature-extraction";
 
 async function embedViaHuggingFace(text: string, token: string): Promise<number[]> {
   for (let attempt = 1; ; attempt++) {
