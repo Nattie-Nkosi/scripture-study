@@ -7,4 +7,5 @@ export * from "./chat";
 export * from "./talk-chat";
 export * from "./embeddings";
 export * from "./translations";
+export * from "./summaries";
 export * from "./ask-conversations";
