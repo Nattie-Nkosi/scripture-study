@@ -33,7 +33,8 @@ import {
 import { FootnoteReferences } from "@/components/reader/footnote-references";
 import { JumpToVerse } from "@/components/reader/jump-to-verse";
 import { AssistantAnswer } from "@/components/chat/assistant-answer";
-import { NOTICE_PREFIX } from "@/lib/ai/stream-markers";
+import { ChapterSummary } from "@/components/reader/chapter-summary";
+import { useStreamedAnswer } from "@/lib/hooks/use-streamed-answer";
 import { HIGHLIGHTS, highlightClass } from "@/lib/study/highlight-colors";
 import type { FootNote } from "@/lib/scripture/types";
 
@@ -429,6 +430,8 @@ export function ChapterBody({
 
         {kjvVerses.length > JUMP_THRESHOLD && <JumpToVerse count={kjvVerses.length} />}
       </div>
+
+      <ChapterSummary book={book} chapter={chapter} />
 
       {mode === "simple" && loading ? (
         <TranslatingState />
@@ -908,8 +911,6 @@ function FootnotePanel({
   );
 }
 
-type ExplainStatus = "loading" | "streaming" | "done" | "notice" | "error";
-
 /** Inline, grounded AI explanation of a single verse. Streams from /api/explain
  *  and renders through the shared AssistantAnswer (smooth reveal + cited
  *  reference chips). A one-shot lookup — no history, nothing persisted. */
@@ -926,90 +927,11 @@ function ExplainPanel({
   reference: string;
   onClose: () => void;
 }) {
-  const [content, setContent] = React.useState("");
-  const [status, setStatus] = React.useState<ExplainStatus>("loading");
-  const [message, setMessage] = React.useState("");
-  const [reloadKey, setReloadKey] = React.useState(0);
-
-  // Fetch + stream on mount (and on retry, via reloadKey). All setState stays
-  // inside promise callbacks — never synchronously in the effect body — so it
-  // doesn't cascade renders. A recursive `pump` reads the stream chunk by chunk.
-  React.useEffect(() => {
-    const controller = new AbortController();
-    let alive = true;
-
-    fetch("/api/explain", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ book, chapter, verse }),
-      signal: controller.signal,
-    })
-      .then((res) => {
-        if (!res.ok || !res.body) {
-          return res
-            .json()
-            .catch(() => null)
-            .then((data) => {
-              if (!alive) return;
-              setMessage(data?.error ?? "Couldn’t explain this verse.");
-              setStatus(res.status === 429 ? "notice" : "error");
-            });
-        }
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let acc = "";
-        let noticed = false;
-        if (alive) setStatus("streaming");
-
-        const pump = (): Promise<void> =>
-          reader.read().then(({ done, value }) => {
-            if (!alive) return;
-            if (done) {
-              if (!noticed) {
-                setStatus(acc.trim() ? "done" : "error");
-                if (!acc.trim()) setMessage("No explanation came back. Please try again.");
-              }
-              return;
-            }
-            acc += decoder.decode(value, { stream: true });
-            // A mid-stream system notice (e.g. Groq rate limit) is flag-prefixed.
-            if (acc.startsWith(NOTICE_PREFIX)) {
-              noticed = true;
-              setMessage(acc.slice(NOTICE_PREFIX.length).trim());
-              setStatus("notice");
-            } else {
-              setContent(acc);
-            }
-            return pump();
-          });
-
-        return pump();
-      })
-      .catch((err) => {
-        if (!alive || (err as Error).name === "AbortError") return;
-        const offline = typeof navigator !== "undefined" && !navigator.onLine;
-        setMessage(
-          offline
-            ? "Explaining needs a connection. The King James text is available offline."
-            : "Couldn’t explain this verse. Please try again.",
-        );
-        setStatus("error");
-      });
-
-    return () => {
-      alive = false;
-      controller.abort();
-    };
-  }, [book, chapter, verse, reloadKey]);
-
-  function retry() {
-    setContent("");
-    setMessage("");
-    setStatus("loading");
-    setReloadKey((k) => k + 1);
-  }
-
+  const { content, status, message, retry } = useStreamedAnswer("/api/explain", {
+    book,
+    chapter,
+    verse,
+  });
   const showSpinner = status === "loading" || (status === "streaming" && !content);
 
   return (
