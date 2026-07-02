@@ -32,6 +32,8 @@ import {
 } from "@/lib/study/storage";
 import { FootnoteReferences } from "@/components/reader/footnote-references";
 import { JumpToVerse } from "@/components/reader/jump-to-verse";
+import { AssistantAnswer } from "@/components/chat/assistant-answer";
+import { NOTICE_PREFIX } from "@/lib/ai/stream-markers";
 import { HIGHLIGHTS, highlightClass } from "@/lib/study/highlight-colors";
 import type { FootNote } from "@/lib/scripture/types";
 
@@ -131,6 +133,7 @@ export function ChapterBody({
     index: number;
   } | null>(null);
   const [openNote, setOpenNote] = React.useState<number | null>(null);
+  const [openExplain, setOpenExplain] = React.useState<number | null>(null);
 
   // Verse arrived at via a #v{n} deep link (e.g. a search result) — highlight it
   // so the reader can spot which verse matched, until they tap elsewhere.
@@ -300,8 +303,16 @@ export function ChapterBody({
   function selectSingle(n: number) {
     setOpenFootnote(null);
     setOpenNote(null);
+    setOpenExplain(null);
     setSelection({ anchor: n, head: n });
     setNoteDraft(notes[n]?.text ?? "");
+  }
+
+  function explainVerse(n: number) {
+    setSelection(null);
+    setOpenNote(null);
+    setOpenFootnote(null);
+    setOpenExplain(n);
   }
 
   function toggleSelect(n: number) {
@@ -317,6 +328,7 @@ export function ChapterBody({
   function extendTo(n: number) {
     setOpenFootnote(null);
     setOpenNote(null);
+    setOpenExplain(null);
     setSelection((cur) =>
       cur ? { anchor: cur.anchor, head: n } : { anchor: n, head: n },
     );
@@ -353,12 +365,14 @@ export function ChapterBody({
   function showFootnote(verse: number, index: number) {
     setSelection(null);
     setOpenNote(null);
+    setOpenExplain(null);
     setOpenFootnote({ verse, index });
   }
 
   function showNote(n: number) {
     setSelection(null);
     setOpenFootnote(null);
+    setOpenExplain(null);
     setOpenNote((cur) => (cur === n ? null : n));
   }
 
@@ -516,6 +530,7 @@ export function ChapterBody({
                         onToggleBookmark={() => toggleBookmark(v.n)}
                         onNoteChange={setNoteDraft}
                         onSave={() => commitNote(v.n)}
+                        onExplain={() => explainVerse(v.n)}
                         onClose={() => setSelection(null)}
                       />
                     ))}
@@ -540,6 +555,17 @@ export function ChapterBody({
                         onClose={() => setOpenFootnote(null)}
                       />
                     )}
+
+                  {openExplain === v.n && (
+                    <ExplainPanel
+                      key={`explain-${v.n}`}
+                      book={book}
+                      chapter={chapter}
+                      verse={v.n}
+                      reference={`${bookTitle} ${chapter}:${v.n}`}
+                      onClose={() => setOpenExplain(null)}
+                    />
+                  )}
                 </div>
               );
             })}
@@ -581,6 +607,7 @@ function VerseToolbar({
   onToggleBookmark,
   onNoteChange,
   onSave,
+  onExplain,
   onClose,
 }: {
   color: HighlightColor | null;
@@ -593,6 +620,7 @@ function VerseToolbar({
   onToggleBookmark: () => void;
   onNoteChange: (v: string) => void;
   onSave: () => void;
+  onExplain: () => void;
   onClose: () => void;
 }) {
   const [copied, setCopied] = React.useState(false);
@@ -686,6 +714,14 @@ function VerseToolbar({
           Done
         </button>
       </div>
+
+      <button
+        type="button"
+        onClick={onExplain}
+        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
+      >
+        <Sparkles className="size-3.5" /> Explain this verse
+      </button>
 
       <textarea
         value={noteDraft}
@@ -868,6 +904,169 @@ function FootnotePanel({
 
       <p className="leading-relaxed text-foreground/90">{text}</p>
       <FootnoteReferences text={text} />
+    </div>
+  );
+}
+
+type ExplainStatus = "loading" | "streaming" | "done" | "notice" | "error";
+
+/** Inline, grounded AI explanation of a single verse. Streams from /api/explain
+ *  and renders through the shared AssistantAnswer (smooth reveal + cited
+ *  reference chips). A one-shot lookup — no history, nothing persisted. */
+function ExplainPanel({
+  book,
+  chapter,
+  verse,
+  reference,
+  onClose,
+}: {
+  book: string;
+  chapter: number;
+  verse: number;
+  reference: string;
+  onClose: () => void;
+}) {
+  const [content, setContent] = React.useState("");
+  const [status, setStatus] = React.useState<ExplainStatus>("loading");
+  const [message, setMessage] = React.useState("");
+  const [reloadKey, setReloadKey] = React.useState(0);
+
+  // Fetch + stream on mount (and on retry, via reloadKey). All setState stays
+  // inside promise callbacks — never synchronously in the effect body — so it
+  // doesn't cascade renders. A recursive `pump` reads the stream chunk by chunk.
+  React.useEffect(() => {
+    const controller = new AbortController();
+    let alive = true;
+
+    fetch("/api/explain", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ book, chapter, verse }),
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (!res.ok || !res.body) {
+          return res
+            .json()
+            .catch(() => null)
+            .then((data) => {
+              if (!alive) return;
+              setMessage(data?.error ?? "Couldn’t explain this verse.");
+              setStatus(res.status === 429 ? "notice" : "error");
+            });
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let acc = "";
+        let noticed = false;
+        if (alive) setStatus("streaming");
+
+        const pump = (): Promise<void> =>
+          reader.read().then(({ done, value }) => {
+            if (!alive) return;
+            if (done) {
+              if (!noticed) {
+                setStatus(acc.trim() ? "done" : "error");
+                if (!acc.trim()) setMessage("No explanation came back. Please try again.");
+              }
+              return;
+            }
+            acc += decoder.decode(value, { stream: true });
+            // A mid-stream system notice (e.g. Groq rate limit) is flag-prefixed.
+            if (acc.startsWith(NOTICE_PREFIX)) {
+              noticed = true;
+              setMessage(acc.slice(NOTICE_PREFIX.length).trim());
+              setStatus("notice");
+            } else {
+              setContent(acc);
+            }
+            return pump();
+          });
+
+        return pump();
+      })
+      .catch((err) => {
+        if (!alive || (err as Error).name === "AbortError") return;
+        const offline = typeof navigator !== "undefined" && !navigator.onLine;
+        setMessage(
+          offline
+            ? "Explaining needs a connection. The King James text is available offline."
+            : "Couldn’t explain this verse. Please try again.",
+        );
+        setStatus("error");
+      });
+
+    return () => {
+      alive = false;
+      controller.abort();
+    };
+  }, [book, chapter, verse, reloadKey]);
+
+  function retry() {
+    setContent("");
+    setMessage("");
+    setStatus("loading");
+    setReloadKey((k) => k + 1);
+  }
+
+  const showSpinner = status === "loading" || (status === "streaming" && !content);
+
+  return (
+    <div className="my-2.5 ml-5 max-w-md rounded-lg border border-primary/25 bg-primary/[0.03] p-3 font-sans text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary/70">
+          <Sparkles className="size-3.5" /> Explain · {reference}
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close explanation"
+          className="text-muted-foreground hover:text-foreground"
+        >
+          <X className="size-4" />
+        </button>
+      </div>
+
+      {showSpinner && (
+        <span className="flex items-center gap-1.5 text-muted-foreground">
+          <Loader2 className="size-3.5 animate-spin" /> Reading this verse…
+        </span>
+      )}
+
+      {content && (
+        <div className="break-words text-foreground">
+          <AssistantAnswer content={content} complete={status === "done"} />
+        </div>
+      )}
+
+      {status === "notice" && (
+        <div
+          role="status"
+          className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-2 text-foreground/90"
+        >
+          <p className="min-w-0 flex-1 break-words">{message}</p>
+        </div>
+      )}
+
+      {status === "error" && (
+        <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
+          <span className="flex-1">{message}</span>
+          <button
+            type="button"
+            onClick={retry}
+            className="font-medium text-primary hover:underline"
+          >
+            Try again
+          </button>
+        </div>
+      )}
+
+      {status === "done" && (
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          A study aid — not an official source of Church doctrine.
+        </p>
+      )}
     </div>
   );
 }
