@@ -5,6 +5,7 @@ import {
   Bookmark as BookmarkIcon,
   Check,
   Copy,
+  Image as ImageIcon,
   Loader2,
   Pencil,
   Share2,
@@ -34,6 +35,7 @@ import { FootnoteReferences } from "@/components/reader/footnote-references";
 import { JumpToVerse } from "@/components/reader/jump-to-verse";
 import { AssistantAnswer } from "@/components/chat/assistant-answer";
 import { ChapterSummary } from "@/components/reader/chapter-summary";
+import { VerseCard } from "@/components/reader/verse-card";
 import { useStreamedAnswer } from "@/lib/hooks/use-streamed-answer";
 import { HIGHLIGHTS, highlightClass } from "@/lib/study/highlight-colors";
 import type { FootNote } from "@/lib/scripture/types";
@@ -135,6 +137,11 @@ export function ChapterBody({
   } | null>(null);
   const [openNote, setOpenNote] = React.useState<number | null>(null);
   const [openExplain, setOpenExplain] = React.useState<number | null>(null);
+  const [card, setCard] = React.useState<{
+    reference: string;
+    text: string;
+    isSimple: boolean;
+  } | null>(null);
 
   // Verse arrived at via a #v{n} deep link (e.g. a search result) — highlight it
   // so the reader can spot which verse matched, until they tap elsewhere.
@@ -386,12 +393,12 @@ export function ChapterBody({
     selection && selSize > 1
       ? (() => {
           const label = `${bookTitle} ${chapter}:${selStart}–${selEnd}`;
-          const body = verses
-            .filter((v) => v.n >= selStart && v.n <= selEnd)
-            .map((v) => `${v.n} ${v.text}`)
-            .join("\n");
+          const inRange = verses.filter((v) => v.n >= selStart && v.n <= selEnd);
+          const body = inRange.map((v) => `${v.n} ${v.text}`).join("\n");
           const attribution = showingSimple ? `${label} (Simple English)` : label;
-          return { label, payload: `${body}\n\n${attribution}` };
+          // The card reads as flowing prose, so drop the inline verse numbers.
+          const cardText = inRange.map((v) => v.text).join(" ");
+          return { label, payload: `${body}\n\n${attribution}`, cardText };
         })()
       : null;
 
@@ -519,6 +526,13 @@ export function ChapterBody({
                         label={rangeData.label}
                         payload={rangeData.payload}
                         onColor={applyColorToSelection}
+                        onMakeCard={() =>
+                          setCard({
+                            reference: rangeData.label,
+                            text: rangeData.cardText,
+                            isSimple: showingSimple,
+                          })
+                        }
                         onClear={() => setSelection(null)}
                       />
                     ) : (
@@ -534,6 +548,13 @@ export function ChapterBody({
                         onNoteChange={setNoteDraft}
                         onSave={() => commitNote(v.n)}
                         onExplain={() => explainVerse(v.n)}
+                        onMakeCard={() =>
+                          setCard({
+                            reference: `${bookTitle} ${chapter}:${v.n}`,
+                            text: v.text,
+                            isSimple: showingSimple,
+                          })
+                        }
                         onClose={() => setSelection(null)}
                       />
                     ))}
@@ -583,6 +604,15 @@ export function ChapterBody({
           )}
         </>
       )}
+
+      {card && (
+        <VerseCard
+          reference={card.reference}
+          text={card.text}
+          isSimple={card.isSimple}
+          onClose={() => setCard(null)}
+        />
+      )}
     </div>
   );
 }
@@ -611,6 +641,7 @@ function VerseToolbar({
   onNoteChange,
   onSave,
   onExplain,
+  onMakeCard,
   onClose,
 }: {
   color: HighlightColor | null;
@@ -624,6 +655,7 @@ function VerseToolbar({
   onNoteChange: (v: string) => void;
   onSave: () => void;
   onExplain: () => void;
+  onMakeCard: () => void;
   onClose: () => void;
 }) {
   const [copied, setCopied] = React.useState(false);
@@ -711,6 +743,14 @@ function VerseToolbar({
         )}
         <button
           type="button"
+          onClick={onMakeCard}
+          aria-label="Share as a card"
+          className="flex size-6 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ImageIcon className="size-3.5" />
+        </button>
+        <button
+          type="button"
           onClick={onClose}
           className="ml-auto text-xs text-muted-foreground hover:text-foreground"
         >
@@ -747,12 +787,14 @@ function RangeToolbar({
   label,
   payload,
   onColor,
+  onMakeCard,
   onClear,
 }: {
   count: number;
   label: string;
   payload: string;
   onColor: (color: HighlightColor | null) => void;
+  onMakeCard: () => void;
   onClear: () => void;
 }) {
   const [copied, setCopied] = React.useState(false);
@@ -819,6 +861,14 @@ function RangeToolbar({
             <Share2 className="size-3.5" />
           </button>
         )}
+        <button
+          type="button"
+          onClick={onMakeCard}
+          aria-label="Share as a card"
+          className="flex size-6 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ImageIcon className="size-3.5" />
+        </button>
         <button
           type="button"
           onClick={onClear}
