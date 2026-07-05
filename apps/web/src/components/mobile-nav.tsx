@@ -36,7 +36,7 @@ export function MobileNav() {
             variant="ghost"
             size="icon-sm"
             aria-label="Open menu"
-            className="sm:hidden"
+            className="lg:hidden"
           />
         }
       >

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Logo } from "@/components/logo";
+import { MainNav } from "@/components/main-nav";
 import { ThemeSelector } from "@/components/theme-selector";
 import { CommandPaletteTrigger } from "@/components/command-palette-trigger";
 import { MobileNav } from "@/components/mobile-nav";
@@ -11,53 +12,21 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
       <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4">
         <Link
           href="/"
-          className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight"
+          className="flex shrink-0 items-center gap-2 font-display text-lg font-semibold tracking-tight"
         >
           <Logo className="size-6 text-primary" />
-          Scripture Study
+          <span className="sr-only sm:not-sr-only">Scripture Study</span>
         </Link>
+
+        <MainNav />
+
         <div className="min-w-0 flex-1">{children}</div>
-        <nav className="flex items-center gap-1.5 sm:gap-1">
-          <Link
-            href="/read"
-            className="hidden rounded-lg px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:inline-flex"
-          >
-            Library
-          </Link>
-          <Link
-            href="/talks"
-            className="hidden rounded-lg px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:inline-flex"
-          >
-            Conference
-          </Link>
-          <Link
-            href="/come-follow-me"
-            className="hidden rounded-lg px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:inline-flex"
-          >
-            Come, Follow Me
-          </Link>
-          <Link
-            href="/study-helps"
-            className="hidden rounded-lg px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:inline-flex"
-          >
-            Study Helps
-          </Link>
-          <Link
-            href="/ask"
-            className="hidden rounded-lg px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:inline-flex"
-          >
-            Ask
-          </Link>
-          <Link
-            href="/study"
-            className="hidden rounded-lg px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:inline-flex"
-          >
-            My study
-          </Link>
+
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-1">
           <CommandPaletteTrigger />
           <ThemeSelector />
           <MobileNav />
-        </nav>
+        </div>
       </div>
     </header>
   );
