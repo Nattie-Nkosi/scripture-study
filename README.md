@@ -5,8 +5,9 @@
 <h1 align="center">Scripture Study</h1>
 
 <p align="center">
-  A clean, modern reader for the LDS standard works <strong>and</strong> General
-  Conference talks — with AI study tools, highlights and notes, and full-text search.
+  A clean, modern reader for the LDS standard works, General Conference talks,
+  <strong>and</strong> the weekly Come, Follow Me curriculum — with AI study
+  tools, highlights and notes, and full-text search.
 </p>
 
 <br />
@@ -20,6 +21,11 @@
   adjustable text size.
 - **General Conference** talks from 1971 to today: browse by conference or by
   speaker, and read each talk in the same reader.
+- **Come, Follow Me** — the weekly home- and church-study curriculum. Browse the
+  year's lessons or open the current week (surfaced on the home page). Each
+  lesson is parsed into sections and teaching ideas, with every scripture
+  reference linked into the reader and tap-to-preview verse chips for the week's
+  study block.
 - Multiple reading themes — Paper, Sepia, Dark, and a true-black Night — plus
   System.
 
@@ -54,8 +60,8 @@
 - Groq for the chat AI; `all-MiniLM-L6-v2` sentence embeddings for semantic
   search — run locally via Transformers.js in dev, Hugging Face Inference in
   production. All free, no credit card.
-- Text from the [Open Scripture API](https://openscriptureapi.org) — both the
-  scripture and General Conference endpoints (no key)
+- Text from the [Open Scripture API](https://openscriptureapi.org) — the
+  scripture, General Conference, and Come, Follow Me (manuals) endpoints (no key)
 - Deploys to Vercel
 
 All Groq, database, and external API calls happen on the server. No secret key
@@ -96,7 +102,7 @@ Run `npm install` once at the root, then use the root scripts: `npm run dev:web`
    ```
    - `GROQ_API_KEY` — from <https://console.groq.com/keys>
    - `DATABASE_URL` — a Neon connection string (see below)
-   - The two `OPENSCRIPTURE_*` base URLs are already defaulted; no key needed
+   - The `OPENSCRIPTURE_*` base URLs are already defaulted; no key needed
 3. Create the database tables:
    ```bash
    npm run db:migrate
