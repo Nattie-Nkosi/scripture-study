@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -6,6 +7,10 @@ import { SiteFooter } from "@/components/site-footer";
 import { Ornament } from "@/components/ornament";
 import { ContinueReading } from "@/components/reader/continue-reading";
 import { DailyVerse } from "@/components/home/daily-verse";
+import {
+  ThisWeekCard,
+  ThisWeekCardSkeleton,
+} from "@/components/come-follow-me/this-week-card";
 import { buttonVariants } from "@/components/ui/button";
 
 const LIBRARY = [
@@ -47,15 +52,12 @@ export default function Home() {
           >
             General Conference
           </Link>
-          <Link
-            href="/come-follow-me"
-            className={buttonVariants({ variant: "outline", size: "lg" })}
-          >
-            Come, Follow Me
-          </Link>
         </div>
 
         <div className="mt-12 flex w-full max-w-md flex-col gap-3 text-left">
+          <Suspense fallback={<ThisWeekCardSkeleton />}>
+            <ThisWeekCard />
+          </Suspense>
           <ContinueReading />
           <DailyVerse />
         </div>
