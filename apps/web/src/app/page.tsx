@@ -47,6 +47,12 @@ export default function Home() {
           >
             General Conference
           </Link>
+          <Link
+            href="/come-follow-me"
+            className={buttonVariants({ variant: "outline", size: "lg" })}
+          >
+            Come, Follow Me
+          </Link>
         </div>
 
         <div className="mt-12 flex w-full max-w-md flex-col gap-3 text-left">

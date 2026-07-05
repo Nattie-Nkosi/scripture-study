@@ -18,6 +18,12 @@ export function SiteFooter() {
           <Link href="/talks" className="transition-colors hover:text-foreground">
             Conference
           </Link>
+          <Link
+            href="/come-follow-me"
+            className="transition-colors hover:text-foreground"
+          >
+            Come, Follow Me
+          </Link>
           <Link href="/search" className="transition-colors hover:text-foreground">
             Search
           </Link>
