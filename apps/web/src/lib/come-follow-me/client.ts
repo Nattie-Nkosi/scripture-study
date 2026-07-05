@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 
+import { fetchWithRetry } from "@/lib/fetch-with-retry";
 import type { Lesson, LessonSummary, LessonsResponse } from "./types";
 
 const DEFAULT_BASE_URL =
@@ -40,7 +41,7 @@ async function apiGet<T>(
 
   let res: Response;
   try {
-    res = await fetch(url, {
+    res = await fetchWithRetry(url, {
       headers: { Accept: "application/json" },
       next: { revalidate },
     });

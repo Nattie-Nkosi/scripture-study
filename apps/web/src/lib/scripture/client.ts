@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 
+import { fetchWithRetry } from "@/lib/fetch-with-retry";
 import type {
   BookDetail,
   ChapterResponse,
@@ -47,7 +48,7 @@ async function apiGet<T>(
 
   let res: Response;
   try {
-    res = await fetch(url, {
+    res = await fetchWithRetry(url, {
       headers: { Accept: "application/json" },
       next: { revalidate },
     });

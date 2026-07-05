@@ -37,6 +37,12 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             Come, Follow Me
           </Link>
           <Link
+            href="/study-helps"
+            className="hidden rounded-lg px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:inline-flex"
+          >
+            Study Helps
+          </Link>
+          <Link
             href="/ask"
             className="hidden rounded-lg px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:inline-flex"
           >

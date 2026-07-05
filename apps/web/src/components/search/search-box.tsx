@@ -17,7 +17,7 @@ const VOLUMES = [
   { id: "pearlofgreatprice", label: "Pearl of Great Price" },
 ];
 
-type Scope = "scripture" | "talks";
+type Scope = "scripture" | "talks" | "study-helps";
 
 export function SearchBox({
   initialQuery = "",
@@ -38,6 +38,8 @@ export function SearchBox({
     const params = new URLSearchParams({ q: query });
     if (nextScope === "talks") {
       params.set("scope", "talks");
+    } else if (nextScope === "study-helps") {
+      params.set("scope", "study-helps");
     } else if (volume) {
       params.set("volume", volume);
     }
@@ -74,6 +76,7 @@ export function SearchBox({
           [
             ["scripture", "Scriptures"],
             ["talks", "Conference"],
+            ["study-helps", "Study Helps"],
           ] as const
         ).map(([value, label]) => (
           <button
@@ -105,7 +108,9 @@ export function SearchBox({
                 ? "Search is offline…"
                 : scope === "talks"
                   ? "Search conference talks…"
-                  : "Search the scriptures…"
+                  : scope === "study-helps"
+                    ? "Search the study helps…"
+                    : "Search the scriptures…"
             }
             autoFocus
             disabled={!online}

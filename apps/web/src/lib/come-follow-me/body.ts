@@ -7,6 +7,7 @@ import {
   type ReferenceSpan,
   type TextSegment,
 } from "@/lib/scripture/reference-linker";
+import { collectStudyHelpSpans } from "@/lib/study-helps/text-references";
 
 export type BlockType = "section" | "subheading" | "note" | "paragraph";
 
@@ -61,18 +62,19 @@ function classify(text: string): BlockType {
 }
 
 /** Parse a lesson body into typed blocks (section / sub-heading / note /
- *  paragraph) with every scripture reference resolved to an inline reader link.
- *  Reference detection runs once over the whole body, then spans are localized
- *  to each block. Falls back to plain paragraphs if reference lookup fails. */
+ *  paragraph) with every reference resolved to an inline link: scripture
+ *  citations into the reader, and "…in the Bible Dictionary / Topical Guide"
+ *  citations into Study Helps. Detection runs once over the whole body, then
+ *  spans are localized to each block. Each collector fails independently, so a
+ *  problem with one still leaves the other's links (and the plain prose). */
 export async function buildLessonBody(text: string): Promise<LessonBlock[]> {
   const blocks = splitBlocks(text).filter((b) => !ARTIFACT_RE.test(b.text));
 
-  let spans: ReferenceSpan[] = [];
-  try {
-    spans = normalizeSpans(await collectReferenceSpans(text));
-  } catch {
-    spans = [];
-  }
+  const [scripture, studyHelps] = await Promise.all([
+    collectReferenceSpans(text).catch(() => [] as ReferenceSpan[]),
+    collectStudyHelpSpans(text).catch(() => [] as ReferenceSpan[]),
+  ]);
+  const spans = normalizeSpans([...scripture, ...studyHelps]);
 
   return blocks.map((block) => {
     const end = block.start + block.text.length;

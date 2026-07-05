@@ -24,6 +24,12 @@ export function SiteFooter() {
           >
             Come, Follow Me
           </Link>
+          <Link
+            href="/study-helps"
+            className="transition-colors hover:text-foreground"
+          >
+            Study Helps
+          </Link>
           <Link href="/search" className="transition-colors hover:text-foreground">
             Search
           </Link>

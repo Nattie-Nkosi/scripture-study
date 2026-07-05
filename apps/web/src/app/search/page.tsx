@@ -16,6 +16,7 @@ import { conferenceShortTitle } from "@/lib/conference/format";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { SearchBox } from "@/components/search/search-box";
+import { StudyHelpSearchResults } from "@/components/study-helps/search-results";
 import { buttonVariants } from "@/components/ui/button";
 
 export const metadata = { title: "Search" };
@@ -35,7 +36,12 @@ export default async function SearchPage({ searchParams }: Props) {
   const sp = await searchParams;
   const q = (sp.q ?? "").trim();
   const volume = sp.volume ?? "";
-  const scope = sp.scope === "talks" ? "talks" : "scripture";
+  const scope =
+    sp.scope === "talks"
+      ? "talks"
+      : sp.scope === "study-helps"
+        ? "study-helps"
+        : "scripture";
   const page = Math.max(1, Number(sp.page ?? "1") || 1);
   const offset = (page - 1) * PAGE_SIZE;
 
@@ -45,7 +51,8 @@ export default async function SearchPage({ searchParams }: Props) {
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:py-14">
         <h1 className="font-display text-4xl font-semibold tracking-tight">Search</h1>
         <p className="mt-2 mb-6 text-muted-foreground">
-          Find verses across the standard works and General Conference talks.
+          Find verses across the standard works, General Conference talks, and
+          the study helps.
         </p>
 
         <SearchBox initialQuery={q} initialVolume={volume} initialScope={scope} />
@@ -57,6 +64,8 @@ export default async function SearchPage({ searchParams }: Props) {
           >
             {scope === "talks" ? (
               <TalkResults q={q} page={page} offset={offset} />
+            ) : scope === "study-helps" ? (
+              <StudyHelpResults q={q} page={page} offset={offset} />
             ) : (
               <ScriptureResults q={q} volume={volume} page={page} offset={offset} />
             )}
@@ -67,6 +76,12 @@ export default async function SearchPage({ searchParams }: Props) {
               <>
                 Try a topic like{" "}
                 <span className="font-medium">&ldquo;spiritual momentum&rdquo;</span>.
+              </>
+            ) : scope === "study-helps" ? (
+              <>
+                Try a topic like{" "}
+                <span className="font-medium">&ldquo;faith&rdquo;</span> or a name
+                like <span className="font-medium">&ldquo;Melchizedek&rdquo;</span>.
               </>
             ) : (
               <>
@@ -255,6 +270,30 @@ async function ScriptureResults({
         linkFor={linkFor}
       />
     </div>
+  );
+}
+
+function StudyHelpResults({
+  q,
+  page,
+  offset,
+}: {
+  q: string;
+  page: number;
+  offset: number;
+}) {
+  const linkFor = (p: number) => {
+    const params = new URLSearchParams({ q, scope: "study-helps" });
+    if (p > 1) params.set("page", String(p));
+    return `/search?${params.toString()}`;
+  };
+  return (
+    <StudyHelpSearchResults
+      q={q}
+      page={page}
+      offset={offset}
+      linkFor={linkFor}
+    />
   );
 }
 

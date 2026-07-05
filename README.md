@@ -6,8 +6,8 @@
 
 <p align="center">
   A clean, modern reader for the LDS standard works, General Conference talks,
-  <strong>and</strong> the weekly Come, Follow Me curriculum — with AI study
-  tools, highlights and notes, and full-text search.
+  the weekly Come, Follow Me curriculum, <strong>and</strong> the scripture
+  study helps — with AI study tools, highlights and notes, and full-text search.
 </p>
 
 <br />
@@ -26,6 +26,10 @@
   lesson is parsed into sections and teaching ideas, with every scripture
   reference linked into the reader and tap-to-preview verse chips for the week's
   study block.
+- **Study Helps** — the scripture study aids: the Bible Dictionary, Topical
+  Guide, Triple Combination Index, and Joseph Smith Translation. Browse each work
+  or search across them, with every citation linked straight into the reader and
+  "see also" cross-links between related entries.
 - Multiple reading themes — Paper, Sepia, Dark, and a true-black Night — plus
   System.
 
@@ -49,7 +53,7 @@
 
 - Highlights and per-verse notes.
 - Footnotes with parsed scripture cross-references and inline verse previews.
-- Full-text search across both scripture and conference talks.
+- Full-text search across scripture, conference talks, and the study helps.
 
 ## Tech stack
 
@@ -61,7 +65,8 @@
   search — run locally via Transformers.js in dev, Hugging Face Inference in
   production. All free, no credit card.
 - Text from the [Open Scripture API](https://openscriptureapi.org) — the
-  scripture, General Conference, and Come, Follow Me (manuals) endpoints (no key)
+  scripture, General Conference, Come, Follow Me (manuals), and study-helps
+  endpoints (no key)
 - Deploys to Vercel
 
 All Groq, database, and external API calls happen on the server. No secret key

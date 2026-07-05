@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Menu } from "@base-ui/react/menu";
 import {
   Bookmark,
+  BookMarked,
   CalendarDays,
   Library,
   Menu as MenuIcon,
@@ -18,6 +19,7 @@ const ITEMS = [
   { href: "/read", label: "Library", icon: Library },
   { href: "/talks", label: "Conference", icon: Mic },
   { href: "/come-follow-me", label: "Come, Follow Me", icon: CalendarDays },
+  { href: "/study-helps", label: "Study Helps", icon: BookMarked },
   { href: "/ask", label: "Ask", icon: Sparkles },
   { href: "/study", label: "My study", icon: Bookmark },
   { href: "/search", label: "Search", icon: Search },

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   BookOpen,
   Bookmark,
+  BookMarked,
   CalendarDays,
   CornerDownLeft,
   House,
@@ -82,6 +83,7 @@ const NAV_ITEMS: Item[] = [
   { id: "nav-read", group: "Go to", label: "Library", icon: <Library className="size-4" />, href: "/read" },
   { id: "nav-talks", group: "Go to", label: "General Conference", icon: <Mic className="size-4" />, href: "/talks" },
   { id: "nav-cfm", group: "Go to", label: "Come, Follow Me", icon: <CalendarDays className="size-4" />, href: "/come-follow-me" },
+  { id: "nav-study-helps", group: "Go to", label: "Study Helps", icon: <BookMarked className="size-4" />, href: "/study-helps" },
   { id: "nav-ask", group: "Go to", label: "Ask the assistant", icon: <Sparkles className="size-4" />, href: "/ask" },
   { id: "nav-study", group: "Go to", label: "My study", icon: <Bookmark className="size-4" />, href: "/study" },
   { id: "nav-search", group: "Go to", label: "Search", icon: <Search className="size-4" />, href: "/search" },
@@ -252,6 +254,13 @@ export function CommandPalette() {
       label: `Search talks for “${q}”`,
       icon: <Mic className="size-4" />,
       href: `/search?scope=talks&q=${encodeURIComponent(q)}`,
+    });
+    list.push({
+      id: "search-study-helps",
+      group: "Search",
+      label: `Search study helps for “${q}”`,
+      icon: <BookMarked className="size-4" />,
+      href: `/search?scope=study-helps&q=${encodeURIComponent(q)}`,
     });
 
     return list;
