@@ -7,15 +7,14 @@ import {
   getLessonsForYear,
   fetchLessonOrNotFound,
 } from "@/lib/come-follow-me/client";
-import {
-  lessonParagraphs,
-  manualName,
-  readingTimeMinutes,
-} from "@/lib/come-follow-me/format";
+import { manualName, readingTimeMinutes } from "@/lib/come-follow-me/format";
 import { resolveLessonReferences } from "@/lib/come-follow-me/references";
+import { buildLessonBody } from "@/lib/come-follow-me/body";
 import { SiteHeader } from "@/components/site-header";
 import { ReadingProgress } from "@/components/reader/reading-progress";
 import { BackToTop } from "@/components/reader/back-to-top";
+import { LessonBody } from "@/components/come-follow-me/lesson-body";
+import { LessonReferences } from "@/components/come-follow-me/lesson-references";
 import { Ornament } from "@/components/ornament";
 import { buttonVariants } from "@/components/ui/button";
 import type { Lesson, LessonSummary } from "@/lib/come-follow-me/types";
@@ -49,12 +48,12 @@ export default async function LessonPage({ params }: Props) {
   const { date } = await params;
   const lesson = await fetchLessonOrNotFound(() => getLesson(date));
 
-  const [references, { prev, next }] = await Promise.all([
+  const [references, blocks, { prev, next }] = await Promise.all([
     resolveLessonReferences(lesson.scriptureReferences),
+    buildLessonBody(lesson.content.text),
     lessonNeighbors(lesson),
   ]);
 
-  const paragraphs = lessonParagraphs(lesson.content.text);
   const minutes = readingTimeMinutes(lesson.content.text);
 
   return (
@@ -86,37 +85,11 @@ export default async function LessonPage({ params }: Props) {
 
         {references.length > 0 && (
           <div className="mt-8">
-            <p className="text-center small-caps text-xs text-muted-foreground">
-              Scripture for this week
-            </p>
-            <div className="mt-3 flex flex-wrap justify-center gap-2">
-              {references.map((ref) =>
-                ref.url ? (
-                  <Link
-                    key={ref.label}
-                    href={ref.url}
-                    className="rounded-full border border-border px-3 py-1 text-sm text-foreground/80 transition-colors hover:border-primary/40 hover:text-primary"
-                  >
-                    {ref.label}
-                  </Link>
-                ) : (
-                  <span
-                    key={ref.label}
-                    className="rounded-full border border-border/60 px-3 py-1 text-sm text-muted-foreground"
-                  >
-                    {ref.label}
-                  </span>
-                ),
-              )}
-            </div>
+            <LessonReferences references={references} />
           </div>
         )}
 
-        <div className="reader-prose mx-auto mt-10 max-w-2xl space-y-5 font-serif text-foreground/90 animate-in fade-in duration-500">
-          {paragraphs.map((para, i) => (
-            <p key={i}>{para}</p>
-          ))}
-        </div>
+        <LessonBody blocks={blocks} />
 
         <nav className="mx-auto mt-14 flex max-w-2xl items-center justify-between gap-3 border-t pt-6">
           {prev ? (

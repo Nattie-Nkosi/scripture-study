@@ -2,14 +2,6 @@
 
 const SMALL_WORDS = new Set(["of", "and", "the", "for", "to", "in"]);
 
-/** Split a lesson body into display paragraphs on blank lines, dropping empties. */
-export function lessonParagraphs(text: string): string[] {
-  return text
-    .split(/\n\s*\n/)
-    .map((p) => p.replace(/\s+\n/g, "\n").trim())
-    .filter(Boolean);
-}
-
 /** Turn a manual id into a readable curriculum label, e.g.
  *  "come-follow-me-for-home-and-church-old-testament-2026" -> "Old Testament". */
 export function manualName(manualId: string): string {
