@@ -41,13 +41,19 @@ export default async function OverviewPage() {
               sub={`across ${fmtNumber(o.conversationDevices)} devices`}
             />
           </Link>
-          <Stat label="Ask messages" value={fmtNumber(o.askMessages)} />
-          <Stat
-            label="Chapter chats"
-            value={fmtNumber(o.chatMessages)}
-            sub={`across ${fmtNumber(o.chatDevices)} devices`}
-          />
-          <Stat label="Talk chats" value={fmtNumber(o.talkMessages)} />
+          <Link href="/questions?source=ask" className="contents">
+            <Stat label="Ask messages" value={fmtNumber(o.askMessages)} />
+          </Link>
+          <Link href="/questions?source=chapter" className="contents">
+            <Stat
+              label="Chapter chats"
+              value={fmtNumber(o.chatMessages)}
+              sub={`across ${fmtNumber(o.chatDevices)} devices`}
+            />
+          </Link>
+          <Link href="/questions?source=talk" className="contents">
+            <Stat label="Talk chats" value={fmtNumber(o.talkMessages)} />
+          </Link>
         </div>
       </section>
 

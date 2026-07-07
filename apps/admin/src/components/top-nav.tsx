@@ -6,12 +6,14 @@ import {
   Boxes,
   Database,
   LayoutDashboard,
+  MessageCircleQuestion,
   MessagesSquare,
   type LucideIcon,
 } from "lucide-react";
 
 const LINKS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
+  { href: "/questions", label: "Questions", icon: MessageCircleQuestion },
   { href: "/chats", label: "Saved chats", icon: MessagesSquare },
   { href: "/embeddings", label: "Embeddings", icon: Boxes },
   { href: "/database", label: "Database", icon: Database },

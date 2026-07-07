@@ -27,3 +27,24 @@ export function shortId(id: string): string {
   if (id.length <= 12) return id;
   return `${id.slice(0, 6)}…${id.slice(-4)}`;
 }
+
+export type QuestionSource = "ask" | "chapter" | "talk";
+
+export function sourceLabel(source: QuestionSource): string {
+  return source === "ask" ? "Ask" : source === "chapter" ? "Chapter" : "Talk";
+}
+
+/** Title-case a book slug for display, e.g. "1-nephi" -> "1 Nephi". */
+export function titleCaseSlug(slug: string): string {
+  return slug
+    .split(/[-\s]+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+/** A reader-facing chapter label, e.g. ("hebrews", 7) -> "Hebrews 7". */
+export function chapterLabel(book: string, chapter: number | null): string {
+  const b = titleCaseSlug(book);
+  return chapter != null ? `${b} ${chapter}` : b;
+}

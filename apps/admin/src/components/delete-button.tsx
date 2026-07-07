@@ -6,12 +6,16 @@ import { Trash2 } from "lucide-react";
 
 // A two-click inline delete: the first click arms a Confirm/Cancel pair, the
 // second runs the bound server action. No native confirm() dialogs.
+// Pass `redirectTo` when the deleted item IS the current page (e.g. a thread
+// detail) — refreshing in place would render a now-missing record.
 export function DeleteButton({
   action,
   label = "Delete",
+  redirectTo,
 }: {
   action: () => Promise<boolean>;
   label?: string;
+  redirectTo?: string;
 }) {
   const router = useRouter();
   const [armed, setArmed] = React.useState(false);
@@ -25,9 +29,10 @@ export function DeleteButton({
           disabled={pending}
           onClick={() =>
             startTransition(async () => {
-              await action();
+              const ok = await action();
               setArmed(false);
-              router.refresh();
+              if (ok && redirectTo) router.push(redirectTo);
+              else router.refresh();
             })
           }
           className="rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
