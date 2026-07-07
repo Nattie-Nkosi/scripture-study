@@ -4,6 +4,9 @@ import type Groq from "groq-sdk";
 import { searchScriptures } from "@/lib/scripture/client";
 import { searchConferenceTalks } from "@/lib/conference/client";
 import { conferenceShortTitle } from "@/lib/conference/format";
+import { searchStudyHelps } from "@/lib/study-helps/client";
+import { typeName } from "@/lib/study-helps/format";
+import type { StudyHelpType } from "@/lib/study-helps/types";
 import { embedText } from "@/lib/ai/embeddings";
 import {
   semanticSearchScriptures,
@@ -265,11 +268,83 @@ async function executeTalkSearch(args: Record<string, unknown>): Promise<string>
   }
 }
 
+// --- search_study_helps -----------------------------------------------------
+
+const STUDY_HELP_TYPE_IDS = ["bd", "tg", "index", "jst"] as const;
+
+export const studyHelpsSearchTool: Groq.Chat.Completions.ChatCompletionTool = {
+  type: "function",
+  function: {
+    name: "search_study_helps",
+    description:
+      "Search the Latter-day Saint scripture study helps — the Bible Dictionary (concise articles on biblical people, places, and subjects), the Topical Guide and Triple Combination Index (scripture citations gathered by topic), and the Joseph Smith Translation (the Prophet's inspired Bible revisions). Use this for a definition, background, or topical cross-references that explain a term, name, or subject rather than a single verse — e.g. what a word means, who a person was, or where to find a topic across scripture. Returns matching entries with the work they come from and their title.",
+    parameters: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description:
+            'A term, name, or topic to look up, e.g. "faith", "Melchizedek", or "baptism for the dead".',
+        },
+        type: {
+          type: "string",
+          enum: [...STUDY_HELP_TYPE_IDS],
+          description:
+            "Optional. Restrict to one work: bd (Bible Dictionary), tg (Topical Guide), index (Triple Combination Index), or jst (Joseph Smith Translation).",
+        },
+      },
+      required: ["query"],
+    },
+  },
+};
+
+async function executeStudyHelpsSearch(args: Record<string, unknown>): Promise<string> {
+  const query = typeof args.query === "string" ? args.query.trim() : "";
+  if (!query) return "No search query was provided.";
+  const type =
+    typeof args.type === "string" &&
+    (STUDY_HELP_TYPE_IDS as readonly string[]).includes(args.type)
+      ? (args.type as StudyHelpType)
+      : undefined;
+
+  try {
+    let res = await searchStudyHelps(query, { limit: MAX_RESULTS, type });
+    let used = query;
+    for (const alt of fallbackQueries(query)) {
+      if (res.results.length > 0) break;
+      res = await searchStudyHelps(alt, { limit: FALLBACK_RESULTS, type });
+      used = alt;
+    }
+    if (res.results.length === 0) {
+      return `No study helps found for "${query}" (also tried its key terms). Tell the reader you couldn't find this rather than guessing.`;
+    }
+    const note = used !== query ? ` (closest match searching "${used}")` : "";
+    const lines = res.results.map(
+      (r) => `${typeName(r.type)} — ${r.title}: ${snippet(r.text)}`,
+    );
+    return (
+      `Study-help entries matching "${query}"${note} — showing ${res.results.length} of ${res.total}:\n` +
+      lines.join("\n")
+    );
+  } catch {
+    return "The study-helps search is unavailable right now. Answer from what you already have, and say you couldn't look further.";
+  }
+}
+
 // --- Tool sets + dispatchers ------------------------------------------------
 
-/** Tools offered to the scripture-chapter assistant. */
+/** Base scripture tool for the inline reader features (explain a verse,
+ *  summarize a chapter) that stay anchored to the open passage. */
 export const SCRIPTURE_TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
   scriptureSearchTool,
+];
+
+/** Tools for the in-reader, passage-grounded features (the chapter assistant and
+ *  the verse "explain") — the base scripture search plus the study helps, so they
+ *  can define terms and follow topical cross-references. */
+export const READER_TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
+  scriptureSearchTool,
+  studyHelpsSearchTool,
 ];
 
 /** Tools offered to the conference-talk assistant (talks quote scripture, so it
@@ -277,17 +352,20 @@ export const SCRIPTURE_TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
 export const TALK_TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
   talkSearchTool,
   scriptureSearchTool,
+  studyHelpsSearchTool,
 ];
 
 /** Tools offered to the standalone Ask assistant — the whole library. */
 export const ASK_TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
   scriptureSearchTool,
   talkSearchTool,
+  studyHelpsSearchTool,
 ];
 
 /** Run a tool the scripture assistant requested, returning text for the model. */
 export function runScriptureTool(name: string, argsJson: string): Promise<string> {
   if (name === "search_scriptures") return executeScriptureSearch(parseArgs(argsJson));
+  if (name === "search_study_helps") return executeStudyHelpsSearch(parseArgs(argsJson));
   return Promise.resolve(`Unknown tool "${name}".`);
 }
 
@@ -295,6 +373,7 @@ export function runScriptureTool(name: string, argsJson: string): Promise<string
 export function runTalkTool(name: string, argsJson: string): Promise<string> {
   if (name === "search_talks") return executeTalkSearch(parseArgs(argsJson));
   if (name === "search_scriptures") return executeScriptureSearch(parseArgs(argsJson));
+  if (name === "search_study_helps") return executeStudyHelpsSearch(parseArgs(argsJson));
   return Promise.resolve(`Unknown tool "${name}".`);
 }
 
@@ -302,5 +381,6 @@ export function runTalkTool(name: string, argsJson: string): Promise<string> {
 export function runAskTool(name: string, argsJson: string): Promise<string> {
   if (name === "search_scriptures") return executeScriptureSearch(parseArgs(argsJson));
   if (name === "search_talks") return executeTalkSearch(parseArgs(argsJson));
+  if (name === "search_study_helps") return executeStudyHelpsSearch(parseArgs(argsJson));
   return Promise.resolve(`Unknown tool "${name}".`);
 }

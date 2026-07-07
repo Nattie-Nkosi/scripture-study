@@ -3,7 +3,7 @@ import type Groq from "groq-sdk";
 import { getChapter } from "@/lib/scripture/client";
 import { buildExplainMessages } from "@/lib/ai/explain";
 import { streamAssistantResponse } from "@/lib/ai/chat-runner";
-import { SCRIPTURE_TOOLS, runScriptureTool } from "@/lib/ai/retrieval";
+import { READER_TOOLS, runScriptureTool } from "@/lib/ai/retrieval";
 import { AI_CHAT_RULES, enforceApiRateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -62,9 +62,9 @@ export async function POST(req: Request) {
   try {
     return await streamAssistantResponse({
       messages: messages as Groq.Chat.Completions.ChatCompletionMessageParam[],
-      tools: SCRIPTURE_TOOLS,
+      tools: READER_TOOLS,
       runTool: runScriptureTool,
-      // One search round for a cross-reference, then answer.
+      // One lookup round for a cross-reference or study-help entry, then answer.
       maxToolRounds: 1,
     });
   } catch (err) {

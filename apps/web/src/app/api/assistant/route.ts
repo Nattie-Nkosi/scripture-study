@@ -3,7 +3,7 @@ import type Groq from "groq-sdk";
 import { getChapter } from "@/lib/scripture/client";
 import { buildGroundedMessages } from "@/lib/ai/assistant";
 import { streamAssistantResponse } from "@/lib/ai/chat-runner";
-import { SCRIPTURE_TOOLS, runScriptureTool } from "@/lib/ai/retrieval";
+import { READER_TOOLS, runScriptureTool } from "@/lib/ai/retrieval";
 import {
   MAX_QUESTION_CHARS,
   clampHistory,
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
   try {
     return await streamAssistantResponse({
       messages: messages as Groq.Chat.Completions.ChatCompletionMessageParam[],
-      tools: SCRIPTURE_TOOLS,
+      tools: READER_TOOLS,
       runTool: runScriptureTool,
       onComplete: (full) =>
         saveChatMessage(deviceId, volume, book, chapter, "assistant", full),
