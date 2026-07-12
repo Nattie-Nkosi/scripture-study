@@ -5,13 +5,19 @@ import {
   Bookmark as BookmarkIcon,
   Check,
   Copy,
+  Pause,
   Pencil,
+  Play,
+  Settings2,
   Share2,
+  Square,
+  Volume2,
   X,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { FootnoteReferences } from "@/components/reader/footnote-references";
+import { useNarration, type Narration } from "@/components/reader/use-narration";
 import { HIGHLIGHTS, highlightClass } from "@/lib/study/highlight-colors";
 import {
   deleteTalkBookmark,
@@ -114,6 +120,8 @@ export function TalkBody({
   // — tint it until the reader taps elsewhere.
   const [targetPara, setTargetPara] = React.useState<number | null>(null);
 
+  const narration = useNarration(paragraphs);
+
   const meta = { talkId, conferenceId, title, speaker };
 
   React.useEffect(() => {
@@ -160,6 +168,17 @@ export function TalkBody({
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [targetPara]);
+
+  // Keep the paragraph being read aloud in view, but don't yank the page when
+  // it's already comfortably on screen.
+  React.useEffect(() => {
+    if (narration.activePara === null) return;
+    const el = document.getElementById(`p${narration.activePara}`);
+    if (!el) return;
+    const { top, bottom } = el.getBoundingClientRect();
+    const inView = top >= 80 && bottom <= window.innerHeight * 0.85;
+    if (!inView) el.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [narration.activePara]);
 
   function applyColor(n: number, color: HighlightColor | null) {
     if (color === null) {
@@ -260,6 +279,7 @@ export function TalkBody({
   }
 
   return (
+    <>
     <div className="reader-prose mx-auto mt-10 max-w-2xl space-y-1.5 font-serif animate-in fade-in duration-500">
       {paragraphs.map((para, i) => {
         const n = i + 1;
@@ -267,6 +287,7 @@ export function TalkBody({
         const color = highlights[n]?.color ?? null;
         const note = notes[n];
         const selected = selection === n;
+        const narrating = narration.activePara === n;
         return (
           <div
             key={i}
@@ -278,6 +299,7 @@ export function TalkBody({
               "cursor-pointer hover:bg-accent/30",
               selected && "bg-primary/5 hover:bg-primary/5",
               targetPara === n && "bg-primary/10 ring-2 ring-primary/40",
+              narrating && "bg-primary/10 ring-1 ring-primary/30",
             )}
           >
             <div className="flex gap-2.5 sm:gap-3">
@@ -324,6 +346,14 @@ export function TalkBody({
                 anchor={`p${n}`}
                 onColor={(c) => applyColor(n, c)}
                 onToggleBookmark={() => toggleBookmark(n)}
+                onReadAloud={
+                  narration.supported
+                    ? () => {
+                        narration.start(n);
+                        setSelection(null);
+                      }
+                    : undefined
+                }
                 onNoteChange={setNoteDraft}
                 onSave={() => commitNote(n)}
                 onClose={() => setSelection(null)}
@@ -350,6 +380,144 @@ export function TalkBody({
           </div>
         );
       })}
+    </div>
+    <NarrationPlayer narration={narration} />
+    </>
+  );
+}
+
+function NarrationPlayer({ narration }: { narration: Narration }) {
+  const { supported, status, activePara, voices, activeVoiceURI, selectVoice } =
+    narration;
+  const [voiceOpen, setVoiceOpen] = React.useState(false);
+  const rootRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!voiceOpen) return;
+    function onDown(e: PointerEvent) {
+      if (!rootRef.current?.contains(e.target as Node)) setVoiceOpen(false);
+    }
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [voiceOpen]);
+
+  if (!supported) return null;
+
+  return (
+    <div
+      ref={rootRef}
+      style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+      className="fixed left-1/2 z-30 -translate-x-1/2 font-sans animate-in fade-in slide-in-from-bottom-2 duration-200"
+    >
+      {voiceOpen && (
+        <VoicePicker
+          voices={voices}
+          activeVoiceURI={activeVoiceURI}
+          onSelect={selectVoice}
+        />
+      )}
+      <div className="flex items-center gap-1 rounded-full border border-border bg-card py-1.5 pl-2 pr-1.5 shadow-lg backdrop-blur">
+        {status === "idle" ? (
+          <button
+            type="button"
+            onClick={() => narration.start()}
+            className="flex items-center gap-2 rounded-full px-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Volume2 className="size-4" /> Read aloud
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={narration.toggle}
+              aria-label={status === "paused" ? "Resume" : "Pause"}
+              className="flex size-8 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent"
+            >
+              {status === "paused" ? (
+                <Play className="size-4" />
+              ) : (
+                <Pause className="size-4" />
+              )}
+            </button>
+            <span className="min-w-14 px-1 text-center text-xs tabular-nums text-muted-foreground">
+              {status === "paused" ? "Paused" : `Reading ¶${activePara}`}
+            </span>
+            <button
+              type="button"
+              onClick={narration.stop}
+              aria-label="Stop reading"
+              className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <Square className="size-3.5" />
+            </button>
+          </>
+        )}
+        <span className="mx-0.5 h-5 w-px bg-border" />
+        <button
+          type="button"
+          onClick={() => setVoiceOpen((o) => !o)}
+          aria-label="Choose reading voice"
+          aria-expanded={voiceOpen}
+          className={cn(
+            "flex size-8 items-center justify-center rounded-full transition-colors hover:bg-accent hover:text-foreground",
+            voiceOpen ? "text-foreground" : "text-muted-foreground",
+          )}
+        >
+          <Settings2 className="size-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Strip the redundant "Microsoft/Google … -" prefix and trailing locale so the
+ *  list reads cleanly (e.g. "Aria Online (Natural)" rather than the full URI). */
+function voiceLabel(v: SpeechSynthesisVoice): string {
+  return v.name.replace(/^(Microsoft|Google)\s+/, "").replace(/\s*-\s*English.*$/i, "");
+}
+
+function VoicePicker({
+  voices,
+  activeVoiceURI,
+  onSelect,
+}: {
+  voices: SpeechSynthesisVoice[];
+  activeVoiceURI: string | null;
+  onSelect: (uri: string) => void;
+}) {
+  return (
+    <div className="absolute bottom-full left-1/2 mb-2 max-h-72 w-64 -translate-x-1/2 overflow-y-auto rounded-xl border border-border bg-card p-1 shadow-xl animate-in fade-in slide-in-from-bottom-1 duration-150">
+      <div className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        Reading voice
+      </div>
+      {voices.length === 0 ? (
+        <div className="px-2 py-2 text-sm text-muted-foreground">
+          No voices available on this device.
+        </div>
+      ) : (
+        voices.map((v) => {
+          const active = v.voiceURI === activeVoiceURI;
+          return (
+            <button
+              key={v.voiceURI}
+              type="button"
+              onClick={() => onSelect(v.voiceURI)}
+              className={cn(
+                "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent",
+                active && "text-primary",
+              )}
+            >
+              <Check
+                className={cn("size-3.5 shrink-0", active ? "opacity-100" : "opacity-0")}
+              />
+              <span className="min-w-0 flex-1 truncate">{voiceLabel(v)}</span>
+              <span className="shrink-0 text-[0.65rem] text-muted-foreground">
+                {v.lang}
+              </span>
+            </button>
+          );
+        })
+      )}
     </div>
   );
 }
@@ -403,6 +571,7 @@ function ParagraphToolbar({
   anchor,
   onColor,
   onToggleBookmark,
+  onReadAloud,
   onNoteChange,
   onSave,
   onClose,
@@ -415,6 +584,7 @@ function ParagraphToolbar({
   anchor: string;
   onColor: (color: HighlightColor | null) => void;
   onToggleBookmark: () => void;
+  onReadAloud?: () => void;
   onNoteChange: (v: string) => void;
   onSave: () => void;
   onClose: () => void;
@@ -507,6 +677,16 @@ function ParagraphToolbar({
             className="flex size-6 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground"
           >
             <Share2 className="size-3.5" />
+          </button>
+        )}
+        {onReadAloud && (
+          <button
+            type="button"
+            onClick={onReadAloud}
+            aria-label="Read aloud from here"
+            className="flex size-6 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Play className="size-3.5" />
           </button>
         )}
         <button

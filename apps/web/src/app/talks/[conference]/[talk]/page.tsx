@@ -1,9 +1,13 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Headphones } from "lucide-react";
 
 import { getTalk, fetchConferenceOrNotFound } from "@/lib/conference/client";
-import { conferenceShortTitle, readingTimeMinutes } from "@/lib/conference/format";
+import {
+  conferenceShortTitle,
+  officialTalkUrl,
+  readingTimeMinutes,
+} from "@/lib/conference/format";
 import { TalkHeader } from "@/components/reader/talk-header";
 import { TalkBody } from "@/components/reader/talk-body";
 import { TalkAssistantPanel } from "@/components/reader/talk-assistant-panel";
@@ -67,6 +71,17 @@ export default async function TalkPage({ params }: Props) {
           <p className="mt-3 small-caps text-xs text-muted-foreground">
             {minutes} min read
           </p>
+          <div className="mt-5 flex justify-center">
+            <a
+              href={officialTalkUrl(data)}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Opens the official recording on churchofjesuschrist.org"
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+            >
+              <Headphones /> Listen in the speaker&rsquo;s voice
+            </a>
+          </div>
           <Ornament className="mt-7" />
         </div>
 
