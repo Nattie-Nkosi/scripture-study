@@ -280,36 +280,39 @@ export function TalkBody({
               targetPara === n && "bg-primary/10 ring-2 ring-primary/40",
             )}
           >
-            <p className="text-foreground/90">
-              <span
-                className={cn(
-                  "rounded px-0.5 transition-colors",
-                  highlightClass(color),
-                )}
-              >
-                {renderParagraph(
-                  para.text,
-                  para.footNotes,
-                  (index) => showFootnote(n, index),
-                  isFootnoteOpen ? openFootnote.index : null,
-                )}
-              </span>
-              {note && (
-                <button
-                  type="button"
-                  onClick={() => showNote(n)}
-                  aria-label={`Note on paragraph ${n}`}
+            <div className="flex gap-2.5 sm:gap-3">
+              <ParagraphAnchor n={n} />
+              <p className="min-w-0 flex-1 text-foreground/90">
+                <span
                   className={cn(
-                    "ml-0.5 cursor-pointer align-super transition-colors",
-                    openNote === n
-                      ? "text-primary"
-                      : "text-primary/55 hover:text-primary",
+                    "rounded px-0.5 transition-colors",
+                    highlightClass(color),
                   )}
                 >
-                  <Pencil className="inline size-3" />
-                </button>
-              )}
-            </p>
+                  {renderParagraph(
+                    para.text,
+                    para.footNotes,
+                    (index) => showFootnote(n, index),
+                    isFootnoteOpen ? openFootnote.index : null,
+                  )}
+                </span>
+                {note && (
+                  <button
+                    type="button"
+                    onClick={() => showNote(n)}
+                    aria-label={`Note on paragraph ${n}`}
+                    className={cn(
+                      "ml-0.5 cursor-pointer align-super transition-colors",
+                      openNote === n
+                        ? "text-primary"
+                        : "text-primary/55 hover:text-primary",
+                    )}
+                  >
+                    <Pencil className="inline size-3" />
+                  </button>
+                )}
+              </p>
+            </div>
 
             {selected && (
               <ParagraphToolbar
@@ -348,6 +351,36 @@ export function TalkBody({
         );
       })}
     </div>
+  );
+}
+
+/** The paragraph number, doubling as a deep link. Clicking jumps to `#p{n}`
+ *  (tinting the paragraph via the hash listener) and copies its shareable URL. */
+function ParagraphAnchor({ n }: { n: number }) {
+  const [copied, setCopied] = React.useState(false);
+
+  function copyLink() {
+    if (typeof window === "undefined") return;
+    const url = `${window.location.origin}${window.location.pathname}#p${n}`;
+    navigator.clipboard
+      ?.writeText(url)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1200);
+      })
+      .catch(() => {});
+  }
+
+  return (
+    <a
+      href={`#p${n}`}
+      onClick={copyLink}
+      aria-label={`Copy link to paragraph ${n}`}
+      title={`Copy link to paragraph ${n}`}
+      className="mt-[0.3rem] inline-flex w-4 shrink-0 select-none justify-end font-sans text-xs font-medium tabular-nums text-muted-foreground/50 transition-colors hover:text-primary sm:-ml-6 sm:w-7 sm:pr-1"
+    >
+      {copied ? <Check className="size-3 text-primary" /> : n}
+    </a>
   );
 }
 
