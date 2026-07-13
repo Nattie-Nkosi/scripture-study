@@ -17,7 +17,11 @@ import {
 
 import { cn } from "@/lib/utils";
 import { FootnoteReferences } from "@/components/reader/footnote-references";
-import { useNarration, type Narration } from "@/components/reader/use-narration";
+import {
+  useNarration,
+  type Narration,
+  type NarrationVoice,
+} from "@/components/reader/use-narration";
 import { HIGHLIGHTS, highlightClass } from "@/lib/study/highlight-colors";
 import {
   deleteTalkBookmark,
@@ -120,7 +124,7 @@ export function TalkBody({
   // — tint it until the reader taps elsewhere.
   const [targetPara, setTargetPara] = React.useState<number | null>(null);
 
-  const narration = useNarration(paragraphs);
+  const narration = useNarration(talkId, paragraphs);
 
   const meta = { talkId, conferenceId, title, speaker };
 
@@ -387,7 +391,7 @@ export function TalkBody({
 }
 
 function NarrationPlayer({ narration }: { narration: Narration }) {
-  const { supported, status, activePara, voices, activeVoiceURI, selectVoice } =
+  const { supported, hd, status, activePara, voices, activeVoiceId, notice, selectVoice } =
     narration;
   const [voiceOpen, setVoiceOpen] = React.useState(false);
   const rootRef = React.useRef<HTMLDivElement>(null);
@@ -411,10 +415,16 @@ function NarrationPlayer({ narration }: { narration: Narration }) {
     >
       {voiceOpen && (
         <VoicePicker
+          hd={hd}
           voices={voices}
-          activeVoiceURI={activeVoiceURI}
+          activeVoiceId={activeVoiceId}
           onSelect={selectVoice}
         />
+      )}
+      {notice && (
+        <p className="mx-auto mb-2 max-w-xs rounded-lg border border-border bg-card px-3 py-1.5 text-center text-xs text-muted-foreground shadow-md">
+          {notice}
+        </p>
       )}
       <div className="flex items-center gap-1 rounded-full border border-border bg-card py-1.5 pl-2 pr-1.5 shadow-lg backdrop-blur">
         {status === "idle" ? (
@@ -424,6 +434,11 @@ function NarrationPlayer({ narration }: { narration: Narration }) {
             className="flex items-center gap-2 rounded-full px-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <Volume2 className="size-4" /> Read aloud
+            {hd && (
+              <span className="rounded bg-primary/10 px-1 text-[0.6rem] font-semibold uppercase tracking-wide text-primary">
+                HD
+              </span>
+            )}
           </button>
         ) : (
           <>
@@ -470,38 +485,35 @@ function NarrationPlayer({ narration }: { narration: Narration }) {
   );
 }
 
-/** Strip the redundant "Microsoft/Google … -" prefix and trailing locale so the
- *  list reads cleanly (e.g. "Aria Online (Natural)" rather than the full URI). */
-function voiceLabel(v: SpeechSynthesisVoice): string {
-  return v.name.replace(/^(Microsoft|Google)\s+/, "").replace(/\s*-\s*English.*$/i, "");
-}
-
 function VoicePicker({
+  hd,
   voices,
-  activeVoiceURI,
+  activeVoiceId,
   onSelect,
 }: {
-  voices: SpeechSynthesisVoice[];
-  activeVoiceURI: string | null;
-  onSelect: (uri: string) => void;
+  hd: boolean;
+  voices: NarrationVoice[];
+  activeVoiceId: string | null;
+  onSelect: (id: string) => void;
 }) {
   return (
     <div className="absolute bottom-full left-1/2 mb-2 max-h-72 w-64 -translate-x-1/2 overflow-y-auto rounded-xl border border-border bg-card p-1 shadow-xl animate-in fade-in slide-in-from-bottom-1 duration-150">
-      <div className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        Reading voice
+      <div className="flex items-center justify-between px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <span>Reading voice</span>
+        {hd && <span className="text-primary">HD</span>}
       </div>
       {voices.length === 0 ? (
         <div className="px-2 py-2 text-sm text-muted-foreground">
-          No voices available on this device.
+          {hd ? "Using the default HD voice." : "No voices available on this device."}
         </div>
       ) : (
         voices.map((v) => {
-          const active = v.voiceURI === activeVoiceURI;
+          const active = v.id === activeVoiceId;
           return (
             <button
-              key={v.voiceURI}
+              key={v.id}
               type="button"
-              onClick={() => onSelect(v.voiceURI)}
+              onClick={() => onSelect(v.id)}
               className={cn(
                 "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-accent",
                 active && "text-primary",
@@ -510,10 +522,12 @@ function VoicePicker({
               <Check
                 className={cn("size-3.5 shrink-0", active ? "opacity-100" : "opacity-0")}
               />
-              <span className="min-w-0 flex-1 truncate">{voiceLabel(v)}</span>
-              <span className="shrink-0 text-[0.65rem] text-muted-foreground">
-                {v.lang}
-              </span>
+              <span className="min-w-0 flex-1 truncate">{v.label}</span>
+              {v.detail && (
+                <span className="shrink-0 text-[0.65rem] capitalize text-muted-foreground">
+                  {v.detail}
+                </span>
+              )}
             </button>
           );
         })

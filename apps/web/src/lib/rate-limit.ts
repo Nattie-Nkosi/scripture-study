@@ -29,6 +29,12 @@ export const TRANSLATE_RULES: NamedRule[] = [
   { name: "tr-burst", rule: { limit: 8, windowSecs: 60 } },
   { name: "tr-daily", rule: { limit: 100, windowSecs: 86_400 } },
 ];
+// Text-to-speech is one request per paragraph and each costs ElevenLabs credits.
+// Cached plays don't reach here; these caps just bound the denial-of-wallet risk.
+export const TTS_RULES: NamedRule[] = [
+  { name: "tts-burst", rule: { limit: 30, windowSecs: 60 } },
+  { name: "tts-daily", rule: { limit: 600, windowSecs: 86_400 } },
+];
 
 // --- In-memory fixed-window store -------------------------------------------
 

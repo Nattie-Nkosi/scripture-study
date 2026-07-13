@@ -22,13 +22,14 @@ function isActive(pathname: string, href: string): boolean {
 }
 
 /** The primary inline navigation, shown beside the wordmark on large screens
- *  (smaller screens use the command palette and the hamburger menu). Highlights
- *  the section you're in. */
+ *  (smaller screens use the command palette and the hamburger menu). A garnet
+ *  hairline grows under the current section — and under any link on hover — in
+ *  place of a pill background, for a quieter, more editorial feel. */
 export function MainNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="hidden items-center gap-0.5 lg:flex">
+    <nav className="hidden items-center gap-5 lg:flex">
       {LINKS.map(({ href, label }) => {
         const active = isActive(pathname, href);
         return (
@@ -37,10 +38,11 @@ export function MainNav() {
             href={href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "rounded-lg px-2.5 py-1.5 text-sm whitespace-nowrap transition-colors",
+              "relative py-1 text-sm whitespace-nowrap transition-colors",
+              "after:absolute after:inset-x-0 after:-bottom-px after:h-px after:origin-left after:scale-x-0 after:bg-primary after:transition-transform after:duration-200 hover:after:scale-x-100",
               active
-                ? "font-medium text-primary"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                ? "text-foreground after:scale-x-100"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             {label}
