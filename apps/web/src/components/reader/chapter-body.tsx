@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
+  ArrowUpRight,
   Bookmark as BookmarkIcon,
   Check,
   Copy,
@@ -10,10 +12,12 @@ import {
   Pencil,
   Share2,
   Sparkles,
+  Users,
   X,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { conferenceShortTitle } from "@/lib/conference/format";
 import { Button } from "@/components/ui/button";
 import { translateChapterAction } from "@/lib/actions/translate";
 import {
@@ -137,6 +141,7 @@ export function ChapterBody({
   } | null>(null);
   const [openNote, setOpenNote] = React.useState<number | null>(null);
   const [openExplain, setOpenExplain] = React.useState<number | null>(null);
+  const [openCitations, setOpenCitations] = React.useState<number | null>(null);
   const [card, setCard] = React.useState<{
     reference: string;
     text: string;
@@ -312,6 +317,7 @@ export function ChapterBody({
     setOpenFootnote(null);
     setOpenNote(null);
     setOpenExplain(null);
+    setOpenCitations(null);
     setSelection({ anchor: n, head: n });
     setNoteDraft(notes[n]?.text ?? "");
   }
@@ -320,7 +326,16 @@ export function ChapterBody({
     setSelection(null);
     setOpenNote(null);
     setOpenFootnote(null);
+    setOpenCitations(null);
     setOpenExplain(n);
+  }
+
+  function citationsVerse(n: number) {
+    setSelection(null);
+    setOpenNote(null);
+    setOpenFootnote(null);
+    setOpenExplain(null);
+    setOpenCitations(n);
   }
 
   function toggleSelect(n: number) {
@@ -337,6 +352,7 @@ export function ChapterBody({
     setOpenFootnote(null);
     setOpenNote(null);
     setOpenExplain(null);
+    setOpenCitations(null);
     setSelection((cur) =>
       cur ? { anchor: cur.anchor, head: n } : { anchor: n, head: n },
     );
@@ -374,6 +390,7 @@ export function ChapterBody({
     setSelection(null);
     setOpenNote(null);
     setOpenExplain(null);
+    setOpenCitations(null);
     setOpenFootnote({ verse, index });
   }
 
@@ -381,6 +398,7 @@ export function ChapterBody({
     setSelection(null);
     setOpenFootnote(null);
     setOpenExplain(null);
+    setOpenCitations(null);
     setOpenNote((cur) => (cur === n ? null : n));
   }
 
@@ -548,6 +566,7 @@ export function ChapterBody({
                         onNoteChange={setNoteDraft}
                         onSave={() => commitNote(v.n)}
                         onExplain={() => explainVerse(v.n)}
+                        onCitations={() => citationsVerse(v.n)}
                         onMakeCard={() =>
                           setCard({
                             reference: `${bookTitle} ${chapter}:${v.n}`,
@@ -588,6 +607,17 @@ export function ChapterBody({
                       verse={v.n}
                       reference={`${bookTitle} ${chapter}:${v.n}`}
                       onClose={() => setOpenExplain(null)}
+                    />
+                  )}
+
+                  {openCitations === v.n && (
+                    <CitationsPanel
+                      key={`cite-${v.n}`}
+                      book={book}
+                      chapter={chapter}
+                      verse={v.n}
+                      reference={`${bookTitle} ${chapter}:${v.n}`}
+                      onClose={() => setOpenCitations(null)}
                     />
                   )}
                 </div>
@@ -641,6 +671,7 @@ function VerseToolbar({
   onNoteChange,
   onSave,
   onExplain,
+  onCitations,
   onMakeCard,
   onClose,
 }: {
@@ -655,6 +686,7 @@ function VerseToolbar({
   onNoteChange: (v: string) => void;
   onSave: () => void;
   onExplain: () => void;
+  onCitations: () => void;
   onMakeCard: () => void;
   onClose: () => void;
 }) {
@@ -758,13 +790,22 @@ function VerseToolbar({
         </button>
       </div>
 
-      <button
-        type="button"
-        onClick={onExplain}
-        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
-      >
-        <Sparkles className="size-3.5" /> Explain this verse
-      </button>
+      <div className="mt-2 flex gap-1.5">
+        <button
+          type="button"
+          onClick={onExplain}
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
+        >
+          <Sparkles className="size-3.5" /> Explain this verse
+        </button>
+        <button
+          type="button"
+          onClick={onCitations}
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+        >
+          <Users className="size-3.5" /> Who taught this?
+        </button>
+      </div>
 
       <textarea
         value={noteDraft}
@@ -1039,6 +1080,197 @@ function ExplainPanel({
           A study aid — not an official source of Church doctrine.
         </p>
       )}
+    </div>
+  );
+}
+
+interface CitationTalk {
+  talkId: string;
+  conferenceId: string;
+  year: number;
+  month: number;
+  title: string;
+  speaker: string;
+  paragraphs: number[];
+}
+
+interface CitationsData {
+  total: number;
+  talks: CitationTalk[];
+  byDecade: { decade: number; count: number }[];
+}
+
+/** "Who taught this?" — General Conference talks that cite this verse, newest
+ *  first, with a by-decade emphasis histogram. Reads the precomputed citation
+ *  index via /api/citations; degrades to an empty result when it isn't built. */
+function CitationsPanel({
+  book,
+  chapter,
+  verse,
+  reference,
+  onClose,
+}: {
+  book: string;
+  chapter: number;
+  verse: number;
+  reference: string;
+  onClose: () => void;
+}) {
+  const [status, setStatus] = React.useState<"loading" | "error" | "done">("loading");
+  const [data, setData] = React.useState<CitationsData | null>(null);
+  const [attempt, setAttempt] = React.useState(0);
+
+  // The effect only starts the fetch; state updates happen in the async
+  // callbacks (never synchronously in the effect body). `retry` bumps `attempt`
+  // to re-run it — the loading reset lives in that event handler.
+  React.useEffect(() => {
+    let active = true;
+    const params = new URLSearchParams({
+      book,
+      chapter: String(chapter),
+      verse: String(verse),
+    });
+    fetch(`/api/citations?${params.toString()}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((d: CitationsData) => {
+        if (active) {
+          setData(d);
+          setStatus("done");
+        }
+      })
+      .catch(() => {
+        if (active) setStatus("error");
+      });
+    return () => {
+      active = false;
+    };
+  }, [book, chapter, verse, attempt]);
+
+  function retry() {
+    setStatus("loading");
+    setAttempt((a) => a + 1);
+  }
+
+  const total = data?.total ?? 0;
+
+  return (
+    <div className="my-2.5 ml-5 max-w-md rounded-lg border border-border bg-card p-3 font-sans text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <Users className="size-3.5" /> Who taught this? · {reference}
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="text-muted-foreground hover:text-foreground"
+        >
+          <X className="size-4" />
+        </button>
+      </div>
+
+      {status === "loading" && (
+        <span className="flex items-center gap-1.5 text-muted-foreground">
+          <Loader2 className="size-3.5 animate-spin" /> Finding talks that cite this…
+        </span>
+      )}
+
+      {status === "error" && (
+        <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
+          <span className="flex-1">Couldn’t load citations right now.</span>
+          <button
+            type="button"
+            onClick={retry}
+            className="font-medium text-primary hover:underline"
+          >
+            Try again
+          </button>
+        </div>
+      )}
+
+      {status === "done" && total === 0 && (
+        <p className="text-muted-foreground">
+          No General Conference talk in the archive cites this verse yet.
+        </p>
+      )}
+
+      {status === "done" && total > 0 && data && (
+        <div>
+          <div className="mb-2.5 flex items-end justify-between gap-3">
+            <p className="text-xs text-muted-foreground">
+              Cited in <span className="font-medium text-foreground">{total}</span>{" "}
+              {total === 1 ? "talk" : "talks"}
+            </p>
+            <DecadeSparkline byDecade={data.byDecade} />
+          </div>
+
+          <ul className="space-y-1">
+            {data.talks.map((t) => {
+              const para = t.paragraphs[0];
+              const href = `/talks/${t.conferenceId}/${t.talkId}${para ? `#p${para}` : ""}`;
+              return (
+                <li key={t.talkId}>
+                  <Link
+                    href={href}
+                    className="group -mx-1.5 flex items-start gap-2 rounded-md px-1.5 py-1.5 transition-colors hover:bg-muted/60"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium text-foreground group-hover:text-primary">
+                        {t.title}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {t.speaker} · {conferenceShortTitle(t.year, t.month)}
+                      </span>
+                    </span>
+                    <ArrowUpRight className="mt-0.5 size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          {total > data.talks.length && (
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              Showing the {data.talks.length} most recent of {total}.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Compact by-decade bar chart of how often a verse has been cited over time.
+ *  Missing decades are filled with zero-height bars so the timeline reads true. */
+function DecadeSparkline({
+  byDecade,
+}: {
+  byDecade: { decade: number; count: number }[];
+}) {
+  if (byDecade.length === 0) return null;
+  const first = byDecade[0].decade;
+  const last = byDecade[byDecade.length - 1].decade;
+  const counts = new Map(byDecade.map((d) => [d.decade, d.count] as const));
+  const bars: { decade: number; count: number }[] = [];
+  for (let d = first; d <= last; d += 10) bars.push({ decade: d, count: counts.get(d) ?? 0 });
+  const max = Math.max(...bars.map((b) => b.count), 1);
+
+  return (
+    <div className="shrink-0">
+      <div className="flex h-6 items-end gap-0.5" aria-hidden>
+        {bars.map((b) => (
+          <div
+            key={b.decade}
+            title={`${b.decade}s: ${b.count}`}
+            className={cn("w-1.5 rounded-sm", b.count > 0 ? "bg-primary/40" : "bg-border")}
+            style={{ height: `${b.count > 0 ? Math.max(15, (b.count / max) * 100) : 8}%` }}
+          />
+        ))}
+      </div>
+      <div className="mt-1 flex justify-between text-[9px] tabular-nums text-muted-foreground">
+        <span>{`’${String(first).slice(2)}`}</span>
+        <span>{`’${String(last).slice(2)}`}</span>
+      </div>
     </div>
   );
 }

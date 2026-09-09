@@ -35,6 +35,11 @@ export const TTS_RULES: NamedRule[] = [
   { name: "tts-burst", rule: { limit: 30, windowSecs: 60 } },
   { name: "tts-daily", rule: { limit: 600, windowSecs: 86_400 } },
 ];
+// The citation lookup is a cheap indexed DB read (no AI cost), so the cap is
+// generous — it only bounds outright abuse.
+export const CITATIONS_RULES: NamedRule[] = [
+  { name: "cite-burst", rule: { limit: 60, windowSecs: 60 } },
+];
 
 // --- In-memory fixed-window store -------------------------------------------
 

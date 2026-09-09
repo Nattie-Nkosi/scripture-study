@@ -5,6 +5,7 @@
 export { getSql, isDatabaseConfigured } from "./client";
 export * from "./chat";
 export * from "./talk-chat";
+export * from "./talk-citations";
 export * from "./embeddings";
 export * from "./translations";
 export * from "./summaries";
