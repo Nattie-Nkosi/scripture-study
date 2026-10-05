@@ -48,9 +48,12 @@ export default async function SearchPage({ searchParams }: Props) {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:py-14">
-        <h1 className="font-display text-4xl font-semibold tracking-tight">Search</h1>
-        <p className="mt-2 mb-6 text-muted-foreground">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-14 sm:py-20">
+        <p className="eyebrow text-primary">Search</p>
+        <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
+          Seek, and ye shall find
+        </h1>
+        <p className="mt-4 mb-10 max-w-xl font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
           Find verses across the standard works, General Conference talks, and
           the study helps.
         </p>
@@ -118,7 +121,7 @@ function Pager({
       ) : (
         <span />
       )}
-      <span className="text-xs text-muted-foreground">Page {page}</span>
+      <span className="eyebrow text-muted-foreground">Page {page}</span>
       {hasNext ? (
         <Link href={linkFor(page + 1)} className={buttonVariants({ variant: "outline", size: "sm" })}>
           Next →
@@ -153,20 +156,20 @@ function ResultsSkeleton() {
 function ReferenceJumpCard({ jump }: { jump: ReferenceJump }) {
   return (
     <div className="mt-8 animate-in fade-in duration-300">
-      <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+      <p className="mb-2 eyebrow text-muted-foreground">
         Jump to reference
       </p>
       <Link
         href={jump.url}
-        className="group block rounded-lg border border-primary/40 bg-primary/5 p-4 transition-colors hover:bg-primary/10"
+        className="group block border-l-2 border-primary py-1 pl-4"
       >
         <div className="flex items-center justify-between gap-3">
-          <p className="font-serif text-base font-semibold text-primary">
+          <p className="font-display text-xl text-primary">
             {jump.label}
           </p>
           <ArrowRight className="size-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5" />
         </div>
-        <p className="mt-1.5 line-clamp-3 text-sm leading-relaxed text-foreground/90">
+        <p className="mt-1.5 line-clamp-3 font-serif leading-relaxed text-foreground/90">
           {jump.text}
         </p>
       </Link>
@@ -241,10 +244,10 @@ async function ScriptureResults({
             : null;
           const Inner = (
             <>
-              <p className="font-serif text-sm font-semibold text-primary">
+              <p className="eyebrow text-primary">
                 {r.reference}
               </p>
-              <p className="mt-1 text-sm leading-relaxed text-foreground/90">
+              <p className="mt-1 font-serif text-[1.05rem] leading-relaxed text-foreground/90">
                 {r.highlight ?? r.text}
               </p>
             </>
@@ -252,7 +255,7 @@ async function ScriptureResults({
           return (
             <li key={`${r.reference}-${i}`} className="py-4">
               {href ? (
-                <Link href={href} className="block rounded-md transition-colors hover:bg-accent/30">
+                <Link href={href} className="group block">
                   {Inner}
                 </Link>
               ) : (
@@ -350,15 +353,15 @@ async function TalkResults({
           <li key={`${r.talkId}-${r.paragraph}-${i}`} className="py-4">
             <Link
               href={`/talks/${r.conferenceId}/${r.talkId}#p${r.paragraph}`}
-              className="block rounded-md transition-colors hover:bg-accent/30"
+              className="group block"
             >
-              <p className="font-serif text-sm font-semibold text-primary text-balance">
+              <p className="font-display text-xl text-foreground transition-colors group-hover:text-primary text-balance">
                 {r.title}
               </p>
-              <p className="mt-0.5 small-caps text-xs text-muted-foreground">
+              <p className="mt-0.5 eyebrow text-muted-foreground">
                 {r.speaker} · {conferenceShortTitle(r.year, r.month)}
               </p>
-              <p className="mt-1.5 text-sm leading-relaxed text-foreground/90">
+              <p className="mt-1.5 font-serif leading-relaxed text-foreground/85">
                 {r.highlight ?? r.text}
               </p>
             </Link>

@@ -57,29 +57,29 @@ export default async function SpeakersPage({ searchParams }: Props) {
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-14 sm:py-20">
         <Link
           href="/talks"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
-          <ChevronLeft className="size-4" />
+          <ChevronLeft className="size-3.5" />
           General Conference
         </Link>
 
-        <h1 className="mt-4 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+        <h1 className="mt-4 font-display text-5xl font-light tracking-tight sm:text-6xl">
           Speakers
         </h1>
 
-        <form action="/talks/speakers" method="get" className="mt-6">
+        <form action="/talks/speakers" method="get" className="mt-8">
           <div className="relative">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search strokeWidth={1.5} className="pointer-events-none absolute top-1/2 left-0.5 size-4.5 -translate-y-1/2 text-muted-foreground" />
             <input
               name="q"
               defaultValue={q}
               placeholder="Find a speaker by name…"
-              className="w-full rounded-lg border border-input bg-card py-2.5 pr-3 pl-9 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
+              className="w-full border-0 border-b border-border bg-transparent py-3 pr-3 pl-8 font-serif text-xl outline-none transition-colors placeholder:text-muted-foreground/60 placeholder:italic focus-visible:border-primary"
             />
           </div>
         </form>
 
-        <p className="mt-6 text-sm text-muted-foreground">
+        <p className="mt-6 font-serif text-muted-foreground italic">
           {data.total.toLocaleString()} speaker{data.total === 1 ? "" : "s"}
           {q ? (
             <>
@@ -108,10 +108,10 @@ export default async function SpeakersPage({ searchParams }: Props) {
                     sizes="40px"
                   />
                   <span className="flex-1">
-                    <span className="block font-display text-lg font-medium transition-colors group-hover:text-primary">
+                    <span className="block font-display text-xl transition-colors group-hover:text-primary">
                       {s.name}
                     </span>
-                    <span className="mt-0.5 block small-caps text-xs text-muted-foreground">
+                    <span className="mt-0.5 block eyebrow text-muted-foreground">
                       {s.talkCount} talk{s.talkCount === 1 ? "" : "s"} ·{" "}
                       {s.firstYear === s.lastYear
                         ? s.firstYear
@@ -137,7 +137,7 @@ export default async function SpeakersPage({ searchParams }: Props) {
             ) : (
               <span />
             )}
-            <span className="text-xs text-muted-foreground">Page {page}</span>
+            <span className="eyebrow text-muted-foreground">Page {page}</span>
             {hasNext ? (
               <Link
                 href={linkFor(page + 1)}

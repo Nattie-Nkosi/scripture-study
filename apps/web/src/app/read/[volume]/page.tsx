@@ -25,32 +25,37 @@ export default async function VolumePage({ params }: Props) {
         </p>
       </SiteHeader>
 
-      <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:py-16">
+      <main className="mx-auto w-full max-w-3xl px-5 py-14 sm:py-20">
         <Link
           href="/read"
-          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
           ← Library
         </Link>
-        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight">
+        <h1 className="mt-3 font-display text-5xl font-light tracking-tight">
           {data.title}
         </h1>
-        <p className="mt-2 text-muted-foreground">
-          {data.books.length} books · choose one to see its chapters.
+        <p className="mt-3 font-serif text-muted-foreground italic">
+          {data.books.length} books
         </p>
 
-        <ul className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {data.books.map((book) => (
-            <li key={book._id}>
+        <ol className="mt-12 grid gap-x-10 border-t border-border sm:grid-cols-2">
+          {data.books.map((book, i) => (
+            <li key={book._id} className="border-b border-border">
               <Link
                 href={`/read/${volume}/${book._id}`}
-                className="block rounded-lg border border-border bg-card px-4 py-3 font-serif transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-accent/40 hover:shadow-sm active:translate-y-0"
+                className="group flex items-baseline gap-4 py-3.5"
               >
-                {book.title}
+                <span className="w-6 shrink-0 font-serif text-sm text-muted-foreground/70 tabular-nums">
+                  {i + 1}
+                </span>
+                <span className="font-serif text-lg transition-colors group-hover:text-primary">
+                  {book.title}
+                </span>
               </Link>
             </li>
           ))}
-        </ul>
+        </ol>
       </main>
     </>
   );

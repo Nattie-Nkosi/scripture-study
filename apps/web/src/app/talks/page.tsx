@@ -59,8 +59,8 @@ export default async function TalksPage() {
     <>
       <SiteHeader />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-14 sm:py-20">
-        <p className="small-caps text-sm text-primary">General Conference</p>
-        <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+        <p className="eyebrow text-primary">General Conference</p>
+        <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
           Words of the prophets
         </h1>
         <p className="mt-4 max-w-xl font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
@@ -70,58 +70,58 @@ export default async function TalksPage() {
 
         <Link
           href={`/talks/${latest._id}`}
-          className="group mt-10 block rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/40"
+          className="group mt-12 block border-y border-border py-7"
         >
-          <span className="small-caps text-xs text-primary">
+          <span className="eyebrow text-primary">
             Latest conference
           </span>
-          <span className="mt-1 block font-display text-2xl font-medium transition-colors group-hover:text-primary">
+          <span className="mt-2 block font-display text-3xl font-light tracking-tight transition-colors group-hover:text-primary">
             {latest.title}
           </span>
-          <span className="mt-1.5 block small-caps text-xs text-muted-foreground">
+          <span className="mt-2 block eyebrow text-muted-foreground">
             {latest.sessions.length} sessions · {talkCount(latest)} talks
           </span>
-          <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
+          <span className="mt-4 inline-flex items-center gap-1.5 font-serif text-primary italic">
             Browse talks
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
           </span>
         </Link>
 
-        <ContinueTalk className="mt-4" />
+        <ContinueTalk className="border-t-0" />
 
-        <div className="mt-4 flex flex-wrap gap-3">
+        <div className="mt-6 flex flex-wrap gap-6">
           <Link
             href="/talks/speakers"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            className="eyebrow text-muted-foreground transition-colors hover:text-primary"
           >
             Browse by speaker →
           </Link>
           <Link
             href="/search?scope=talks"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            className="eyebrow text-muted-foreground transition-colors hover:text-primary"
           >
             Search talks →
           </Link>
         </div>
 
-        <Ornament className="my-12" />
+        <Ornament className="my-16" />
 
-        <p className="small-caps text-sm text-primary">The archive</p>
+        <p className="eyebrow text-primary">The archive</p>
         <ol className="mt-5 border-y border-border">
           {years.map(([year, list]) => (
             <li
               key={year}
-              className="flex items-center gap-4 border-b border-border py-3.5 last:border-b-0"
+              className="flex items-baseline gap-6 border-b border-border py-3.5 last:border-b-0"
             >
-              <span className="w-12 shrink-0 font-display text-lg text-foreground/80 tabular-nums">
+              <span className="w-14 shrink-0 font-display text-xl font-light text-foreground/85 tabular-nums">
                 {year}
               </span>
-              <span className="flex flex-wrap gap-2">
+              <span className="flex flex-wrap gap-x-5 gap-y-1">
                 {list.map((c) => (
                   <Link
                     key={c._id}
                     href={`/talks/${c._id}`}
-                    className="rounded-full border border-border px-3 py-1 text-sm text-foreground/80 transition-colors hover:border-primary/40 hover:text-primary"
+                    className="font-serif text-foreground/75 italic transition-colors hover:text-primary"
                   >
                     {monthName(c.month)}
                   </Link>

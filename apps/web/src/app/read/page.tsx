@@ -45,29 +45,29 @@ export default async function LibraryPage() {
     <>
       <SiteHeader />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-14 sm:py-20">
-        <p className="small-caps text-sm text-primary">Library</p>
-        <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+        <p className="eyebrow text-primary">Library</p>
+        <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
           The Standard Works
         </h1>
 
-        <ContinueReading className="mt-8" />
+        <ContinueReading className="mt-10" />
 
-        <ol className="mt-10 border-y border-border">
+        <ol className="mt-12 border-y border-border">
           {volumes.map((v, i) => (
             <li key={v._id} className="border-b border-border last:border-b-0">
               <Link
                 href={`/read/${v._id}`}
-                className="group flex items-baseline gap-4 py-5 transition-colors"
+                className="group flex items-baseline gap-5 py-6 transition-colors"
               >
-                <span className="w-7 shrink-0 font-display text-base text-primary/60 tabular-nums">
+                <span className="w-8 shrink-0 font-serif text-base text-primary/70 italic">
                   {NUMERALS[i] ?? i + 1}
                 </span>
                 <span className="flex-1">
-                  <span className="block font-display text-xl font-medium transition-colors group-hover:text-primary">
+                  <span className="block font-display text-2xl tracking-tight transition-colors group-hover:text-primary">
                     {v.title}
                   </span>
                   {VOLUME_SUBTITLES[v._id] && (
-                    <span className="mt-0.5 block small-caps text-xs text-muted-foreground">
+                    <span className="mt-1 block eyebrow text-muted-foreground">
                       {VOLUME_SUBTITLES[v._id]}
                     </span>
                   )}

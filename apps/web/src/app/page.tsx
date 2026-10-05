@@ -10,7 +10,7 @@ import {
   ThisWeekCard,
   ThisWeekCardSkeleton,
 } from "@/components/come-follow-me/this-week-card";
-import { buttonVariants } from "@/components/ui/button";
+import { Ornament } from "@/components/ornament";
 
 const SECTIONS = [
   {
@@ -47,75 +47,85 @@ const SECTIONS = [
   },
 ];
 
+const NUMERALS = ["i", "ii", "iii", "iv", "v", "vi"];
+
 export default function Home() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-16 sm:py-24">
-        <section className="max-w-2xl">
-          <p className="small-caps text-sm text-primary">A study edition</p>
-
-          <h1 className="mt-4 font-display text-[2.5rem] leading-[1.06] font-semibold tracking-tight text-balance sm:text-6xl">
-            A clearer way to read scripture
-          </h1>
-
-          <p className="mt-6 max-w-xl font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
-            The standard works, General Conference, and the weekly Come, Follow
-            Me lessons — in a calm, readable edition. Highlight and take notes,
-            look things up in the study helps, and ask a study assistant
-            grounded in the text itself.
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-16 sm:py-28">
+        <section className="max-w-2xl animate-in fade-in duration-700">
+          <p className="flex items-center gap-3 eyebrow text-primary">
+            <span aria-hidden className="size-1.5 rotate-45 bg-primary/70" />
+            A study edition
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <Link href="/read" className={buttonVariants({ size: "lg" })}>
-              Open the library <ArrowRight />
+          <h1 className="mt-6 font-display text-[2.75rem] leading-[1.02] font-light tracking-tight sm:text-[4.5rem]">
+            A clearer way to <em className="text-primary">read</em> scripture
+          </h1>
+
+          <p className="mt-7 max-w-lg font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
+            The standard works, General Conference, and Come, Follow Me in one
+            calm edition — with notes, study helps, and an assistant grounded
+            in the text itself.
+          </p>
+
+          <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
+            <Link
+              href="/read"
+              className="group inline-flex items-center gap-2 border-b border-primary pb-1 font-serif text-lg text-foreground transition-colors hover:text-primary"
+            >
+              Open the library
+              <ArrowRight className="size-4 text-primary transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
               href="/ask"
-              className="group inline-flex items-center gap-1.5 text-sm font-medium text-foreground"
+              className="group inline-flex items-center gap-1.5 font-serif text-lg text-muted-foreground transition-colors hover:text-foreground"
             >
               Ask a question
-              <ArrowUpRight className="size-4 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
+              <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
           </div>
         </section>
 
-        <section className="mt-16 sm:mt-24">
-          <h2 className="small-caps text-xs text-muted-foreground">Contents</h2>
-          <ol className="mt-3 border-b border-border">
+        <section className="mt-24 sm:mt-32">
+          <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+            <Suspense fallback={<ThisWeekCardSkeleton />}>
+              <ThisWeekCard />
+            </Suspense>
+            <ContinueReading className="self-start border-b-0 pt-5" />
+          </div>
+        </section>
+
+        <Ornament className="mt-20 sm:mt-24" />
+        <DailyVerse className="mt-10" />
+        <Ornament className="mt-12" />
+
+        <section className="mt-24 sm:mt-32">
+          <h2 className="eyebrow text-muted-foreground">Contents</h2>
+          <ol className="mt-4 border-b border-border">
             {SECTIONS.map(({ href, label, description }, i) => (
               <li key={href} className="border-t border-border">
                 <Link
                   href={href}
-                  className="group -mx-3 flex items-start gap-4 rounded-lg px-3 py-5 transition-colors hover:bg-muted/50 sm:gap-6"
+                  className="group flex items-baseline gap-5 py-5 sm:gap-8"
                 >
-                  <span className="mt-1 w-6 shrink-0 font-display text-sm tabular-nums text-primary/80">
-                    {String(i + 1).padStart(2, "0")}
+                  <span className="w-6 shrink-0 font-serif text-sm text-primary/70 italic">
+                    {NUMERALS[i]}.
                   </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="font-display text-xl font-medium tracking-tight transition-colors group-hover:text-primary">
+                  <span className="min-w-0 flex-1 sm:flex sm:items-baseline sm:gap-6">
+                    <span className="font-display text-2xl tracking-tight transition-colors group-hover:text-primary sm:w-56 sm:shrink-0">
                       {label}
                     </span>
-                    <span className="mt-1 block font-serif text-sm leading-relaxed text-muted-foreground">
+                    <span className="mt-1 block font-serif text-[0.95rem] leading-relaxed text-muted-foreground sm:mt-0">
                       {description}
                     </span>
                   </span>
-                  <ArrowUpRight className="mt-1.5 size-4 shrink-0 -translate-x-1 text-muted-foreground opacity-0 transition-all group-hover:translate-x-0 group-hover:text-primary group-hover:opacity-100" />
+                  <ArrowRight className="size-4 shrink-0 self-center -translate-x-1 text-primary opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
                 </Link>
               </li>
             ))}
           </ol>
-        </section>
-
-        <section className="mt-16 sm:mt-20">
-          <h2 className="small-caps text-xs text-muted-foreground">Today</h2>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <Suspense fallback={<ThisWeekCardSkeleton />}>
-              <ThisWeekCard />
-            </Suspense>
-            <ContinueReading />
-            <DailyVerse className="sm:col-span-2" />
-          </div>
         </section>
       </main>
       <SiteFooter />

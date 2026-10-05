@@ -55,16 +55,16 @@ export default async function StudyHelpsSearchPage({ searchParams }: Props) {
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:py-14">
         <Link
           href="/study-helps"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
-          <ChevronLeft className="size-4" />
+          <ChevronLeft className="size-3.5" />
           Study Helps
         </Link>
 
-        <h1 className="mt-4 font-display text-4xl font-semibold tracking-tight">
+        <h1 className="mt-4 font-display text-5xl font-light tracking-tight">
           Search Study Helps
         </h1>
-        <p className="mt-2 mb-6 text-muted-foreground">
+        <p className="mt-3 mb-8 font-serif text-muted-foreground italic">
           Search the Bible Dictionary, Topical Guide, index, and Joseph Smith
           Translation.
         </p>
@@ -72,7 +72,7 @@ export default async function StudyHelpsSearchPage({ searchParams }: Props) {
         <form action="/study-helps/search" method="get" className="flex flex-col gap-2 sm:flex-row">
           {type && <input type="hidden" name="type" value={type} />}
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search strokeWidth={1.5} className="pointer-events-none absolute top-1/2 left-0.5 size-4.5 -translate-y-1/2 text-muted-foreground" />
             <input
               name="q"
               type="search"
@@ -80,12 +80,12 @@ export default async function StudyHelpsSearchPage({ searchParams }: Props) {
               autoFocus
               placeholder="Search the study helps…"
               aria-label="Search the study helps"
-              className="w-full rounded-lg border border-input bg-card py-2.5 pr-3 pl-9 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 sm:text-sm"
+              className="w-full border-0 border-b border-border bg-transparent py-3 pr-3 pl-8 font-serif text-xl outline-none transition-colors placeholder:text-muted-foreground/60 placeholder:italic focus-visible:border-primary"
             />
           </div>
         </form>
 
-        <div className="mt-4 flex flex-wrap gap-1.5">
+        <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
           {FILTERS.map((f) => {
             const active = (type ?? "") === f.value;
             return (
@@ -94,10 +94,10 @@ export default async function StudyHelpsSearchPage({ searchParams }: Props) {
                 href={filterHref(f.value)}
                 aria-current={active ? "true" : undefined}
                 className={cn(
-                  "rounded-full border px-3 py-1 text-sm font-medium transition-colors",
+                  "eyebrow border-b pb-0.5 transition-colors",
                   active
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border text-muted-foreground hover:text-foreground",
+                    ? "border-primary text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground",
                 )}
               >
                 {f.label}

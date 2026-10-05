@@ -71,7 +71,7 @@ export function SearchBox({
         </div>
       )}
 
-      <div className="mb-3 flex w-fit items-center rounded-full border border-border bg-card p-0.5 text-sm">
+      <div className="mb-4 flex w-fit items-center gap-5">
         {(
           [
             ["scripture", "Scriptures"],
@@ -86,10 +86,10 @@ export function SearchBox({
             aria-pressed={scope === value}
             disabled={!online}
             className={cn(
-              "rounded-full px-4 py-1.5 font-medium transition-colors disabled:opacity-50",
+              "eyebrow border-b pb-0.5 transition-colors disabled:opacity-50",
               scope === value
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground",
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground",
             )}
           >
             {label}
@@ -97,9 +97,9 @@ export function SearchBox({
         ))}
       </div>
 
-      <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
+      <form onSubmit={submit} className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search strokeWidth={1.5} className="pointer-events-none absolute top-1/2 left-0.5 size-4.5 -translate-y-1/2 text-muted-foreground" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -114,7 +114,7 @@ export function SearchBox({
             }
             autoFocus
             disabled={!online}
-            className="w-full rounded-lg border border-input bg-card py-2.5 pr-3 pl-9 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50 sm:text-sm"
+            className="w-full border-0 border-b border-border bg-transparent py-3 pr-3 pl-8 font-serif text-xl outline-none transition-colors placeholder:text-muted-foreground/60 placeholder:italic focus-visible:border-primary disabled:opacity-50"
           />
         </div>
         {scope === "scripture" && (
@@ -122,7 +122,7 @@ export function SearchBox({
             value={volume}
             onChange={(e) => setVolume(e.target.value)}
             disabled={!online}
-            className="rounded-lg border border-input bg-card px-3 py-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50 sm:text-sm"
+            className="border-0 border-b border-border bg-transparent px-1 py-3 font-serif text-base outline-none transition-colors focus-visible:border-primary disabled:opacity-50"
           >
             {VOLUMES.map((v) => (
               <option key={v.id} value={v.id}>
@@ -131,7 +131,7 @@ export function SearchBox({
             ))}
           </select>
         )}
-        <Button type="submit" size="lg" disabled={!online}>
+        <Button type="submit" variant="outline" size="lg" disabled={!online} className="font-serif">
           Search
         </Button>
       </form>

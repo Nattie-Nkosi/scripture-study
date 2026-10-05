@@ -28,16 +28,16 @@ export function ContinueTalk({ className }: { className?: string }) {
     <Link
       href={`/talks/${last.conferenceId}/${last.talkId}${hash}`}
       className={cn(
-        "group flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:border-primary/40",
+        "group flex items-center gap-4 border-y border-border py-4 transition-colors",
         className,
       )}
     >
-      <Mic className="size-5 shrink-0 text-primary/70" />
+      <Mic strokeWidth={1.5} className="size-5 shrink-0 text-primary/70" />
       <span className="min-w-0 flex-1">
-        <span className="block small-caps text-xs text-muted-foreground">
+        <span className="block eyebrow text-muted-foreground">
           Continue talk
         </span>
-        <span className="block truncate font-display text-lg font-medium transition-colors group-hover:text-primary">
+        <span className="block truncate font-display text-xl transition-colors group-hover:text-primary">
           {last.title}
         </span>
         <span className="block truncate text-sm text-muted-foreground">

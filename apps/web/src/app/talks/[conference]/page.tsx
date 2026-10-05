@@ -31,20 +31,20 @@ export default async function ConferencePage({ params }: Props) {
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-14 sm:py-20">
         <Link
           href="/talks"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
-          <ChevronLeft className="size-4" />
+          <ChevronLeft className="size-3.5" />
           General Conference
         </Link>
 
-        <h1 className="mt-4 font-display text-4xl font-semibold tracking-tight sm:text-5xl text-balance">
+        <h1 className="mt-4 font-display text-5xl font-light tracking-tight sm:text-6xl">
           {data.title}
         </h1>
 
-        <div className="mt-12 space-y-12">
+        <div className="mt-14 space-y-14">
           {data.sessions.map((session) => (
             <section key={session.name}>
-              <h2 className="small-caps text-sm text-primary">
+              <h2 className="eyebrow text-primary">
                 {session.name}
               </h2>
               <ol className="mt-3 border-t border-border">
@@ -58,10 +58,10 @@ export default async function ConferencePage({ params }: Props) {
                       className="group flex items-baseline gap-4 py-4"
                     >
                       <span className="flex-1">
-                        <span className="block font-display text-lg font-medium leading-snug transition-colors group-hover:text-primary text-balance">
+                        <span className="block font-display text-xl leading-snug transition-colors group-hover:text-primary text-balance">
                           {talk.title}
                         </span>
-                        <span className="mt-1 block text-sm text-muted-foreground">
+                        <span className="mt-1 block font-serif text-[0.95rem] text-muted-foreground italic">
                           {talk.speaker}
                           {talk.role ? (
                             <span className="text-muted-foreground/70">

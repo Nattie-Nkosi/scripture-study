@@ -15,7 +15,6 @@ import { RecordTalkPosition } from "@/components/reader/record-talk-position";
 import { ReadingProgress } from "@/components/reader/reading-progress";
 import { BackToTop } from "@/components/reader/back-to-top";
 import { Ornament } from "@/components/ornament";
-import { buttonVariants } from "@/components/ui/button";
 
 type Props = {
   params: Promise<{ conference: string; talk: string }>;
@@ -56,33 +55,32 @@ export default async function TalkPage({ params }: Props) {
 
       <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
         <div className="text-center animate-in fade-in duration-500">
-          <p className="small-caps text-sm text-primary">{data.session}</p>
-          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl text-balance">
+          <p className="eyebrow text-primary">{data.session}</p>
+          <h1 className="mx-auto mt-3 max-w-2xl font-display text-4xl leading-[1.08] font-light tracking-tight sm:text-[3.25rem]">
             {data.title}
           </h1>
-          <p className="mt-4 font-serif text-lg text-foreground/80">
+          <p className="mt-6 font-serif text-lg text-foreground/85 italic">
             {data.speaker}
           </p>
           {data.role && (
-            <p className="mt-1 text-sm text-muted-foreground text-pretty">
+            <p className="mt-1 font-serif text-sm text-muted-foreground text-pretty">
               {data.role}
             </p>
           )}
-          <p className="mt-3 small-caps text-xs text-muted-foreground">
-            {minutes} min read
-          </p>
-          <div className="mt-5 flex justify-center">
+          <div className="mt-5 flex items-center justify-center gap-4 eyebrow text-muted-foreground">
+            <span>{minutes} min read</span>
+            <span aria-hidden className="size-1 rotate-45 bg-border" />
             <a
               href={officialTalkUrl(data)}
               target="_blank"
               rel="noopener noreferrer"
               title="Opens the official recording on churchofjesuschrist.org"
-              className={buttonVariants({ variant: "outline", size: "sm" })}
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-primary"
             >
-              <Headphones /> Listen in the speaker&rsquo;s voice
+              <Headphones className="size-3.5" /> Listen in the speaker&rsquo;s voice
             </a>
           </div>
-          <Ornament className="mt-7" />
+          <Ornament className="mt-9" />
         </div>
 
         <TalkBody
@@ -93,13 +91,14 @@ export default async function TalkPage({ params }: Props) {
           speaker={data.speaker}
         />
 
-        <nav className="mx-auto mt-14 flex max-w-2xl items-center justify-between gap-3 border-t pt-6">
+        <nav className="mx-auto mt-20 flex max-w-2xl items-center justify-between gap-3 border-t border-border pt-6">
           {prevHref ? (
             <Link
               href={prevHref}
-              className={buttonVariants({ variant: "outline", size: "lg" })}
+              className="group inline-flex items-center gap-2 eyebrow text-muted-foreground transition-colors hover:text-primary"
             >
-              <ArrowLeft /> Previous
+              <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
+              Previous
             </Link>
           ) : (
             <span />
@@ -107,9 +106,10 @@ export default async function TalkPage({ params }: Props) {
           {nextHref ? (
             <Link
               href={nextHref}
-              className={buttonVariants({ variant: "outline", size: "lg" })}
+              className="group inline-flex items-center gap-2 eyebrow text-muted-foreground transition-colors hover:text-primary"
             >
-              Next <ArrowRight />
+              Next
+              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
             </Link>
           ) : (
             <span />

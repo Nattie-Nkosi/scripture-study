@@ -13,7 +13,7 @@ export function ChapterSummary({ book, chapter }: { book: string; chapter: numbe
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className="mx-auto mt-5 max-w-2xl">
+    <div className="mx-auto mt-3 max-w-2xl">
       {open ? (
         <SummaryCard book={book} chapter={chapter} onClose={() => setOpen(false)} />
       ) : (
@@ -21,9 +21,9 @@ export function ChapterSummary({ book, chapter }: { book: string; chapter: numbe
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3.5 py-1.5 font-sans text-xs font-medium text-primary transition-colors hover:bg-primary/10"
+            className="eyebrow flex items-center gap-1.5 text-primary/80 transition-colors hover:text-primary"
           >
-            <Sparkles className="size-3.5" /> Summarize this chapter
+            <Sparkles className="size-3" /> Summarize this chapter
           </button>
         </div>
       )}
@@ -47,9 +47,9 @@ function SummaryCard({
   const showSpinner = status === "loading" || (status === "streaming" && !content);
 
   return (
-    <div className="rounded-lg border border-primary/25 bg-primary/[0.03] p-3.5 font-sans text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+    <div className="border-l-2 border-primary/40 py-1 pl-4 font-serif text-[0.95rem] leading-relaxed animate-in fade-in slide-in-from-top-1 duration-200">
       <div className="mb-1.5 flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary/70">
+        <span className="eyebrow flex items-center gap-1.5 text-primary/80">
           <Sparkles className="size-3.5" /> Chapter summary
         </span>
         <button

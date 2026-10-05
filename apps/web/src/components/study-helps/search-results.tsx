@@ -75,12 +75,12 @@ export async function StudyHelpSearchResults({
             <li key={`${r.entryId}-${i}`} className="py-4">
               <Link
                 href={`/study-helps/${r.type}/${r.slug}`}
-                className="group block rounded-md transition-colors hover:bg-accent/30"
+                className="group block"
               >
-                <p className="small-caps text-xs text-muted-foreground">
+                <p className="eyebrow text-muted-foreground">
                   {typeShortName(r.type)}
                 </p>
-                <p className="mt-0.5 font-serif text-base font-semibold text-primary text-balance">
+                <p className="mt-0.5 font-display text-xl text-foreground transition-colors group-hover:text-primary text-balance">
                   {r.title}
                 </p>
               </Link>
@@ -104,7 +104,7 @@ export async function StudyHelpSearchResults({
           ) : (
             <span />
           )}
-          <span className="text-xs text-muted-foreground">Page {page}</span>
+          <span className="eyebrow text-muted-foreground">Page {page}</span>
           {shownUpTo < data.total ? (
             <Link
               href={linkFor(page + 1)}

@@ -423,32 +423,33 @@ export function ChapterBody({
   return (
     <div className="mt-8">
       <div className="flex flex-col items-center gap-3">
-        <div className="flex w-fit items-center rounded-full border border-border bg-card p-0.5 text-sm">
+        <div className="flex w-fit items-center gap-5">
           <button
             type="button"
             onClick={() => setMode("kjv")}
             aria-pressed={mode === "kjv"}
             className={cn(
-              "rounded-full px-4 py-1.5 font-sans font-medium transition-colors",
+              "eyebrow border-b pb-0.5 transition-colors",
               mode === "kjv"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground",
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground",
             )}
           >
             King James
           </button>
+          <span aria-hidden className="size-1 rotate-45 bg-border" />
           <button
             type="button"
             onClick={showSimple}
             aria-pressed={mode === "simple"}
             className={cn(
-              "flex items-center gap-1.5 rounded-full px-4 py-1.5 font-sans font-medium transition-colors",
+              "eyebrow flex items-center gap-1.5 border-b pb-0.5 transition-colors",
               mode === "simple"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground",
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground",
             )}
           >
-            <Sparkles className="size-3.5" />
+            <Sparkles className="size-3" />
             Simple English
           </button>
         </div>
@@ -471,7 +472,7 @@ export function ChapterBody({
         <>
           <div
             key={showingSimple ? "simple" : "kjv"}
-            className="reader-prose mx-auto mt-8 max-w-2xl space-y-3 font-serif animate-in fade-in duration-300"
+            className="reader-prose mx-auto mt-10 max-w-2xl space-y-3.5 font-serif animate-in fade-in duration-300"
           >
             {verses.map((v) => {
               const selectedHere = inSelection(v.n);
@@ -488,7 +489,7 @@ export function ChapterBody({
                     targetVerse === v.n && "bg-primary/10 ring-2 ring-primary/40",
                   )}
                 >
-                  <p className="text-foreground/90">
+                  <p className={cn("relative text-foreground/90", v.n === 1 && "drop-cap")}>
                     <button
                       type="button"
                       onClick={(e) => onVerseNumberClick(e, v.n)}
@@ -499,7 +500,10 @@ export function ChapterBody({
                       onPointerCancel={clearLongPress}
                       aria-label={`Verse ${v.n} options`}
                       className={cn(
-                        "mr-1.5 cursor-pointer select-none align-baseline font-sans text-[0.62em] font-semibold tabular-nums transition-colors",
+                        // From `sm` up the number hangs in the left margin, leaving the text
+                        // block clean; its line-height is scaled up so its baseline tracks
+                        // the verse's first line.
+                        "mr-1.5 cursor-pointer select-none align-baseline font-serif text-[0.7em] tabular-nums italic transition-colors sm:absolute sm:top-0 sm:right-full sm:mr-4 sm:leading-[2.57]",
                         selectedHere
                           ? "text-primary"
                           : "text-primary/45 hover:text-primary",
@@ -507,7 +511,7 @@ export function ChapterBody({
                     >
                       {v.n}
                     </button>
-                    <span className={cn("rounded px-0.5 transition-colors", highlightClass(color))}>
+                    <span className={cn("rounded transition-colors", color && "px-0.5", highlightClass(color))}>
                       {showingSimple
                         ? v.text
                         : renderVerseText(
@@ -934,7 +938,7 @@ function NotePanel({
   onClose: () => void;
 }) {
   return (
-    <div className="my-2.5 ml-5 max-w-md rounded-lg border border-border bg-card p-3 font-sans text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+    <div className="my-2.5 ml-5 max-w-md border-l-2 border-primary/30 py-1 pl-4 font-serif text-[0.95rem] animate-in fade-in slide-in-from-top-1 duration-200">
       <div className="mb-1.5 flex items-center justify-between gap-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Note
@@ -981,7 +985,7 @@ function FootnotePanel({
   onClose: () => void;
 }) {
   return (
-    <div className="my-2.5 ml-5 max-w-md rounded-lg border border-border bg-card p-3 font-sans text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+    <div className="my-2.5 ml-5 max-w-md border-l-2 border-primary/30 py-1 pl-4 font-serif text-[0.95rem] animate-in fade-in slide-in-from-top-1 duration-200">
       <div className="mb-1.5 flex items-center justify-between gap-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Footnote {letter}
@@ -1026,7 +1030,7 @@ function ExplainPanel({
   const showSpinner = status === "loading" || (status === "streaming" && !content);
 
   return (
-    <div className="my-2.5 ml-5 max-w-md rounded-lg border border-primary/25 bg-primary/[0.03] p-3 font-sans text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+    <div className="my-2.5 ml-5 max-w-md border-l-2 border-primary/50 py-1 pl-4 font-serif text-[0.95rem] animate-in fade-in slide-in-from-top-1 duration-200">
       <div className="mb-1.5 flex items-center justify-between gap-2">
         <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary/70">
           <Sparkles className="size-3.5" /> Explain · {reference}
@@ -1154,7 +1158,7 @@ function CitationsPanel({
   const total = data?.total ?? 0;
 
   return (
-    <div className="my-2.5 ml-5 max-w-md rounded-lg border border-border bg-card p-3 font-sans text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+    <div className="my-2.5 ml-5 max-w-md border-l-2 border-primary/30 py-1 pl-4 font-serif text-[0.95rem] animate-in fade-in slide-in-from-top-1 duration-200">
       <div className="mb-2 flex items-center justify-between gap-2">
         <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           <Users className="size-3.5" /> Who taught this? · {reference}

@@ -22,12 +22,12 @@ const mdComponents: Components = {
   strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
   em: ({ children }) => <em className="italic">{children}</em>,
   a: ({ href, children }) => {
-    // In-app links render as highlighted reference chips; external links open out.
+    // In-app links render as dotted-underline references; external links open out.
     if (href && href.startsWith("/")) {
       return (
         <Link
           href={href}
-          className="rounded-md bg-primary/10 px-1.5 py-0.5 font-medium whitespace-nowrap text-primary no-underline ring-1 ring-inset ring-primary/15 transition-colors hover:bg-primary/20 hover:ring-primary/30"
+          className="whitespace-nowrap text-primary underline decoration-primary/30 decoration-dotted underline-offset-4 transition-colors hover:decoration-primary hover:decoration-solid"
         >
           {children}
         </Link>
@@ -54,11 +54,11 @@ const mdComponents: Components = {
       {children}
     </pre>
   ),
-  h1: ({ children }) => <p className="mb-1 font-semibold">{children}</p>,
-  h2: ({ children }) => <p className="mb-1 font-semibold">{children}</p>,
-  h3: ({ children }) => <p className="mb-1 font-semibold">{children}</p>,
+  h1: ({ children }) => <p className="mt-4 mb-1 eyebrow text-primary">{children}</p>,
+  h2: ({ children }) => <p className="mt-4 mb-1 eyebrow text-primary">{children}</p>,
+  h3: ({ children }) => <p className="mt-4 mb-1 eyebrow text-primary">{children}</p>,
   blockquote: ({ children }) => (
-    <blockquote className="border-l-2 border-border pl-3 italic">
+    <blockquote className="border-l-2 border-primary/40 pl-3 italic">
       {children}
     </blockquote>
   ),

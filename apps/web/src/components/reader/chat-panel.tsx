@@ -476,7 +476,7 @@ function Bubble({
   if (isUser) {
     return (
       <div className="flex flex-col items-end animate-in fade-in slide-in-from-bottom-1 duration-200">
-        <div className="max-w-[85%] rounded-2xl bg-primary px-3.5 py-2 text-sm whitespace-pre-wrap break-words text-primary-foreground">
+        <div className="max-w-[85%] border-r-2 border-primary/50 py-0.5 pr-3.5 text-right font-serif text-lg leading-snug whitespace-pre-wrap break-words text-foreground italic">
           {message.content}
         </div>
       </div>
@@ -508,7 +508,7 @@ function Bubble({
         <Sparkles className="size-3.5" />
       </span>
       <div className="min-w-0 flex-1">
-        <div className="text-sm break-words text-foreground">
+        <div className="font-serif text-[1.0625rem] break-words text-foreground">
           {empty && streaming ? (
             <span className="flex items-center gap-1.5 text-muted-foreground">
               <Loader2 className="size-3.5 animate-spin" /> Thinking…

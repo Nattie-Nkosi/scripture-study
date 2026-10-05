@@ -34,22 +34,22 @@ export default async function BookPage({ params }: Props) {
         </p>
       </SiteHeader>
 
-      <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:py-16">
+      <main className="mx-auto w-full max-w-3xl px-5 py-14 sm:py-20">
         <Link
           href={`/read/${volume}`}
-          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
           ← Back
         </Link>
-        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight">
+        <h1 className="mt-3 font-display text-5xl font-light tracking-tight">
           {title}
         </h1>
-        <p className="mt-2 text-muted-foreground">
+        <p className="mt-3 font-serif text-muted-foreground italic">
           {data.chapters.length} {delineation.toLowerCase()}
           {data.chapters.length === 1 ? "" : "s"}
         </p>
 
-        <ul className="mt-8 grid grid-cols-5 gap-2 sm:grid-cols-8">
+        <ul className="mt-12 grid grid-cols-6 gap-y-1 border-t border-border pt-4 sm:grid-cols-10">
           {data.chapters.map((chapter, i) => {
             const number = i + 1;
             return (
@@ -57,7 +57,7 @@ export default async function BookPage({ params }: Props) {
                 <Link
                   href={`/read/${volume}/${book}/${number}`}
                   title={chapter.summary || undefined}
-                  className="flex aspect-square items-center justify-center rounded-lg border border-border bg-card font-serif text-lg transition-all duration-150 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-accent/40 hover:shadow-sm active:translate-y-0 active:scale-95"
+                  className="flex h-12 items-center justify-center font-serif text-xl font-light tabular-nums transition-colors hover:text-primary hover:italic"
                 >
                   {number}
                 </Link>

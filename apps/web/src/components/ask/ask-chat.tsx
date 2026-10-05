@@ -335,9 +335,9 @@ export function AskChat() {
 
   return (
     <div className="flex h-full">
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-muted/20 md:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-border md:flex">
         <div className="border-b border-border px-3 py-[0.6875rem]">
-          <span className="font-display text-sm font-semibold">Saved chats</span>
+          <span className="eyebrow text-muted-foreground">Saved chats</span>
         </div>
         <div className="min-h-0 flex-1">{savedPanel}</div>
       </aside>
@@ -359,7 +359,7 @@ export function AskChat() {
         )}
       >
         <div className="flex items-center justify-between border-b border-border px-3 py-2">
-          <span className="font-display text-sm font-semibold">Saved chats</span>
+          <span className="eyebrow text-muted-foreground">Saved chats</span>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -384,8 +384,8 @@ export function AskChat() {
             >
               <PanelLeft />
             </Button>
-            <span className="flex items-center gap-1.5 font-display text-sm font-semibold">
-              <Sparkles className="size-4 text-primary" />
+            <span className="flex items-center gap-1.5 eyebrow text-foreground">
+              <Sparkles className="size-3.5 text-primary" />
               Ask
               <BetaBadge />
             </span>
@@ -470,7 +470,7 @@ export function AskChat() {
           }}
           className="mx-auto max-w-3xl"
         >
-          <div className="flex items-end gap-2 rounded-2xl border border-input bg-card p-2 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40">
+          <div className="flex items-end gap-2 rounded-lg border border-border bg-card/60 p-2 transition-colors focus-within:border-primary/50">
             <textarea
               ref={textareaRef}
               value={input}
@@ -492,7 +492,7 @@ export function AskChat() {
               }
               disabled={!online}
               aria-label="Ask a question"
-              className="max-h-52 min-h-[2.25rem] flex-1 resize-none bg-transparent px-2 py-1.5 text-base outline-none disabled:opacity-50 sm:text-sm"
+              className="max-h-52 min-h-[2.25rem] flex-1 resize-none bg-transparent px-2 py-1.5 font-serif text-lg outline-none placeholder:text-muted-foreground/60 placeholder:italic disabled:opacity-50"
             />
             {streaming ? (
               <Button
@@ -561,34 +561,34 @@ function EmptyState({
 }) {
   return (
     <div className="mx-auto flex max-w-2xl flex-col items-center px-4 py-12 text-center sm:py-20">
-      <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-        <Sparkles className="size-6" />
-      </span>
-      <div className="mt-5 flex items-center gap-2">
-        <h1 className="font-display text-3xl font-semibold tracking-tight">
+      <p className="flex items-center gap-2 eyebrow text-primary">
+        <Sparkles className="size-3.5" /> Study assistant
+      </p>
+      <div className="mt-4 flex items-center gap-2">
+        <h1 className="font-display text-4xl font-light tracking-tight sm:text-5xl">
           Ask about the scriptures
         </h1>
         <BetaBadge />
       </div>
-      <p className="mt-2 max-w-md font-serif leading-relaxed text-muted-foreground text-pretty">
+      <p className="mt-4 max-w-md font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
         Questions about the standard works or General Conference — answered from the
         text in this app, with references you can open.
       </p>
-      <div className="mt-8 grid w-full gap-2 sm:grid-cols-2">
+      <div className="mt-12 grid w-full border-t border-border sm:grid-cols-2 sm:gap-x-8">
         {SUGGESTIONS.map(({ text, icon: Icon }) => (
           <button
             key={text}
             type="button"
             onClick={() => onPick(text)}
             disabled={disabled}
-            className="group flex items-center gap-2.5 rounded-xl border border-border bg-card px-4 py-3 text-left text-sm transition-colors hover:border-primary/40 hover:bg-accent/40 disabled:opacity-50"
+            className="group flex items-center gap-3 border-b border-border py-4 text-left font-serif text-[1.05rem] italic transition-colors hover:text-primary disabled:opacity-50"
           >
             <Icon className="size-4 shrink-0 text-primary/60 transition-colors group-hover:text-primary" />
             {text}
           </button>
         ))}
       </div>
-      <p className="mt-6 text-xs text-muted-foreground">
+      <p className="mt-8 font-serif text-sm text-muted-foreground italic">
         Runs on a free AI service, so daily use is limited.
       </p>
     </div>
@@ -625,7 +625,7 @@ function Bubble({
   if (isUser) {
     return (
       <div className="flex flex-col items-end animate-in fade-in slide-in-from-bottom-1 duration-200">
-        <div className="max-w-[85%] rounded-2xl bg-primary px-3.5 py-2 text-sm whitespace-pre-wrap break-words text-primary-foreground">
+        <div className="max-w-[85%] border-r-2 border-primary/50 py-0.5 pr-3.5 text-right font-serif text-lg leading-snug whitespace-pre-wrap break-words text-foreground italic">
           {message.content}
         </div>
       </div>
@@ -661,12 +661,12 @@ function Bubble({
     <div className="group flex w-full gap-2.5 animate-in fade-in slide-in-from-bottom-1 duration-200">
       <span
         aria-hidden
-        className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"
+        className="mt-1.5 flex size-5 shrink-0 items-center justify-center text-primary/70"
       >
         <Sparkles className="size-3.5" />
       </span>
       <div className="min-w-0 flex-1">
-        <div className="text-sm break-words text-foreground">
+        <div className="font-serif text-[1.0625rem] break-words text-foreground">
           {empty && streaming ? (
             <span className="flex items-center gap-1.5 text-muted-foreground">
               <Loader2 className="size-3.5 animate-spin" /> Searching the library…

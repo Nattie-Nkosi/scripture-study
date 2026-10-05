@@ -16,7 +16,6 @@ import { BackToTop } from "@/components/reader/back-to-top";
 import { LessonBody } from "@/components/come-follow-me/lesson-body";
 import { LessonReferences } from "@/components/come-follow-me/lesson-references";
 import { Ornament } from "@/components/ornament";
-import { buttonVariants } from "@/components/ui/button";
 import type { Lesson, LessonSummary } from "@/lib/come-follow-me/types";
 
 type Props = {
@@ -64,23 +63,23 @@ export default async function LessonPage({ params }: Props) {
       <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
         <Link
           href="/come-follow-me"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
-          <ChevronLeft className="size-4" />
+          <ChevronLeft className="size-3.5" />
           Come, Follow Me
         </Link>
 
-        <div className="mt-6 text-center animate-in fade-in duration-500">
-          <p className="small-caps text-sm text-primary">
+        <div className="mt-8 text-center animate-in fade-in duration-500">
+          <p className="eyebrow text-primary">
             {manualName(lesson.manualId)} · {lesson.dateRange.display}
           </p>
-          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl text-balance">
+          <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
             {lesson.title}
           </h1>
-          <p className="mt-3 small-caps text-xs text-muted-foreground">
+          <p className="mt-5 eyebrow text-muted-foreground">
             {minutes} min read
           </p>
-          <Ornament className="mt-7" />
+          <Ornament className="mt-9" />
         </div>
 
         {references.length > 0 && (
@@ -91,13 +90,14 @@ export default async function LessonPage({ params }: Props) {
 
         <LessonBody blocks={blocks} />
 
-        <nav className="mx-auto mt-14 flex max-w-2xl items-center justify-between gap-3 border-t pt-6">
+        <nav className="mx-auto mt-20 flex max-w-2xl items-center justify-between gap-3 border-t border-border pt-6">
           {prev ? (
             <Link
               href={`/come-follow-me/${prev._id}`}
-              className={buttonVariants({ variant: "outline", size: "lg" })}
+              className="group inline-flex items-center gap-2 eyebrow text-muted-foreground transition-colors hover:text-primary"
             >
-              <ArrowLeft /> Previous week
+              <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
+              Previous week
             </Link>
           ) : (
             <span />
@@ -105,9 +105,10 @@ export default async function LessonPage({ params }: Props) {
           {next ? (
             <Link
               href={`/come-follow-me/${next._id}`}
-              className={buttonVariants({ variant: "outline", size: "lg" })}
+              className="group inline-flex items-center gap-2 eyebrow text-muted-foreground transition-colors hover:text-primary"
             >
-              Next week <ArrowRight />
+              Next week
+              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
             </Link>
           ) : (
             <span />

@@ -746,7 +746,7 @@ function NotePanel({
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="my-2 max-w-md rounded-lg border border-border bg-card p-3 font-sans text-sm animate-in fade-in slide-in-from-top-1 duration-200"
+      className="my-2 max-w-md border-l-2 border-primary/30 py-1 pl-4 font-serif text-[0.95rem] animate-in fade-in slide-in-from-top-1 duration-200"
     >
       <div className="mb-1.5 flex items-center justify-between gap-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -794,7 +794,7 @@ function FootnoteNote({
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="my-3 max-w-xl rounded-lg border border-border bg-card p-3 font-sans text-sm animate-in fade-in slide-in-from-top-1 duration-200"
+      className="my-3 max-w-xl border-l-2 border-primary/30 py-1 pl-4 font-serif text-[0.95rem] animate-in fade-in slide-in-from-top-1 duration-200"
     >
       <div className="mb-1.5 flex items-center justify-between gap-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

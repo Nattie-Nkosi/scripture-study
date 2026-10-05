@@ -13,7 +13,6 @@ import { ReadingProgress } from "@/components/reader/reading-progress";
 import { BackToTop } from "@/components/reader/back-to-top";
 import { AssistantPanel } from "@/components/reader/assistant-panel";
 import { Ornament } from "@/components/ornament";
-import { buttonVariants } from "@/components/ui/button";
 
 type Props = {
   params: Promise<{ volume: string; book: string; chapter: string }>;
@@ -85,16 +84,17 @@ export default async function ReaderPage({ params }: Props) {
 
       <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
         <div className="text-center animate-in fade-in duration-500">
-          <p className="small-caps text-sm text-primary">{volRef.title}</p>
-          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-            {bookRef.title} {body.number}
+          <p className="eyebrow text-primary">{volRef.title}</p>
+          <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
+            {bookRef.title}{" "}
+            <span className="text-primary">{body.number}</span>
           </h1>
           {body.summary && (
-            <p className="mx-auto mt-4 max-w-xl font-serif text-[0.95rem] leading-relaxed text-muted-foreground italic">
+            <p className="mx-auto mt-6 max-w-xl font-serif text-base leading-relaxed text-muted-foreground italic text-pretty">
               {body.summary}
             </p>
           )}
-          <Ornament className="mt-7" />
+          <Ornament className="mt-9" />
         </div>
 
         <ChapterBody
@@ -109,13 +109,14 @@ export default async function ReaderPage({ params }: Props) {
           }))}
         />
 
-        <nav className="mx-auto mt-14 flex max-w-2xl items-center justify-between gap-3 border-t pt-6">
+        <nav className="mx-auto mt-20 flex max-w-2xl items-center justify-between gap-3 border-t border-border pt-6">
           {prevHref ? (
             <Link
               href={prevHref}
-              className={buttonVariants({ variant: "outline", size: "lg" })}
+              className="group inline-flex items-center gap-2 eyebrow text-muted-foreground transition-colors hover:text-primary"
             >
-              <ArrowLeft /> Previous
+              <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
+              Previous
             </Link>
           ) : (
             <span />
@@ -123,9 +124,10 @@ export default async function ReaderPage({ params }: Props) {
           {nextHref ? (
             <Link
               href={nextHref}
-              className={buttonVariants({ variant: "outline", size: "lg" })}
+              className="group inline-flex items-center gap-2 eyebrow text-muted-foreground transition-colors hover:text-primary"
             >
-              Next <ArrowRight />
+              Next
+              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
             </Link>
           ) : (
             <span />

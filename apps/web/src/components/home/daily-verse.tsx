@@ -56,18 +56,22 @@ export function DailyVerse({ className }: { className?: string }) {
   const verse = VERSES[index];
 
   return (
-    <Link
-      href={verse.href}
-      className={`group block rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:border-primary/40 ${className ?? ""}`}
-    >
-      <p className="small-caps text-xs text-primary">Verse of the day</p>
-      <p className="mt-2 line-clamp-4 font-serif leading-relaxed text-foreground/90 italic">
+    <figure className={`text-center ${className ?? ""}`}>
+      <p className="eyebrow text-primary">Verse of the day</p>
+      <blockquote className="mx-auto mt-5 max-w-xl font-serif text-2xl leading-snug font-light text-pretty italic sm:text-[1.75rem]">
+        <span aria-hidden className="text-primary/60">“</span>
         {verse.text}
-      </p>
-      <span className="mt-2.5 inline-flex items-center gap-1 text-sm font-medium text-primary">
-        {verse.reference}
-        <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-      </span>
-    </Link>
+        <span aria-hidden className="text-primary/60">”</span>
+      </blockquote>
+      <figcaption className="mt-5">
+        <Link
+          href={verse.href}
+          className="group inline-flex items-center gap-1.5 eyebrow text-muted-foreground transition-colors hover:text-primary"
+        >
+          {verse.reference}
+          <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      </figcaption>
+    </figure>
   );
 }

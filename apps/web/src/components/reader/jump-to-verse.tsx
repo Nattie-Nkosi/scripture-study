@@ -43,21 +43,21 @@ export function JumpToVerse({ count }: { count: number }) {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="true"
-        className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 font-sans text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+        className="eyebrow flex items-center gap-1 text-muted-foreground transition-colors hover:text-primary"
       >
         Jump to verse
         <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} />
       </button>
 
       {open && (
-        <div className="absolute left-1/2 z-30 mt-2 w-64 -translate-x-1/2 rounded-xl border border-border bg-card p-2 shadow-lg animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute left-1/2 z-30 mt-2 w-64 -translate-x-1/2 rounded-md border border-border bg-popover p-2 shadow-lg animate-in fade-in zoom-in-95 duration-150">
           <div className="grid max-h-64 grid-cols-6 gap-1 overflow-y-auto">
             {Array.from({ length: count }, (_, i) => i + 1).map((n) => (
               <button
                 key={n}
                 type="button"
                 onClick={() => jump(n)}
-                className="rounded-md py-1.5 text-center font-sans text-xs tabular-nums text-foreground/80 transition-colors hover:bg-primary hover:text-primary-foreground"
+                className="rounded-sm py-1.5 text-center font-serif text-sm tabular-nums text-foreground/80 transition-colors hover:bg-primary hover:text-primary-foreground"
               >
                 {n}
               </button>

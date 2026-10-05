@@ -25,11 +25,11 @@ export function SiteFooter() {
           <div className="max-w-xs">
             <div className="flex items-center gap-2.5">
               <Logo className="size-5 text-primary" />
-              <span className="font-display text-base font-semibold tracking-tight">
+              <span className="font-display text-base font-medium tracking-tight">
                 Scripture Study
               </span>
             </div>
-            <p className="mt-2.5 small-caps text-xs text-muted-foreground">
+            <p className="mt-2.5 eyebrow text-muted-foreground">
               A study edition
             </p>
           </div>
@@ -42,7 +42,7 @@ export function SiteFooter() {
               <Link
                 key={href}
                 href={href}
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="font-serif text-[0.95rem] text-muted-foreground transition-colors hover:text-foreground"
               >
                 {label}
               </Link>
@@ -59,7 +59,7 @@ export function SiteFooter() {
             Scripture text via the Open Scripture API. AI features are study
             aids, not an official source of Church doctrine.
           </p>
-          <p className="small-caps text-xs text-muted-foreground">
+          <p className="eyebrow text-muted-foreground">
             © {new Date().getFullYear()} Scripture Study
           </p>
         </div>

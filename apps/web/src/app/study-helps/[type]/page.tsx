@@ -54,18 +54,18 @@ export default async function BrowseWorkPage({ params, searchParams }: Props) {
       <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-12 sm:py-16">
         <Link
           href="/study-helps"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
-          <ChevronLeft className="size-4" />
+          <ChevronLeft className="size-3.5" />
           Study Helps
         </Link>
 
         <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="font-display text-4xl font-semibold tracking-tight">
+            <h1 className="font-display text-5xl font-light tracking-tight sm:text-6xl">
               {typeName(work)}
             </h1>
-            <p className="mt-1.5 max-w-lg font-serif text-muted-foreground text-pretty">
+            <p className="mt-3 max-w-lg font-serif text-muted-foreground italic text-pretty">
               {typeBlurb(work)}
             </p>
           </div>
@@ -77,7 +77,7 @@ export default async function BrowseWorkPage({ params, searchParams }: Props) {
           </Link>
         </div>
 
-        <p className="mt-6 small-caps text-xs text-muted-foreground">
+        <p className="mt-6 eyebrow text-muted-foreground">
           {data.total.toLocaleString()} entries · page {page} of{" "}
           {totalPages.toLocaleString()}
         </p>
@@ -87,7 +87,7 @@ export default async function BrowseWorkPage({ params, searchParams }: Props) {
             <li key={entry._id} className="break-inside-avoid">
               <Link
                 href={`/study-helps/${work}/${entry.slug}`}
-                className="block truncate rounded py-1.5 font-serif text-sm text-foreground/90 transition-colors hover:text-primary"
+                className="block truncate py-1.5 font-serif text-[0.95rem] text-foreground/90 transition-colors hover:text-primary"
                 title={entry.title}
               >
                 {entry.title}
@@ -108,7 +108,7 @@ export default async function BrowseWorkPage({ params, searchParams }: Props) {
             ) : (
               <span />
             )}
-            <span className="text-xs text-muted-foreground">
+            <span className="eyebrow text-muted-foreground">
               Page {page} of {totalPages.toLocaleString()}
             </span>
             {shownUpTo < data.total ? (

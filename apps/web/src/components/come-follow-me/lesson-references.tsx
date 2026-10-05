@@ -63,16 +63,16 @@ export function LessonReferences({
 
   return (
     <div>
-      <p className="text-center small-caps text-xs text-muted-foreground">
+      <p className="text-center eyebrow text-muted-foreground">
         Scripture for this week
       </p>
-      <div className="mt-3 flex flex-wrap justify-center gap-2">
+      <div className="mt-3 flex flex-wrap justify-center gap-x-5 gap-y-1.5">
         {references.map((ref) => {
           if (!ref.target) {
             return (
               <span
                 key={ref.label}
-                className="rounded-full border border-border/60 px-3 py-1 text-sm text-muted-foreground"
+                className="font-serif text-lg text-muted-foreground"
               >
                 {ref.label}
               </span>
@@ -86,10 +86,10 @@ export function LessonReferences({
               onClick={() => toggle(ref.label, ref.target!)}
               aria-expanded={isActive}
               className={cn(
-                "rounded-full border px-3 py-1 text-sm transition-colors",
+                "border-b pb-0.5 font-serif text-lg italic transition-colors",
                 isActive
-                  ? "border-primary/50 bg-primary/10 text-foreground"
-                  : "border-border text-foreground/80 hover:border-primary/40 hover:text-primary",
+                  ? "border-primary text-primary"
+                  : "border-transparent text-foreground/85 hover:text-primary",
               )}
             >
               {ref.label}
@@ -99,7 +99,7 @@ export function LessonReferences({
       </div>
 
       {active && activeTarget && (
-        <div className="mx-auto mt-3 max-w-md rounded-xl border border-border bg-card p-3.5 text-left animate-in fade-in slide-in-from-top-1 duration-200">
+        <div className="mx-auto mt-5 max-w-md border-l-2 border-primary/40 py-1 pl-4 text-left animate-in fade-in slide-in-from-top-1 duration-200">
           {preview?.status === "loading" && (
             <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <Loader2 className="size-3.5 animate-spin" /> Loading {active.label}…
@@ -125,7 +125,7 @@ export function LessonReferences({
               </p>
               <Link
                 href={readerUrl(activeTarget)}
-                className="mt-2.5 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                className="mt-2.5 inline-flex items-center gap-1.5 font-serif text-primary italic hover:underline"
               >
                 Open {active.label} <ArrowUpRight className="size-3.5" />
               </Link>

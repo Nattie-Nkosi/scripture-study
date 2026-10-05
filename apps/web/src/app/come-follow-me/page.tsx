@@ -44,8 +44,8 @@ export default async function ComeFollowMePage() {
     <>
       <SiteHeader />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-14 sm:py-20">
-        <p className="small-caps text-sm text-primary">Come, Follow Me</p>
-        <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+        <p className="eyebrow text-primary">Come, Follow Me</p>
+        <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
           Study by the week
         </h1>
         <p className="mt-4 max-w-xl font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
@@ -56,29 +56,29 @@ export default async function ComeFollowMePage() {
 
         <Link
           href={`/come-follow-me/${current._id}`}
-          className="group mt-10 block rounded-2xl border border-border bg-card p-6 transition-colors hover:border-primary/40"
+          className="group mt-12 block border-y border-border py-7"
         >
-          <span className="small-caps text-xs text-primary">This week</span>
-          <span className="mt-1 block small-caps text-xs text-muted-foreground">
+          <span className="eyebrow text-primary">This week</span>
+          <span className="mt-1 block eyebrow text-muted-foreground">
             {current.dateRange.display}
           </span>
-          <span className="mt-1.5 block font-display text-2xl font-medium transition-colors group-hover:text-primary text-balance">
+          <span className="mt-1.5 block font-display text-3xl font-light tracking-tight transition-colors group-hover:text-primary text-balance">
             {current.title}
           </span>
           {current.scriptureReferences.length > 0 && (
-            <span className="mt-1.5 block font-serif text-sm text-muted-foreground">
+            <span className="mt-2 block font-serif text-muted-foreground italic">
               {current.scriptureReferences.join(" · ")}
             </span>
           )}
-          <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
+          <span className="mt-4 inline-flex items-center gap-1.5 font-serif text-primary italic">
             Read this week’s lesson
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
           </span>
         </Link>
 
-        <Ornament className="my-12" />
+        <Ornament className="my-16" />
 
-        <p className="small-caps text-sm text-primary">{manual} · {current.year}</p>
+        <p className="eyebrow text-primary">{manual} · {current.year}</p>
         <ol className="mt-5 border-t border-border">
           {lessons.map((lesson) => {
             const isCurrent = lesson._id === current._id;
@@ -91,20 +91,21 @@ export default async function ComeFollowMePage() {
                   href={`/come-follow-me/${lesson._id}`}
                   className="group flex items-baseline gap-4 py-4"
                 >
-                  <span className="w-28 shrink-0 small-caps text-xs text-muted-foreground tabular-nums">
+                  <span className="w-28 shrink-0 eyebrow text-muted-foreground tabular-nums">
                     {lesson.dateRange.display}
                   </span>
                   <span className="flex-1">
-                    <span className="block font-display text-lg font-medium leading-snug transition-colors group-hover:text-primary text-balance">
+                    <span className="block font-display text-xl leading-snug transition-colors group-hover:text-primary text-balance">
                       {lesson.title}
                       {isCurrent && (
-                        <span className="ml-2 align-middle rounded-full bg-primary/10 px-2 py-0.5 text-[0.65rem] font-medium tracking-wide text-primary uppercase">
+                        <span className="ml-3 inline-flex items-center gap-1.5 align-middle eyebrow text-primary">
+                          <span aria-hidden className="size-1 rotate-45 bg-primary" />
                           This week
                         </span>
                       )}
                     </span>
                     {lesson.scriptureReferences.length > 0 && (
-                      <span className="mt-1 block text-sm text-muted-foreground">
+                      <span className="mt-1 block font-serif text-[0.95rem] text-muted-foreground italic">
                         {lesson.scriptureReferences.join(" · ")}
                       </span>
                     )}

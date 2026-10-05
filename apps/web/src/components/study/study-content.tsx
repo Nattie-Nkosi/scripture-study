@@ -121,13 +121,13 @@ export function StudyContent() {
         <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
           <Link
             href="/read"
-            className="text-sm font-medium text-primary hover:underline"
+            className="font-serif text-primary italic hover:underline"
           >
             Open the library →
           </Link>
           <Link
             href="/talks"
-            className="text-sm font-medium text-primary hover:underline"
+            className="font-serif text-primary italic hover:underline"
           >
             Browse talks →
           </Link>
@@ -147,7 +147,7 @@ export function StudyContent() {
                   {reference(b.bookTitle, b.chapter, b.verse)}
                 </span>
                 {b.verse === null && (
-                  <span className="ml-2 small-caps text-xs text-muted-foreground">
+                  <span className="ml-2 eyebrow text-muted-foreground">
                     Chapter
                   </span>
                 )}
@@ -159,7 +159,7 @@ export function StudyContent() {
                   subtitle={joinMeta(b.speaker, conferenceLabel(b.conferenceId))}
                 />
                 {b.paragraph === null && (
-                  <span className="ml-auto shrink-0 small-caps text-xs text-muted-foreground">
+                  <span className="ml-auto shrink-0 eyebrow text-muted-foreground">
                     Talk
                   </span>
                 )}
@@ -236,9 +236,9 @@ function joinMeta(...parts: (string | undefined)[]): string {
 function TalkLabel({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <span className="min-w-0 flex-1">
-      <span className="block truncate font-serif text-foreground/90">{title}</span>
+      <span className="block truncate font-serif text-lg text-foreground/90 transition-colors group-hover:text-primary">{title}</span>
       {subtitle && (
-        <span className="block truncate text-xs text-muted-foreground">{subtitle}</span>
+        <span className="block truncate font-serif text-sm text-muted-foreground italic">{subtitle}</span>
       )}
     </span>
   );
@@ -257,10 +257,10 @@ function Section({
 }) {
   return (
     <section>
-      <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        <span className="text-primary/70">{icon}</span>
+      <h2 className="flex items-center gap-2 eyebrow text-primary">
+        <span className="text-primary/70 [&_svg]:size-3.5">{icon}</span>
         {title}
-        <span className="font-normal text-muted-foreground/60">{count}</span>
+        <span className="text-muted-foreground/70 tabular-nums">{count}</span>
       </h2>
       <div className="mt-3 border-t border-border">{children}</div>
     </section>
@@ -271,7 +271,7 @@ function Row({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link
       href={href}
-      className="-mx-2 flex items-center gap-3 rounded-md border-b border-border px-2 py-3 transition-colors last:border-b-0 hover:bg-muted/40"
+      className="group flex items-center gap-3 border-b border-border py-3.5 transition-colors last:border-b-0"
     >
       {children}
     </Link>

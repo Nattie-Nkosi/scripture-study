@@ -44,9 +44,9 @@ export default async function SpeakerPage({ params, searchParams }: Props) {
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-14 sm:py-20">
         <Link
           href="/talks/speakers"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
-          <ChevronLeft className="size-4" />
+          <ChevronLeft className="size-3.5" />
           Speakers
         </Link>
 
@@ -58,10 +58,10 @@ export default async function SpeakerPage({ params, searchParams }: Props) {
             sizes="96px"
           />
           <div className="min-w-0">
-            <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+            <h1 className="font-display text-4xl font-light tracking-tight sm:text-5xl">
               {speaker.name}
             </h1>
-            <p className="mt-2 small-caps text-sm text-muted-foreground">
+            <p className="mt-2 eyebrow text-muted-foreground">
               {speaker.talkCount} talk{speaker.talkCount === 1 ? "" : "s"} ·{" "}
               {speaker.firstYear === speaker.lastYear
                 ? speaker.firstYear
@@ -78,10 +78,10 @@ export default async function SpeakerPage({ params, searchParams }: Props) {
                 className="group flex items-baseline gap-4 py-4"
               >
                 <span className="flex-1">
-                  <span className="block font-display text-lg font-medium leading-snug transition-colors group-hover:text-primary text-balance">
+                  <span className="block font-display text-xl leading-snug transition-colors group-hover:text-primary text-balance">
                     {talk.title}
                   </span>
-                  <span className="mt-1 block small-caps text-xs text-muted-foreground">
+                  <span className="mt-1 block eyebrow text-muted-foreground">
                     {conferenceShortTitle(talk.year, talk.month)} · {talk.session}
                   </span>
                 </span>
@@ -103,7 +103,7 @@ export default async function SpeakerPage({ params, searchParams }: Props) {
             ) : (
               <span />
             )}
-            <span className="text-xs text-muted-foreground">Page {page}</span>
+            <span className="eyebrow text-muted-foreground">Page {page}</span>
             {hasNext ? (
               <Link
                 href={linkFor(page + 1)}

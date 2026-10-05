@@ -35,7 +35,7 @@ export function LessonBody({ blocks }: { blocks: LessonBlock[] }) {
           return (
             <h2
               key={i}
-              className="mt-12 mb-2 border-t border-border pt-6 font-sans small-caps text-sm font-medium tracking-wide text-primary first:mt-0 first:border-t-0 first:pt-0"
+              className="mt-14 mb-2 border-t border-border pt-7 eyebrow text-primary first:mt-0 first:border-t-0 first:pt-0"
             >
               <Segments segments={block.segments} />
             </h2>
@@ -45,7 +45,7 @@ export function LessonBody({ blocks }: { blocks: LessonBlock[] }) {
           return (
             <h3
               key={i}
-              className="mt-9 mb-1 font-display text-xl font-semibold tracking-tight text-foreground text-balance first:mt-0"
+              className="mt-9 mb-1 font-display text-2xl tracking-tight text-foreground text-balance first:mt-0"
             >
               <Segments segments={block.segments} />
             </h3>
@@ -56,7 +56,7 @@ export function LessonBody({ blocks }: { blocks: LessonBlock[] }) {
             <p
               key={i}
               className={cn(
-                "mt-3 font-sans text-sm text-muted-foreground",
+                "mt-3 font-serif text-[0.95rem] text-muted-foreground italic",
                 "[&_a]:decoration-muted-foreground/40",
               )}
             >

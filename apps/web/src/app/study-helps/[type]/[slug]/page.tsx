@@ -48,31 +48,31 @@ export default async function EntryPage({ params }: Props) {
       <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
         <Link
           href={`/study-helps/${type}`}
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
-          <ChevronLeft className="size-4" />
+          <ChevronLeft className="size-3.5" />
           {typeName(type)}
         </Link>
 
-        <div className="mt-6 text-center animate-in fade-in duration-500">
-          <p className="small-caps text-sm text-primary">{typeName(type)}</p>
-          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl text-balance">
+        <div className="mt-8 text-center animate-in fade-in duration-500">
+          <p className="eyebrow text-primary">{typeName(type)}</p>
+          <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
             {entry.title}
           </h1>
-          <Ornament className="mt-7" />
+          <Ornament className="mt-9" />
         </div>
 
         <EntryBody paragraphs={paragraphs} />
 
         {entry.seeAlso.length > 0 && (
           <div className="mx-auto mt-12 max-w-2xl border-t border-border pt-6">
-            <p className="small-caps text-sm text-primary">See also</p>
-            <div className="mt-3 flex flex-wrap gap-2">
+            <p className="eyebrow text-primary">See also</p>
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5">
               {entry.seeAlso.map((ref) => (
                 <Link
                   key={ref.entryId}
                   href={`/study-helps/${seeAlsoType(ref.entryId, type)}/${ref.slug}`}
-                  className="rounded-full border border-border px-3 py-1 font-serif text-sm text-foreground/90 transition-colors hover:border-primary/40 hover:text-primary"
+                  className="font-serif text-lg text-foreground/85 italic transition-colors hover:text-primary"
                 >
                   {ref.title}
                 </Link>
