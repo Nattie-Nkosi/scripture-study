@@ -36,6 +36,11 @@ const SECTIONS = [
       "Bible Dictionary, Topical Guide, index, and Joseph Smith Translation.",
   },
   {
+    href: "/organization",
+    label: "Church Organization",
+    description: "A map of Church leaders and members, from the General Handbook.",
+  },
+  {
     href: "/ask",
     label: "Ask",
     description: "A study assistant grounded in the scriptures and talks.",
@@ -47,7 +52,7 @@ const SECTIONS = [
   },
 ];
 
-const NUMERALS = ["i", "ii", "iii", "iv", "v", "vi"];
+const NUMERALS = ["i", "ii", "iii", "iv", "v", "vi", "vii"];
 
 export default function Home() {
   return (

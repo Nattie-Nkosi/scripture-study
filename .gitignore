@@ -42,3 +42,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Source PDFs (reference only, not used at runtime)
+/general_handbook_serving_in_the_church_of_jesus_christ_of_latter_day_saints.pdf

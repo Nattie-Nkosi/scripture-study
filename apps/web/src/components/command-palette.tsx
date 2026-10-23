@@ -13,6 +13,7 @@ import {
   Library,
   Loader2,
   Mic,
+  Network,
   Search,
   Sparkles,
 } from "lucide-react";
@@ -84,6 +85,7 @@ const NAV_ITEMS: Item[] = [
   { id: "nav-talks", group: "Go to", label: "General Conference", icon: <Mic className="size-4" />, href: "/talks" },
   { id: "nav-cfm", group: "Go to", label: "Come, Follow Me", icon: <CalendarDays className="size-4" />, href: "/come-follow-me" },
   { id: "nav-study-helps", group: "Go to", label: "Study Helps", icon: <BookMarked className="size-4" />, href: "/study-helps" },
+  { id: "nav-organization", group: "Go to", label: "Church Organization", icon: <Network className="size-4" />, href: "/organization" },
   { id: "nav-ask", group: "Go to", label: "Ask the assistant", icon: <Sparkles className="size-4" />, href: "/ask" },
   { id: "nav-study", group: "Go to", label: "My study", icon: <Bookmark className="size-4" />, href: "/study" },
   { id: "nav-search", group: "Go to", label: "Search", icon: <Search className="size-4" />, href: "/search" },

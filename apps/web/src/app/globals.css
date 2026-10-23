@@ -243,3 +243,94 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Organization mind map: an indented outline on small screens, a left-to-right
+ * branching map from `lg` up. Connectors are drawn with pseudo-elements: each
+ * child gets a horizontal tick plus its slice of the vertical spine. */
+.mindmap,
+.mm-children {
+  --mm-line: color-mix(in oklch, var(--foreground) 20%, transparent);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mm-node {
+  width: 16rem;
+  max-width: 100%;
+}
+.mm-children {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding-left: 1.25rem;
+}
+.mm-children > li {
+  position: relative;
+  padding-left: 1rem;
+}
+.mm-children > li::before,
+.mm-children > li::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+.mm-children > li::before {
+  top: 1.6rem;
+  width: 1rem;
+  border-top: 1px solid var(--mm-line);
+}
+.mm-children > li::after {
+  top: -0.5rem;
+  bottom: 0;
+  border-left: 1px solid var(--mm-line);
+}
+.mm-children > li:last-child::after {
+  bottom: auto;
+  height: 2.1rem;
+}
+
+@media (min-width: 64rem) {
+  .mm-row {
+    display: flex;
+    align-items: center;
+  }
+  .mm-node {
+    width: 11.5rem;
+  }
+  .mm-children {
+    position: relative;
+    margin-top: 0;
+    padding-left: 1rem;
+  }
+  .mm-children::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1rem;
+    border-top: 1px solid var(--mm-line);
+  }
+  .mm-children > li {
+    display: flex;
+    padding-left: 1rem;
+  }
+  .mm-children > li::before {
+    top: 50%;
+    width: 1rem;
+  }
+  .mm-children > li::after {
+    top: -0.25rem;
+    bottom: -0.25rem;
+    height: auto;
+  }
+  .mm-children > li:first-child::after {
+    top: 50%;
+  }
+  .mm-children > li:last-child::after {
+    bottom: 50%;
+  }
+  .mm-children > li:only-child::after {
+    display: none;
+  }
+}

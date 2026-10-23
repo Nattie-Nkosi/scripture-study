@@ -9,6 +9,7 @@ import {
   Library,
   Menu as MenuIcon,
   Mic,
+  Network,
   Search,
   Sparkles,
 } from "lucide-react";
@@ -20,6 +21,7 @@ const ITEMS = [
   { href: "/talks", label: "Conference", icon: Mic },
   { href: "/come-follow-me", label: "Come, Follow Me", icon: CalendarDays },
   { href: "/study-helps", label: "Study Helps", icon: BookMarked },
+  { href: "/organization", label: "Organization", icon: Network },
   { href: "/ask", label: "Ask", icon: Sparkles },
   { href: "/study", label: "My study", icon: Bookmark },
   { href: "/search", label: "Search", icon: Search },

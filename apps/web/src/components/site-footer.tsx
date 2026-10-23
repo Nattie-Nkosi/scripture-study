@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/talks", label: "Conference" },
   { href: "/come-follow-me", label: "Come, Follow Me" },
   { href: "/study-helps", label: "Study Helps" },
+  { href: "/organization", label: "Organization" },
   { href: "/ask", label: "Ask" },
   { href: "/search", label: "Search" },
 ];
