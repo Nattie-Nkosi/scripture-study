@@ -481,6 +481,60 @@
   pointer-events: none;
 }
 
+/* Line of authority on the emblem: drawn outward from Christ, station by station. */
+.emblem-tier.is-traced:not(.is-active) .emblem-ring {
+  stroke: color-mix(in oklch, var(--primary) 45%, transparent);
+}
+.emblem-line {
+  pointer-events: none;
+}
+.emblem-line-path {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: emblem-draw 0.9s cubic-bezier(0.5, 0, 0.2, 1) 0.1s both;
+}
+.emblem-line-stop {
+  fill: var(--primary);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: emblem-mark-in 0.3s ease-out both;
+  animation-delay: calc(var(--i, 0) * 160ms + 250ms);
+}
+
+/* Line of authority in the detail panel: a garnet rail from Christ down to the calling. */
+.org-line > li {
+  position: relative;
+  padding: 0.15rem 0 0.15rem 1.15rem;
+  animation: org-rise 0.35s ease-out both;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+.org-line > li::before {
+  content: "";
+  position: absolute;
+  left: 0.1rem;
+  top: 0.62rem;
+  width: 0.35rem;
+  height: 0.35rem;
+  rotate: 45deg;
+  border: 1px solid var(--primary);
+  background: var(--background);
+}
+.org-line > li:first-child::before {
+  background: var(--primary);
+}
+.org-line > li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: calc(0.275rem - 0.5px);
+  top: 1.05rem;
+  bottom: -0.55rem;
+  border-left: 1px solid color-mix(in oklch, var(--primary) 40%, transparent);
+}
+
 @keyframes mm-in {
   from {
     opacity: 0;

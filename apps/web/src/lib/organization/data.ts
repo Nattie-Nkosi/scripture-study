@@ -9,8 +9,35 @@ export type OrgNode = {
   duties?: string[];
   calledBy?: string;
   section?: string;
+  /** The calling this one serves under, by id — its line of priesthood keys and direction. */
+  under?: string;
+  /** Core scriptures, written as "Book chapter:verse". See `scriptureHref`. */
+  scriptures?: string[];
   children?: OrgNode[];
 };
+
+const BOOKS: Record<string, [volume: string, book: string]> = {
+  Genesis: ["oldtestament", "genesis"],
+  Isaiah: ["oldtestament", "isaiah"],
+  Malachi: ["oldtestament", "malachi"],
+  Matthew: ["newtestament", "matthew"],
+  Luke: ["newtestament", "luke"],
+  John: ["newtestament", "john"],
+  "1 Corinthians": ["newtestament", "1corinthians"],
+  Ephesians: ["newtestament", "ephesians"],
+  "1 Timothy": ["newtestament", "1timothy"],
+  Mosiah: ["bookofmormon", "mosiah"],
+  "3 Nephi": ["bookofmormon", "3nephi"],
+  Moroni: ["bookofmormon", "moroni"],
+  "D&C": ["doctrineandcovenants", "doctrineandcovenants"],
+  "Articles of Faith": ["pearlofgreatprice", "articlesoffaith"],
+};
+
+export function scriptureHref(ref: string): string {
+  const [, book, chapter, verse] = ref.match(/^(.+) (\d+):(\d+)$/)!;
+  const [volume, id] = BOOKS[book];
+  return `/read/${volume}/${id}/${chapter}#v${verse}`;
+}
 
 export const ORGANIZATION: OrgNode = {
   id: "church",
@@ -25,6 +52,7 @@ export const ORGANIZATION: OrgNode = {
     "Unite families for eternity",
   ],
   section: "1.2–1.4",
+  scriptures: ["Ephesians 4:11", "Articles of Faith 1:6"],
   children: [
     {
       id: "general",
@@ -46,6 +74,8 @@ export const ORGANIZATION: OrgNode = {
             "Call counselors to form the First Presidency",
           ],
           section: "5.1.1.1",
+          under: "church",
+          scriptures: ["D&C 107:91", "D&C 21:4"],
         },
         {
           id: "first-presidency",
@@ -59,6 +89,8 @@ export const ORGANIZATION: OrgNode = {
             "Approve the calling of bishops and stake presidency counselors",
           ],
           section: "5.1.1.1",
+          under: "president",
+          scriptures: ["D&C 107:22", "Matthew 17:1"],
         },
         {
           id: "twelve",
@@ -73,6 +105,8 @@ export const ORGANIZATION: OrgNode = {
             "Lead the Church when the First Presidency is dissolved",
           ],
           section: "5.1.1.1",
+          under: "first-presidency",
+          scriptures: ["D&C 107:23", "Luke 6:13"],
         },
         {
           id: "seventy",
@@ -87,6 +121,8 @@ export const ORGANIZATION: OrgNode = {
           ],
           calledBy: "The First Presidency",
           section: "5.1.1.2",
+          under: "twelve",
+          scriptures: ["D&C 107:25", "Luke 10:1"],
         },
         {
           id: "presiding-bishopric",
@@ -101,6 +137,8 @@ export const ORGANIZATION: OrgNode = {
           ],
           calledBy: "The First Presidency",
           section: "5.1.1.3",
+          under: "first-presidency",
+          scriptures: ["D&C 107:68"],
         },
         {
           id: "general-officers",
@@ -116,6 +154,7 @@ export const ORGANIZATION: OrgNode = {
           ],
           calledBy: "The First Presidency",
           section: "5.1.2",
+          under: "first-presidency",
         },
       ],
     },
@@ -141,6 +180,7 @@ export const ORGANIZATION: OrgNode = {
           ],
           calledBy: "Assigned by the First Presidency and the Twelve",
           section: "5.2.1",
+          under: "twelve",
         },
         {
           id: "area-seventies",
@@ -156,6 +196,7 @@ export const ORGANIZATION: OrgNode = {
           ],
           calledBy: "The First Presidency",
           section: "5.2.2",
+          under: "area-presidency",
         },
         {
           id: "mission-president",
@@ -169,6 +210,7 @@ export const ORGANIZATION: OrgNode = {
             "Preside over districts and branches outside of stakes",
           ],
           section: "5.2.1, 6.3, 18.7",
+          under: "area-presidency",
           children: [
             {
               id: "full-time-missionaries",
@@ -182,6 +224,8 @@ export const ORGANIZATION: OrgNode = {
                 "Help strengthen new and returning members",
               ],
               section: "23.4, 31.2.3.2",
+              under: "mission-president",
+              scriptures: ["Matthew 28:19", "D&C 4:2"],
             },
           ],
         },
@@ -193,6 +237,7 @@ export const ORGANIZATION: OrgNode = {
             "Outside the United States and Canada, Area Presidencies may call women as area organization advisers. Under stake presidencies' direction, they help orient new stake Relief Society, Young Women, and Primary presidencies.",
           calledBy: "The Area Presidency",
           section: "5.2.5.1",
+          under: "area-presidency",
         },
       ],
     },
@@ -203,6 +248,7 @@ export const ORGANIZATION: OrgNode = {
       summary:
         "Each stake is made up of multiple wards and is led by a stake president. The Lord establishes stakes for the gathering of His people and as a defense and refuge from the world.",
       section: "6.1",
+      scriptures: ["Isaiah 54:2"],
       children: [
         {
           id: "stake-presidency",
@@ -219,6 +265,8 @@ export const ORGANIZATION: OrgNode = {
           ],
           calledBy: "An assigned General Authority or Area Seventy",
           section: "6.2",
+          under: "area-presidency",
+          scriptures: ["D&C 115:6"],
         },
         {
           id: "high-council",
@@ -234,6 +282,8 @@ export const ORGANIZATION: OrgNode = {
           ],
           calledBy: "The stake presidency",
           section: "6.5",
+          under: "stake-presidency",
+          scriptures: ["D&C 102:1"],
         },
         {
           id: "patriarch",
@@ -243,6 +293,8 @@ export const ORGANIZATION: OrgNode = {
             "A patriarch is an office in the Melchizedek Priesthood. He is called and ordained to give patriarchal blessings to worthy members. He should be mature in the gospel, sensitive to the Spirit, and normally age 55 or older.",
           calledBy: "Directed by the Quorum of the Twelve",
           section: "6.6",
+          under: "stake-presidency",
+          scriptures: ["D&C 107:39", "Genesis 49:28"],
         },
         {
           id: "stake-clerks",
@@ -252,6 +304,8 @@ export const ORGANIZATION: OrgNode = {
             "The stake executive secretary schedules and coordinates for the stake presidency. The stake clerk, a member of the stake council, and his assistants keep stake records and finances.",
           calledBy: "The stake president or an assigned counselor",
           section: "6.4",
+          under: "stake-presidency",
+          scriptures: ["D&C 85:1"],
         },
         {
           id: "stake-organizations",
@@ -266,6 +320,7 @@ export const ORGANIZATION: OrgNode = {
           ],
           calledBy: "The stake presidency",
           section: "6.7",
+          under: "stake-presidency",
         },
       ],
     },
@@ -292,6 +347,8 @@ export const ORGANIZATION: OrgNode = {
           ],
           calledBy: "The stake president, with First Presidency approval",
           section: "7.1",
+          under: "stake-presidency",
+          scriptures: ["D&C 107:72", "D&C 46:27"],
           children: [
             {
               id: "ward-clerks",
@@ -300,6 +357,8 @@ export const ORGANIZATION: OrgNode = {
               summary:
                 "The executive secretary works closely with the bishopric to schedule interviews and meetings but is not part of the bishopric. Ward clerks keep membership records and help with finances.",
               section: "7.3–7.4",
+              under: "bishopric",
+              scriptures: ["D&C 85:1"],
             },
           ],
         },
@@ -310,6 +369,8 @@ export const ORGANIZATION: OrgNode = {
           summary:
             "The bishop leads the ward council and the ward youth council. Leaders counsel together about how to build spiritual strength and unity, and they coordinate God's work of salvation and exaltation in the ward.",
           section: "7.1.1.3, 29.2.5",
+          under: "bishopric",
+          scriptures: ["D&C 88:122"],
         },
         {
           id: "elders-quorum",
@@ -324,6 +385,8 @@ export const ORGANIZATION: OrgNode = {
           ],
           calledBy: "The stake president calls the elders quorum president",
           section: "8.1–8.3",
+          under: "stake-presidency",
+          scriptures: ["D&C 107:89", "D&C 20:38"],
         },
         {
           id: "relief-society",
@@ -338,6 +401,8 @@ export const ORGANIZATION: OrgNode = {
           ],
           calledBy: "The bishop calls the Relief Society president",
           section: "9.1–9.3",
+          under: "bishopric",
+          scriptures: ["1 Corinthians 13:8", "Moroni 7:47"],
         },
         {
           id: "aaronic-priesthood",
@@ -346,6 +411,8 @@ export const ORGANIZATION: OrgNode = {
           summary:
             "Aaronic Priesthood quorums help young men make and keep sacred covenants and deepen their conversion to Jesus Christ. The bishopric is the presidency of the Aaronic Priesthood.",
           section: "10.1",
+          under: "bishopric",
+          scriptures: ["D&C 13:1", "D&C 107:20"],
           children: [
             {
               id: "deacons",
@@ -354,6 +421,8 @@ export const ORGANIZATION: OrgNode = {
               summary:
                 "Deacons pass the sacrament and assist the bishop in administering temporal things. An ordained deacon serves as quorum president and holds priesthood keys.",
               section: "10.1.3.1",
+              under: "aaronic-priesthood",
+              scriptures: ["D&C 20:59", "D&C 84:111"],
             },
             {
               id: "teachers",
@@ -362,6 +431,8 @@ export const ORGANIZATION: OrgNode = {
               summary:
                 "Teachers have the same duties as deacons. They also prepare the sacrament and serve as ministering brothers. An ordained teacher serves as quorum president.",
               section: "10.1.3.2",
+              under: "aaronic-priesthood",
+              scriptures: ["D&C 20:53"],
             },
             {
               id: "priests",
@@ -370,6 +441,8 @@ export const ORGANIZATION: OrgNode = {
               summary:
                 "Priests have the same duties as deacons and teachers, with additional duties described in Doctrine and Covenants 20. The bishop is the president of the priests quorum and calls priests as his assistants.",
               section: "10.1.3.3",
+              under: "aaronic-priesthood",
+              scriptures: ["D&C 20:46", "D&C 107:87"],
             },
           ],
         },
@@ -385,6 +458,8 @@ export const ORGANIZATION: OrgNode = {
           ],
           calledBy: "The bishop calls the Young Women president",
           section: "11.1–11.3",
+          under: "bishopric",
+          scriptures: ["1 Timothy 4:12"],
         },
         {
           id: "primary",
@@ -394,6 +469,8 @@ export const ORGANIZATION: OrgNode = {
             "Primary helps children feel Heavenly Father's love, learn about Jesus Christ, recognize the Holy Ghost, and prepare to make and keep sacred covenants.",
           calledBy: "A member of the bishopric",
           section: "12.1–12.3",
+          under: "bishopric",
+          scriptures: ["3 Nephi 17:21", "3 Nephi 22:13"],
         },
         {
           id: "sunday-school",
@@ -403,6 +480,8 @@ export const ORGANIZATION: OrgNode = {
             "The Sunday School strengthens faith in Heavenly Father and Jesus Christ by teaching the doctrine of the kingdom. It supports home-centered gospel learning and helps members teach in the Savior's way.",
           calledBy: "A member of the bishopric",
           section: "13.1–13.2",
+          under: "bishopric",
+          scriptures: ["D&C 88:77"],
         },
         {
           id: "ward-mission-leader",
@@ -416,6 +495,8 @@ export const ORGANIZATION: OrgNode = {
             "Help strengthen new and returning members",
           ],
           section: "23.6.3",
+          under: "bishopric",
+          scriptures: ["D&C 18:15"],
           children: [
             {
               id: "ward-missionaries",
@@ -424,6 +505,8 @@ export const ORGANIZATION: OrgNode = {
               summary:
                 "Ward missionaries teach by word and example how to love others, share their faith, and invite others to receive the blessings of the gospel. They also help minister to new and returning members.",
               section: "23.6.4",
+              under: "ward-mission-leader",
+              scriptures: ["D&C 88:81"],
             },
           ],
         },
@@ -439,6 +522,8 @@ export const ORGANIZATION: OrgNode = {
             "Instruct consultants who help members find ancestors",
           ],
           section: "25.2.3",
+          under: "bishopric",
+          scriptures: ["Malachi 4:6", "D&C 128:15"],
         },
       ],
     },
@@ -457,6 +542,8 @@ export const ORGANIZATION: OrgNode = {
           summary:
             "Parents have the primary responsibility to teach their children the gospel. Families pray, learn the gospel together — including in home evening — and help one another keep covenants. Church activities support these efforts.",
           section: "2.1–2.2",
+          under: "bishopric",
+          scriptures: ["D&C 68:25"],
         },
         {
           id: "ministering",
@@ -465,6 +552,8 @@ export const ORGANIZATION: OrgNode = {
           summary:
             "Ministering means serving others as the Savior did. Priesthood holders are assigned as ministering brothers to each household, and ministering sisters to each adult sister. Help with spiritual and temporal needs often begins with them.",
           section: "21.0, 22.6.3",
+          under: "elders-quorum",
+          scriptures: ["John 13:34"],
         },
         {
           id: "teachers-members",
@@ -473,6 +562,8 @@ export const ORGANIZATION: OrgNode = {
           summary:
             "Parents, teachers, and leaders follow the example of Jesus Christ, the Master Teacher. They love those they teach, teach by the Spirit, and teach the doctrine from the scriptures and latter-day prophets.",
           section: "17.1",
+          under: "sunday-school",
+          scriptures: ["D&C 42:14"],
         },
         {
           id: "every-member",
@@ -481,6 +572,8 @@ export const ORGANIZATION: OrgNode = {
           summary:
             "Every member is invited to live the gospel, care for those in need, invite all to receive the gospel, and unite families for eternity — helping bring souls to Christ in their homes, callings, and communities.",
           section: "1.2, 1.4",
+          under: "bishopric",
+          scriptures: ["Mosiah 18:9"],
         },
       ],
     },

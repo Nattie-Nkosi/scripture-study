@@ -15,7 +15,7 @@ export default function OrganizationPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-[90rem] flex-1 px-5 py-10 sm:py-14">
+      <main className="mx-auto w-full max-w-360 flex-1 px-5 py-10 sm:py-14">
         <Frontispiece />
 
         <div className="mt-16 sm:mt-20">
@@ -38,7 +38,7 @@ export default function OrganizationPage() {
  *  every theme, so the image's edges dissolve into it. */
 function Frontispiece() {
   return (
-    <section className="relative isolate flex min-h-[30rem] items-end overflow-hidden rounded-2xl bg-[#1a1214] sm:min-h-[34rem] sm:items-center">
+    <section className="relative isolate flex min-h-120 items-end overflow-hidden rounded-2xl bg-[#1a1214] sm:min-h-136 sm:items-center">
       <div className="org-plate-img absolute inset-0 -z-10 sm:left-auto sm:w-[58%]">
         <Image
           src="/images/christus.jpg"
@@ -51,7 +51,7 @@ function Frontispiece() {
       </div>
       <div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-gradient-to-t from-[#1a1214] via-[#1a1214]/55 to-transparent sm:bg-gradient-to-r sm:from-[#1a1214] sm:via-[#1a1214]/80 sm:via-45% sm:to-transparent sm:to-75%"
+        className="absolute inset-0 -z-10 bg-linear-to-t from-[#1a1214] via-[#1a1214]/55 to-transparent sm:bg-linear-to-r sm:from-[#1a1214] sm:via-[#1a1214]/80 sm:via-45% sm:to-transparent sm:to-75%"
       />
       <div aria-hidden className="pointer-events-none absolute inset-3 rounded-xl border border-white/10" />
       <p className="absolute bottom-7 left-14 hidden font-serif text-[0.7rem] text-white/40 italic sm:block">
