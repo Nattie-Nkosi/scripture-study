@@ -246,7 +246,8 @@
 
 /* Organization mind map: an indented outline on small screens, a left-to-right
  * branching map from `lg` up. Connectors are drawn with pseudo-elements: each
- * child gets a horizontal tick plus its slice of the vertical spine. */
+ * child gets a horizontal tick plus its slice of the vertical spine. New branches
+ * draw their ticks then reveal nodes in order (`--i`); the selected path is inked in garnet. */
 .mindmap,
 .mm-children {
   --mm-line: color-mix(in oklch, var(--foreground) 20%, transparent);
@@ -269,6 +270,10 @@
   position: relative;
   padding-left: 1rem;
 }
+.mm-children > li > .mm-row {
+  animation: mm-in 0.35s ease-out both;
+  animation-delay: calc(var(--i, 0) * 35ms + 120ms);
+}
 .mm-children > li::before,
 .mm-children > li::after {
   content: "";
@@ -279,6 +284,12 @@
   top: 1.6rem;
   width: 1rem;
   border-top: 1px solid var(--mm-line);
+  transform-origin: left;
+  animation: mm-draw 0.25s ease-out both;
+  animation-delay: calc(var(--i, 0) * 35ms);
+}
+.mm-children > li.mm-on::before {
+  border-top-color: var(--primary);
 }
 .mm-children > li::after {
   top: -0.5rem;
@@ -311,6 +322,9 @@
     width: 1rem;
     border-top: 1px solid var(--mm-line);
   }
+  .mm-children-on::before {
+    border-top-color: var(--primary);
+  }
   .mm-children > li {
     display: flex;
     padding-left: 1rem;
@@ -332,5 +346,177 @@
   }
   .mm-children > li:only-child::after {
     display: none;
+  }
+}
+
+.org-rise {
+  animation: org-rise 0.7s ease-out both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+.org-plate-img {
+  animation: org-plate-in 2.2s cubic-bezier(0.2, 0.6, 0.2, 1) both;
+}
+.org-stagger {
+  animation: org-rise 0.35s ease-out both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+.org-fade {
+  animation: org-fade 0.3s ease-out both;
+}
+.org-pop {
+  animation: org-fade 0.18s ease-out both;
+}
+.org-tab {
+  position: relative;
+  padding-bottom: 0.15rem;
+}
+.org-tab::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px 0;
+  border-bottom: 1px solid var(--primary);
+  transform: scaleX(0);
+  transition: transform 0.25s ease;
+}
+.org-tab[aria-pressed="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Hero emblem: hairline rings, engraved small-caps labels, drawn once on load. */
+.emblem-tick {
+  stroke: color-mix(in oklch, var(--foreground) 18%, transparent);
+  stroke-width: 0.75;
+}
+.emblem-tier,
+.emblem-core {
+  cursor: pointer;
+  outline: none;
+}
+.emblem-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 24;
+  pointer-events: stroke;
+}
+.emblem-ring {
+  fill: none;
+  stroke: color-mix(in oklch, var(--foreground) 22%, transparent);
+  stroke-width: 0.75;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  pointer-events: none;
+  animation: emblem-draw 1.4s cubic-bezier(0.6, 0, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 120ms + 150ms);
+  transition: stroke 0.25s ease, stroke-width 0.25s ease;
+}
+.emblem-tier:hover .emblem-ring,
+.emblem-tier:focus-visible .emblem-ring {
+  stroke: color-mix(in oklch, var(--foreground) 55%, transparent);
+}
+.emblem-tier.is-active .emblem-ring {
+  stroke: var(--primary);
+  stroke-width: 1.5;
+}
+.emblem-label {
+  font-family: var(--font-newsreader), serif;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  fill: var(--muted-foreground);
+  pointer-events: none;
+  animation: org-fade 0.6s ease both;
+  animation-delay: calc(var(--i, 0) * 120ms + 800ms);
+  transition: fill 0.25s ease;
+}
+.emblem-tier:hover .emblem-label,
+.emblem-tier:focus-visible .emblem-label {
+  fill: var(--foreground);
+}
+.emblem-tier.is-active .emblem-label {
+  fill: var(--primary);
+}
+.emblem-mark {
+  cursor: pointer;
+  outline: none;
+}
+.emblem-mark-hit {
+  fill: transparent;
+}
+.emblem-mark-gem {
+  fill: var(--background);
+  stroke: var(--primary);
+  stroke-width: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: emblem-mark-in 0.3s ease-out both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+  transition: fill 0.2s ease;
+}
+.emblem-mark:hover .emblem-mark-gem,
+.emblem-mark:focus-visible .emblem-mark-gem,
+.emblem-mark.is-lit .emblem-mark-gem {
+  fill: var(--primary);
+}
+.emblem-disc {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.25s ease;
+}
+.emblem-core:hover .emblem-disc,
+.emblem-core:focus-visible .emblem-disc {
+  transform: scale(1.04);
+}
+.emblem-core-small {
+  font-family: var(--font-newsreader), serif;
+  font-size: 7.5px;
+  letter-spacing: 0.3em;
+  fill: color-mix(in oklch, var(--primary-foreground) 75%, transparent);
+  pointer-events: none;
+}
+.emblem-core-big {
+  font-family: var(--font-newsreader), serif;
+  font-size: 13px;
+  font-style: italic;
+  fill: var(--primary-foreground);
+  pointer-events: none;
+}
+
+@keyframes mm-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+@keyframes mm-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes org-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes org-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes emblem-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes emblem-mark-in {
+  from {
+    opacity: 0;
+    scale: 0.3;
+  }
+}
+@keyframes org-plate-in {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
   }
 }
