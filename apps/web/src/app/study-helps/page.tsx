@@ -34,13 +34,13 @@ export default async function StudyHelpsPage() {
     <>
       <SiteHeader />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-14 sm:py-20">
-        <p className="eyebrow text-primary">Study Helps</p>
-        <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
-          Look deeper
+        <h1 className="font-display text-5xl font-light tracking-tight sm:text-6xl">
+          Study Helps
+          <span className="mt-2 block text-[0.5em] leading-tight">Look deeper</span>
         </h1>
         <p className="mt-4 max-w-xl font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
-          The scripture study aids — the Bible Dictionary, Topical Guide, index,
-          and Joseph Smith Translation — with every citation linked straight into
+          The scripture study aids (the Bible Dictionary, Topical Guide, index,
+          and Joseph Smith Translation) with every citation linked straight into
           the reader.
         </p>
 
@@ -56,7 +56,7 @@ export default async function StudyHelpsPage() {
               type="search"
               placeholder="Search the study helps…"
               aria-label="Search the study helps"
-              className="w-full border-0 border-b border-border bg-transparent py-3 pr-3 pl-8 font-serif text-xl outline-none transition-colors placeholder:text-muted-foreground/60 placeholder:italic focus-visible:border-primary"
+              className="w-full border-0 border-b border-field-edge bg-transparent py-3 pr-3 pl-8 font-serif text-xl outline-none transition-colors placeholder:text-muted-foreground/60 placeholder:italic focus-visible:border-primary"
             />
           </div>
         </form>

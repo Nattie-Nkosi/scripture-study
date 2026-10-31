@@ -1,0 +1,7 @@
+/* The Floor's global rules, trimmed for an existing shadcn app: element type
+ * and [data-slot] rules from the scaffold are left out because shadcn and the
+ * other routes rely on them. */
+html, body { overflow-x: clip; }
+html { scrollbar-color: var(--color-ink-3) var(--color-paper); }
+body { caret-color: var(--color-signal); }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }

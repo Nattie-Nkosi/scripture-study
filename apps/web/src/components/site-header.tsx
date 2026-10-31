@@ -8,14 +8,15 @@ import { MobileNav } from "@/components/mobile-nav";
 
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
   return (
-    <header className="pt-safe sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/65">
-      <div className="mx-auto flex h-14 max-w-5xl items-center gap-6 px-4">
+    <header className="pt-safe sticky top-0 z-40 border-b border-border bg-background">
+      <div className="mx-auto flex h-14 max-w-5xl items-center gap-7 px-4">
         <Link
           href="/"
+          aria-label="Scripture Study, home"
           className="group flex shrink-0 items-center gap-2.5"
         >
-          <Logo className="size-5 text-primary transition-transform duration-500 group-hover:-rotate-6" />
-          <span className="font-display text-[1.0625rem] font-medium tracking-tight">
+          <Logo className="size-5 text-primary transition-transform duration-(--dur-long) group-hover:-rotate-6" />
+          <span aria-hidden className="font-display text-lg font-medium tracking-tight">
             <span className="sr-only sm:not-sr-only">Scripture Study</span>
           </span>
         </Link>

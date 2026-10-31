@@ -230,18 +230,18 @@ export function OrgMindMap() {
     <div>
       <section className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_auto]">
         <div className="max-w-2xl">
-          <p className="org-rise eyebrow text-primary">Church Organization</p>
           <h1
-            className="org-rise mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl"
+            className="org-rise font-display text-5xl font-light tracking-tight sm:text-6xl"
             style={{ "--i": 1 } as StaggerStyle}
           >
-            Who serves <em>where</em>
+            Church Organization
+            <span className="mt-2 block text-[0.5em] leading-tight">Who serves where</span>
           </h1>
           <p
             className="org-rise mt-4 font-serif text-lg leading-relaxed text-muted-foreground text-pretty"
             style={{ "--i": 2 } as StaggerStyle}
           >
-            A map of the Church&apos;s leaders and members — from the First Presidency to your
+            A map of the Church&apos;s leaders and members, from the First Presidency to your
             ward and home. Select any calling to see what it does, who it serves under, and the
             scriptures and handbook sections behind it.
           </p>
@@ -249,7 +249,7 @@ export function OrgMindMap() {
             className="org-rise eyebrow mt-6 text-muted-foreground"
             style={{ "--i": 3 } as StaggerStyle}
           >
-            {TIERS.length} levels · {CALLING_COUNT} callings &amp; roles · {SECTION_COUNT} handbook
+            {TIERS.length} levels, {CALLING_COUNT} callings and roles, {SECTION_COUNT} handbook
             sections
           </p>
         </div>
@@ -513,10 +513,10 @@ function Emblem({
           onKeyDown={onKey(ROOT)}
           className="emblem-core"
         >
-          <circle cx={C} cy={C} r={46} className="emblem-disc fill-primary" />
+          <circle cx={C} cy={C} r={46} className="emblem-disc fill-(--color-signal-fill)" />
           <circle cx={C} cy={C} r={41} className="fill-none stroke-primary-foreground/35" strokeWidth={0.6} />
           <text x={C} y={C - 5} textAnchor="middle" className="emblem-core-small">
-            LED BY
+            Led by
           </text>
           <text x={C} y={C + 12} textAnchor="middle" className="emblem-core-big">
             Jesus Christ
@@ -653,7 +653,7 @@ function FindCalling({ onPick }: { onPick: (id: string) => void }) {
         onFocus={() => setOpen(true)}
         onBlur={() => setOpen(false)}
         onKeyDown={onKeyDown}
-        className="h-9 w-full border-0 bg-transparent pr-7 pl-6 font-serif text-[0.95rem] outline-none placeholder:text-muted-foreground placeholder:italic"
+        className="h-9 w-full border-0 border-b border-field-edge bg-transparent pr-7 pl-6 font-serif text-[0.95rem] outline-none placeholder:text-muted-foreground placeholder:italic"
       />
       {query && (
         <button
@@ -836,7 +836,7 @@ function Branch({
               "mm-node rounded-lg border px-3.5 py-2.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               isInLine ? "outline-1 outline-offset-3 outline-primary/60 outline-dashed" : "outline-none",
               depth === 0
-                ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90"
+                ? "border-(--color-signal-fill) bg-(--color-signal-fill) text-primary-foreground hover:bg-(--color-signal-fill)/90"
                 : isSelected
                   ? "border-primary bg-card ring-1 ring-primary"
                   : isOnPath || isInLine
@@ -845,7 +845,7 @@ function Branch({
             )}
           >
             {numeral && (
-              <span className="mb-0.5 block font-serif text-[0.7rem] tracking-[0.15em] text-primary">
+              <span className="mb-0.5 block font-serif text-xs text-primary">
                 {numeral}
               </span>
             )}
@@ -941,12 +941,12 @@ function NodeDetail({
             ))}
           </nav>
 
-          <p className="org-stagger eyebrow text-primary" style={step()}>
-            {tier ? `${tier.numeral} · ${tier.label}` : "The whole Church"}
-          </p>
-          <h2 className="org-stagger mt-1 font-display text-2xl leading-tight tracking-tight text-balance" style={step()}>
+          <h2 className="org-stagger font-display text-2xl leading-tight tracking-tight text-balance" style={step()}>
             {node.title}
           </h2>
+          <p className="org-stagger mt-1 eyebrow text-primary" style={step()}>
+            {tier ? `${tier.numeral}. ${tier.label}` : "The whole Church"}
+          </p>
           <p className="org-stagger mt-1 font-serif text-sm text-muted-foreground italic" style={step()}>
             {node.tagline}
           </p>
@@ -1197,9 +1197,8 @@ function Comparison({
     <section id="compare" aria-labelledby="compare-title" className="org-fade mt-16 scroll-mt-24 border-t border-border pt-10">
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
         <div className="max-w-3xl">
-          <p className="eyebrow text-primary">Side by side</p>
-          <h2 id="compare-title" className="mt-2 font-display text-3xl font-light tracking-tight text-balance sm:text-4xl">
-            {a.title} <em className="text-muted-foreground">and</em> {b.title}
+          <h2 id="compare-title" className="font-display text-3xl font-light tracking-tight text-balance sm:text-4xl">
+            {a.title} and {b.title}
           </h2>
           {(relation || shared.size > 0) && (
             <p className="mt-3 font-serif text-[0.95rem] text-muted-foreground italic">
@@ -1252,12 +1251,12 @@ function CompareColumn({
   const step = () => ({ "--i": n++ }) as StaggerStyle;
   return (
     <article className={className}>
-      <p className="org-stagger eyebrow text-primary" style={step()}>
-        {tier ? `${tier.numeral} · ${tier.label}` : "The whole Church"}
-      </p>
-      <h3 className="org-stagger mt-1 font-display text-2xl leading-tight tracking-tight" style={step()}>
+      <h3 className="org-stagger font-display text-2xl leading-tight tracking-tight" style={step()}>
         {node.title}
       </h3>
+      <p className="org-stagger mt-1 eyebrow text-primary" style={step()}>
+        {tier ? `${tier.numeral}. ${tier.label}` : "The whole Church"}
+      </p>
       <p className="org-stagger mt-1 font-serif text-sm text-muted-foreground italic" style={step()}>
         {node.tagline}
       </p>

@@ -38,7 +38,7 @@ export default function OrganizationPage() {
  *  every theme, so the image's edges dissolve into it. */
 function Frontispiece() {
   return (
-    <section className="relative isolate flex min-h-120 items-end overflow-hidden rounded-2xl bg-[#1a1214] sm:min-h-136 sm:items-center">
+    <section className="relative isolate flex min-h-120 items-end overflow-hidden rounded-2xl bg-(--color-plate) sm:min-h-136 sm:items-center">
       <div className="org-plate-img absolute inset-0 -z-10 sm:left-auto sm:w-[58%]">
         <Image
           src="/images/christus.jpg"
@@ -51,17 +51,16 @@ function Frontispiece() {
       </div>
       <div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-linear-to-t from-[#1a1214] via-[#1a1214]/55 to-transparent sm:bg-linear-to-r sm:from-[#1a1214] sm:via-[#1a1214]/80 sm:via-45% sm:to-transparent sm:to-75%"
+        className="absolute inset-0 -z-10 bg-linear-to-t from-(--color-plate) via-(--color-plate)/55 to-transparent sm:bg-linear-to-r sm:from-(--color-plate) sm:via-(--color-plate)/80 sm:via-45% sm:to-transparent sm:to-75%"
       />
       <div aria-hidden className="pointer-events-none absolute inset-3 rounded-xl border border-white/10" />
       <p className="absolute bottom-7 left-14 hidden font-serif text-[0.7rem] text-white/40 italic sm:block">
-        Christus · Bertel Thorvaldsen, 1821 · Thorvaldsens Museum
+        Christus by Bertel Thorvaldsen, 1821. Thorvaldsens Museum
       </p>
 
       <figure className="max-w-xl px-7 pt-40 pb-9 sm:px-14 sm:py-16">
-        <p className="org-rise eyebrow text-white/55">The chief corner stone</p>
         <blockquote
-          className="org-rise mt-4 font-display text-[1.75rem] leading-snug font-light text-white/90 italic text-balance sm:text-4xl sm:leading-tight"
+          className="org-rise font-display text-[1.75rem] leading-snug font-light text-white/90 italic text-balance sm:text-4xl sm:leading-tight"
           style={{ "--i": 1 } as React.CSSProperties}
         >
           &ldquo;Built upon the foundation of the apostles and prophets, Jesus Christ himself

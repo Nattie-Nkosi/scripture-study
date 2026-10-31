@@ -84,11 +84,11 @@ export default async function ReaderPage({ params }: Props) {
 
       <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
         <div className="text-center animate-in fade-in duration-500">
-          <p className="eyebrow text-primary">{volRef.title}</p>
-          <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
+          <h1 className="font-display text-5xl font-light tracking-tight sm:text-6xl">
             {bookRef.title}{" "}
             <span className="text-primary">{body.number}</span>
           </h1>
+          <p className="mt-4 font-serif text-base text-muted-foreground">{volRef.title}</p>
           {body.summary && (
             <p className="mx-auto mt-6 max-w-xl font-serif text-base leading-relaxed text-muted-foreground italic text-pretty">
               {body.summary}

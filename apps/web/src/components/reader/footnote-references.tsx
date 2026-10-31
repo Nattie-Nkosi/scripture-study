@@ -90,7 +90,7 @@ export function FootnoteReferences({ text }: { text: string }) {
 
   return (
     <div className="mt-3">
-      <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+      <p className="mb-1.5 font-serif text-sm font-medium text-muted-foreground">
         Cross references
       </p>
       <div className="flex flex-wrap gap-1.5">

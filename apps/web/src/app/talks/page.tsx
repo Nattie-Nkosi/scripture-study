@@ -45,7 +45,7 @@ export default async function TalksPage() {
         <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-16">
           <p className="rounded-md border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
             Couldn’t load conference talks{status ? ` (HTTP ${status})` : ""}. The
-            service may be temporarily unavailable — please try again.
+            service may be temporarily unavailable. Please try again.
           </p>
         </main>
         <SiteFooter />
@@ -59,9 +59,9 @@ export default async function TalksPage() {
     <>
       <SiteHeader />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-14 sm:py-20">
-        <p className="eyebrow text-primary">General Conference</p>
-        <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
-          Words of the prophets
+        <h1 className="font-display text-5xl font-light tracking-tight sm:text-6xl">
+          General Conference
+          <span className="mt-2 block text-[0.5em] leading-tight">Words of the prophets</span>
         </h1>
         <p className="mt-4 max-w-xl font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
           Semiannual addresses from the leaders of The Church of Jesus Christ of
@@ -72,14 +72,11 @@ export default async function TalksPage() {
           href={`/talks/${latest._id}`}
           className="group mt-12 block border-y border-border py-7"
         >
-          <span className="eyebrow text-primary">
-            Latest conference
-          </span>
-          <span className="mt-2 block font-display text-3xl font-light tracking-tight transition-colors group-hover:text-primary">
+          <span className="block font-display text-3xl font-light tracking-tight transition-colors group-hover:text-primary">
             {latest.title}
           </span>
-          <span className="mt-2 block eyebrow text-muted-foreground">
-            {latest.sessions.length} sessions · {talkCount(latest)} talks
+          <span className="mt-2 block font-serif text-base text-muted-foreground">
+            Latest conference, {latest.sessions.length} sessions and {talkCount(latest)} talks
           </span>
           <span className="mt-4 inline-flex items-center gap-1.5 font-serif text-primary italic">
             Browse talks
@@ -94,19 +91,19 @@ export default async function TalksPage() {
             href="/talks/speakers"
             className="eyebrow text-muted-foreground transition-colors hover:text-primary"
           >
-            Browse by speaker →
+            Browse by speaker
           </Link>
           <Link
             href="/search?scope=talks"
             className="eyebrow text-muted-foreground transition-colors hover:text-primary"
           >
-            Search talks →
+            Search talks
           </Link>
         </div>
 
         <Ornament className="my-16" />
 
-        <p className="eyebrow text-primary">The archive</p>
+        <h2 className="font-display text-3xl font-light tracking-tight">The archive</h2>
         <ol className="mt-5 border-y border-border">
           {years.map(([year, list]) => (
             <li

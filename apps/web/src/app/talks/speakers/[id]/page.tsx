@@ -85,7 +85,7 @@ export default async function SpeakerPage({ params, searchParams }: Props) {
                     {conferenceShortTitle(talk.year, talk.month)} · {talk.session}
                   </span>
                 </span>
-                <ChevronRight className="size-5 shrink-0 self-center text-muted-foreground opacity-0 transition-all group-hover:translate-x-1 group-hover:text-primary group-hover:opacity-100" />
+                <ChevronRight className="size-5 shrink-0 self-center text-muted-foreground opacity-0 transition-[color,opacity,transform] group-hover:translate-x-1 group-hover:text-primary group-hover:opacity-100" />
               </Link>
             </li>
           ))}
@@ -98,7 +98,7 @@ export default async function SpeakerPage({ params, searchParams }: Props) {
                 href={linkFor(page - 1)}
                 className={buttonVariants({ variant: "outline", size: "sm" })}
               >
-                ← Previous
+                Previous
               </Link>
             ) : (
               <span />
@@ -109,7 +109,7 @@ export default async function SpeakerPage({ params, searchParams }: Props) {
                 href={linkFor(page + 1)}
                 className={buttonVariants({ variant: "outline", size: "sm" })}
               >
-                Next →
+                Next
               </Link>
             ) : (
               <span />

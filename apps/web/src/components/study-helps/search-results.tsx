@@ -62,7 +62,7 @@ export async function StudyHelpSearchResults({
     <div className="mt-8 animate-in fade-in duration-300">
       <p className="text-sm text-muted-foreground">
         {data.total.toLocaleString()} result{data.total === 1 ? "" : "s"} ·
-        showing {offset + 1}–{shownUpTo}
+        showing {offset + 1} to {shownUpTo}
       </p>
 
       <ul className="mt-4 divide-y divide-border">
@@ -99,7 +99,7 @@ export async function StudyHelpSearchResults({
               href={linkFor(page - 1)}
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
-              ← Previous
+              Previous
             </Link>
           ) : (
             <span />
@@ -110,7 +110,7 @@ export async function StudyHelpSearchResults({
               href={linkFor(page + 1)}
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
-              Next →
+              Next
             </Link>
           ) : (
             <span />

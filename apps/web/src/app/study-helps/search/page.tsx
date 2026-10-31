@@ -80,7 +80,7 @@ export default async function StudyHelpsSearchPage({ searchParams }: Props) {
               autoFocus
               placeholder="Search the study helps…"
               aria-label="Search the study helps"
-              className="w-full border-0 border-b border-border bg-transparent py-3 pr-3 pl-8 font-serif text-xl outline-none transition-colors placeholder:text-muted-foreground/60 placeholder:italic focus-visible:border-primary"
+              className="w-full border-0 border-b border-field-edge bg-transparent py-3 pr-3 pl-8 font-serif text-xl outline-none transition-colors placeholder:text-muted-foreground/60 placeholder:italic focus-visible:border-primary"
             />
           </div>
         </form>

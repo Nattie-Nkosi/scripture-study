@@ -30,20 +30,27 @@ export function ContinueReading({ className }: { className?: string }) {
     <Link
       href={`/read/${last.volume}/${last.book}/${last.chapter}${hash}`}
       className={cn(
-        "group flex items-center gap-4 border-y border-border py-4 transition-colors",
+        "group flex items-center gap-4 border-t border-border pt-6 pb-2",
         className,
       )}
     >
-      <BookOpen strokeWidth={1.5} className="size-5 shrink-0 text-primary/70" />
-      <span className="flex-1">
-        <span className="block eyebrow text-muted-foreground">
-          Continue reading
-        </span>
-        <span className="block font-display text-xl transition-colors group-hover:text-primary">
+      <BookOpen
+        aria-hidden
+        strokeWidth={1.25}
+        className="size-6 shrink-0 self-start text-primary"
+      />
+      <span className="min-w-0 flex-1">
+        <span className="block font-display text-(length:--text-title) leading-snug transition-colors duration-(--dur-short) group-hover:text-primary">
           {last.bookTitle} {label}
         </span>
+        <span className="mt-2 block font-serif text-base text-muted-foreground">
+          Continue where you left off
+        </span>
       </span>
-      <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-1 group-hover:text-primary" />
+      <ArrowRight
+        aria-hidden
+        className="size-4 shrink-0 text-muted-foreground transition-[color,transform] duration-(--dur-short) group-hover:translate-x-1 group-hover:text-primary"
+      />
     </Link>
   );
 }

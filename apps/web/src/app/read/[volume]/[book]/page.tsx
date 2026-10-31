@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
 
 import { getBook, getVolume } from "@/lib/scripture/client";
@@ -37,9 +38,10 @@ export default async function BookPage({ params }: Props) {
       <main className="mx-auto w-full max-w-3xl px-5 py-14 sm:py-20">
         <Link
           href={`/read/${volume}`}
-          className="eyebrow text-muted-foreground transition-colors hover:text-primary"
+          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
-          ← Back
+          <ChevronLeft aria-hidden className="size-3.5" />
+          Back
         </Link>
         <h1 className="mt-3 font-display text-5xl font-light tracking-tight">
           {title}

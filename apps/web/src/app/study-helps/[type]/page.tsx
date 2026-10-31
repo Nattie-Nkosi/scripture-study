@@ -103,7 +103,7 @@ export default async function BrowseWorkPage({ params, searchParams }: Props) {
                 href={linkFor(page - 1)}
                 className={buttonVariants({ variant: "outline", size: "sm" })}
               >
-                ← Previous
+                Previous
               </Link>
             ) : (
               <span />
@@ -116,7 +116,7 @@ export default async function BrowseWorkPage({ params, searchParams }: Props) {
                 href={linkFor(page + 1)}
                 className={buttonVariants({ variant: "outline", size: "sm" })}
               >
-                Next →
+                Next
               </Link>
             ) : (
               <span />

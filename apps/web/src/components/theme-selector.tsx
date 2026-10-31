@@ -99,7 +99,7 @@ export function ThemeSelector() {
       <Menu.Portal>
         <Menu.Positioner sideOffset={8} align="end" className="z-50">
           <Menu.Popup className="min-w-52 origin-[var(--transform-origin)] rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg shadow-black/5 outline-none transition-[transform,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0">
-            <p className="small-caps px-2 pt-1 pb-1.5 text-xs text-muted-foreground">
+            <p className="px-2 pt-1 pb-1.5 font-serif text-sm text-muted-foreground">
               Reading theme
             </p>
             <Menu.RadioGroup

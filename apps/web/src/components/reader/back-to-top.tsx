@@ -27,7 +27,7 @@ export function BackToTop() {
       aria-label="Back to top"
       style={{ bottom: "calc(5rem + env(safe-area-inset-bottom))" }}
       className={cn(
-        "fixed right-4 z-30 flex size-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-lg backdrop-blur transition-all hover:text-foreground",
+        "fixed right-4 z-30 flex size-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-[opacity,transform,color] hover:text-foreground",
         show ? "opacity-100" : "pointer-events-none translate-y-2 opacity-0",
       )}
     >

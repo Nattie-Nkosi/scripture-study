@@ -74,7 +74,7 @@ export default async function SpeakersPage({ searchParams }: Props) {
               name="q"
               defaultValue={q}
               placeholder="Find a speaker by name…"
-              className="w-full border-0 border-b border-border bg-transparent py-3 pr-3 pl-8 font-serif text-xl outline-none transition-colors placeholder:text-muted-foreground/60 placeholder:italic focus-visible:border-primary"
+              className="w-full border-0 border-b border-field-edge bg-transparent py-3 pr-3 pl-8 font-serif text-xl outline-none transition-colors placeholder:text-muted-foreground/60 placeholder:italic focus-visible:border-primary"
             />
           </div>
         </form>
@@ -118,7 +118,7 @@ export default async function SpeakersPage({ searchParams }: Props) {
                         : `${s.firstYear}–${s.lastYear}`}
                     </span>
                   </span>
-                  <ChevronRight className="size-5 shrink-0 self-center text-muted-foreground opacity-0 transition-all group-hover:translate-x-1 group-hover:text-primary group-hover:opacity-100" />
+                  <ChevronRight className="size-5 shrink-0 self-center text-muted-foreground opacity-0 transition-[color,opacity,transform] group-hover:translate-x-1 group-hover:text-primary group-hover:opacity-100" />
                 </Link>
               </li>
             ))}
@@ -132,7 +132,7 @@ export default async function SpeakersPage({ searchParams }: Props) {
                 href={linkFor(page - 1)}
                 className={buttonVariants({ variant: "outline", size: "sm" })}
               >
-                ← Previous
+                Previous
               </Link>
             ) : (
               <span />
@@ -143,7 +143,7 @@ export default async function SpeakersPage({ searchParams }: Props) {
                 href={linkFor(page + 1)}
                 className={buttonVariants({ variant: "outline", size: "sm" })}
               >
-                Next →
+                Next
               </Link>
             ) : (
               <span />

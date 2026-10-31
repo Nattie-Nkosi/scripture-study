@@ -66,7 +66,7 @@ export function AssistantAnswer({
 function ReferenceList({ references }: { references: ScriptureReference[] }) {
   return (
     <div className="mt-3 border-t border-border pt-2.5">
-      <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+      <p className="mb-1.5 font-serif text-sm font-medium text-muted-foreground">
         References
       </p>
       <div className="flex flex-wrap gap-1.5">

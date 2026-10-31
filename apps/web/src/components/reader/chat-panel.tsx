@@ -182,7 +182,7 @@ export function ChatPanel({
 
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       setError(
-        "You’re offline. The study assistant needs a connection — your reading, notes, and highlights stay on this device.",
+        "You’re offline. The study assistant needs a connection. Your reading, notes, and highlights stay on this device.",
       );
       return;
     }
@@ -243,7 +243,7 @@ export function ChatPanel({
           typeof navigator !== "undefined" && !navigator.onLine;
         setError(
           offline
-            ? "Connection lost. The study assistant needs a connection — your reading and notes are still here."
+            ? "Connection lost. The study assistant needs a connection. Your reading and notes are still here."
             : (err as Error).message || "Something went wrong.",
         );
         dropEmptyPlaceholder();
@@ -278,7 +278,7 @@ export function ChatPanel({
         aria-haspopup="dialog"
         aria-expanded={open}
         style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
-        className="fixed right-4 z-30 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95"
+        className="fixed right-4 z-30 flex items-center gap-2 rounded-full bg-(--color-signal-fill) px-4 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95"
       >
         <MessageCircle className="size-5" />
         <span className="hidden sm:inline">Ask</span>
@@ -345,10 +345,10 @@ export function ChatPanel({
         </div>
 
         {!online && (
-          <div className="flex items-start gap-2 border-b border-border bg-amber-500/10 px-4 py-2 text-xs text-foreground/80">
+          <div className="flex items-start gap-2 border-b border-border bg-(--color-warning)/10 px-4 py-2 text-xs text-foreground/80">
             <CloudOff className="mt-0.5 size-3.5 shrink-0" />
             <p>
-              You’re offline. The study assistant needs a connection — your
+              You’re offline. The study assistant needs a connection. Your
               reading, notes, and highlights stay on this device.
             </p>
           </div>
@@ -417,7 +417,7 @@ export function ChatPanel({
               rows={1}
               placeholder={online ? placeholder : "Offline — connect to ask"}
               disabled={!deviceId || !online}
-              className="max-h-40 min-h-[2.5rem] flex-1 resize-none rounded-lg border border-input bg-card px-3 py-2 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50 sm:text-sm"
+              className="max-h-40 min-h-[2.5rem] flex-1 resize-none rounded-lg border border-field-edge bg-card px-3 py-2 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50 sm:text-sm"
             />
             {streaming ? (
               <Button
@@ -488,9 +488,9 @@ function Bubble({
       <div className="flex w-full animate-in fade-in slide-in-from-bottom-1 duration-200">
         <div
           role="status"
-          className="flex w-full items-start gap-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3.5 py-3 text-sm text-foreground/90"
+          className="flex w-full items-start gap-2.5 rounded-xl border border-(--color-warning)/40 bg-(--color-warning)/10 px-3.5 py-3 text-sm text-foreground/90"
         >
-          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-500" />
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-(--color-warning-ink)" />
           <p className="min-w-0 flex-1 whitespace-pre-wrap break-words">
             {noticeText}
           </p>

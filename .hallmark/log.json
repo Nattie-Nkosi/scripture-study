@@ -1,0 +1,54 @@
+[
+ {
+  "mode": "redesign",
+  "depth": "restyle",
+  "scope": "site",
+  "shape": "kept",
+  "theme": "brand",
+  "axes": "light/roman-serif/warm",
+  "hero": "kept",
+  "nav": "edge-aligned bar",
+  "footer": "colophon",
+  "imagery": "kept",
+  "photos": [],
+  "entry": "none",
+  "sections": [
+   "all routes"
+  ],
+  "signature": "verse of the day at section scale; garnet rubricated chapter numerals",
+  "waived": [
+   "22",
+   "38iii",
+   "66"
+  ],
+  "prompt": "Roll out the luxury editorial restyle to every route of the LDS scripture study app",
+  "date": "2026-10-31"
+ },
+ {
+  "mode": "redesign",
+  "depth": "restyle",
+  "scope": "site",
+  "shape": "kept",
+  "theme": "brand",
+  "axes": "light/roman-serif/warm",
+  "hero": "kept",
+  "nav": "edge-aligned bar",
+  "footer": "colophon",
+  "imagery": "none",
+  "photos": [],
+  "entry": "none",
+  "sections": [
+   "hero",
+   "this week",
+   "verse of the day",
+   "contents",
+   "footer"
+  ],
+  "signature": "verse of the day at section scale",
+  "waived": [
+   "22"
+  ],
+  "prompt": "LDS scripture study app: standard works, conference talks, Come Follow Me; luxury editorial restyle keeping Newsreader and garnet",
+  "date": "2026-10-31"
+ }
+]

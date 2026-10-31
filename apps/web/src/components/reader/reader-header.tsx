@@ -18,7 +18,7 @@ export function ReaderHeader({
   chapter: number;
 }) {
   return (
-    <header className="pt-safe sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/65">
+    <header className="pt-safe sticky top-0 z-40 border-b border-border bg-background">
       <div className="mx-auto flex h-14 max-w-3xl items-center gap-3 px-4">
         <Link
           href={`/read/${volumeId}/${bookId}`}

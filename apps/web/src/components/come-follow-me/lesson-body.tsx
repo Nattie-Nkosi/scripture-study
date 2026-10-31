@@ -35,7 +35,7 @@ export function LessonBody({ blocks }: { blocks: LessonBlock[] }) {
           return (
             <h2
               key={i}
-              className="mt-14 mb-2 border-t border-border pt-7 eyebrow text-primary first:mt-0 first:border-t-0 first:pt-0"
+              className="mt-14 mb-2 border-t border-border pt-7 font-display text-2xl font-light tracking-tight text-balance first:mt-0 first:border-t-0 first:pt-0"
             >
               <Segments segments={block.segments} />
             </h2>

@@ -380,7 +380,7 @@ export function VerseCard({
           marginInline: "auto",
           maxHeight: "92vh",
         }}
-        className="flex max-w-md flex-col overflow-y-auto rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-2xl shadow-black/20 animate-in fade-in zoom-in-95 duration-150"
+        className="flex max-w-md flex-col overflow-y-auto rounded-2xl border border-border bg-popover p-4 text-popover-foreground animate-in fade-in zoom-in-95 duration-150"
       >
         <div className="mb-3 flex items-center justify-between">
           <span className="text-sm font-semibold">Share as a card</span>
@@ -440,7 +440,7 @@ export function VerseCard({
         </div>
 
         <p className="mt-3 text-center text-[11px] text-muted-foreground">
-          A 1080×1080 image, saved on your device — nothing is uploaded.
+          A 1080×1080 image, saved on your device. Nothing is uploaded.
         </p>
       </div>
     </div>,

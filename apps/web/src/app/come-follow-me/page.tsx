@@ -30,7 +30,7 @@ export default async function ComeFollowMePage() {
         <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-16">
           <p className="rounded-md border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
             Couldn’t load Come, Follow Me{status ? ` (HTTP ${status})` : ""}. The
-            service may be temporarily unavailable — please try again.
+            service may be temporarily unavailable. Please try again.
           </p>
         </main>
         <SiteFooter />
@@ -44,13 +44,13 @@ export default async function ComeFollowMePage() {
     <>
       <SiteHeader />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-14 sm:py-20">
-        <p className="eyebrow text-primary">Come, Follow Me</p>
-        <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
-          Study by the week
+        <h1 className="font-display text-5xl font-light tracking-tight sm:text-6xl">
+          Come, Follow Me
+          <span className="mt-2 block text-[0.5em] leading-tight">Study by the week</span>
         </h1>
         <p className="mt-4 max-w-xl font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
           The home- and church-study curriculum of The Church of Jesus Christ of
-          Latter-day Saints — a lesson for every week of {current.year}, from the{" "}
+          Latter-day Saints: a lesson for every week of {current.year}, from the{" "}
           {manual}.
         </p>
 
@@ -58,16 +58,15 @@ export default async function ComeFollowMePage() {
           href={`/come-follow-me/${current._id}`}
           className="group mt-12 block border-y border-border py-7"
         >
-          <span className="eyebrow text-primary">This week</span>
-          <span className="mt-1 block eyebrow text-muted-foreground">
-            {current.dateRange.display}
-          </span>
-          <span className="mt-1.5 block font-display text-3xl font-light tracking-tight transition-colors group-hover:text-primary text-balance">
+          <span className="block font-display text-3xl font-light tracking-tight transition-colors group-hover:text-primary text-balance">
             {current.title}
           </span>
+          <span className="mt-2 block font-serif text-base text-muted-foreground">
+            This week, {current.dateRange.display}
+          </span>
           {current.scriptureReferences.length > 0 && (
-            <span className="mt-2 block font-serif text-muted-foreground italic">
-              {current.scriptureReferences.join(" · ")}
+            <span className="mt-1 block font-serif text-muted-foreground italic">
+              {current.scriptureReferences.join("; ")}
             </span>
           )}
           <span className="mt-4 inline-flex items-center gap-1.5 font-serif text-primary italic">
@@ -78,7 +77,9 @@ export default async function ComeFollowMePage() {
 
         <Ornament className="my-16" />
 
-        <p className="eyebrow text-primary">{manual} · {current.year}</p>
+        <h2 className="font-display text-3xl font-light tracking-tight">
+          {manual}, {current.year}
+        </h2>
         <ol className="mt-5 border-t border-border">
           {lessons.map((lesson) => {
             const isCurrent = lesson._id === current._id;
@@ -99,18 +100,17 @@ export default async function ComeFollowMePage() {
                       {lesson.title}
                       {isCurrent && (
                         <span className="ml-3 inline-flex items-center gap-1.5 align-middle eyebrow text-primary">
-                          <span aria-hidden className="size-1 rotate-45 bg-primary" />
                           This week
                         </span>
                       )}
                     </span>
                     {lesson.scriptureReferences.length > 0 && (
                       <span className="mt-1 block font-serif text-[0.95rem] text-muted-foreground italic">
-                        {lesson.scriptureReferences.join(" · ")}
+                        {lesson.scriptureReferences.join("; ")}
                       </span>
                     )}
                   </span>
-                  <ChevronRight className="size-5 shrink-0 translate-x-0 self-center text-muted-foreground opacity-0 transition-all group-hover:translate-x-1 group-hover:text-primary group-hover:opacity-100" />
+                  <ChevronRight className="size-5 shrink-0 translate-x-0 self-center text-muted-foreground opacity-0 transition-[color,opacity,transform] group-hover:translate-x-1 group-hover:text-primary group-hover:opacity-100" />
                 </Link>
               </li>
             );

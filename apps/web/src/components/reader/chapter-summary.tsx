@@ -77,7 +77,7 @@ function SummaryCard({
       {status === "notice" && (
         <div
           role="status"
-          className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-2 text-foreground/90"
+          className="flex items-start gap-2 rounded-md border border-(--color-warning)/40 bg-(--color-warning)/10 px-2.5 py-2 text-foreground/90"
         >
           <p className="min-w-0 flex-1 break-words">{message}</p>
         </div>
@@ -98,7 +98,7 @@ function SummaryCard({
 
       {status === "done" && (
         <p className="mt-2 text-[11px] text-muted-foreground">
-          AI overview — not an official source of Church doctrine. Read the chapter for yourself.
+          AI overview, not an official source of Church doctrine. Read the chapter for yourself.
         </p>
       )}
     </div>

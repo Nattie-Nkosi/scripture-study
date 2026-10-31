@@ -396,7 +396,7 @@ export function AskChat() {
         </div>
 
       {!online && (
-        <div className="flex items-start gap-2 border-b border-border bg-amber-500/10 px-4 py-2 text-xs text-foreground/80">
+        <div className="flex items-start gap-2 border-b border-border bg-(--color-warning)/10 px-4 py-2 text-xs text-foreground/80">
           <CloudOff className="mt-0.5 size-3.5 shrink-0" />
           <p>You’re offline. Ask needs a connection to search the library and answer.</p>
         </div>
@@ -470,7 +470,7 @@ export function AskChat() {
           }}
           className="mx-auto max-w-3xl"
         >
-          <div className="flex items-end gap-2 rounded-lg border border-border bg-card/60 p-2 transition-colors focus-within:border-primary/50">
+          <div className="flex items-end gap-2 rounded-lg border border-field-edge bg-card/60 p-2 transition-colors focus-within:border-primary/50">
             <textarea
               ref={textareaRef}
               value={input}
@@ -517,21 +517,21 @@ export function AskChat() {
           </div>
           <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
             <p className="hidden shrink-0 sm:block">
-              <kbd className="rounded border border-border px-1 font-sans text-[10px]">
+              <kbd className="rounded border border-border px-1 font-sans text-xs">
                 Enter
               </kbd>{" "}
               to send ·{" "}
-              <kbd className="rounded border border-border px-1 font-sans text-[10px]">
+              <kbd className="rounded border border-border px-1 font-sans text-xs">
                 Shift
               </kbd>
               +
-              <kbd className="rounded border border-border px-1 font-sans text-[10px]">
+              <kbd className="rounded border border-border px-1 font-sans text-xs">
                 Enter
               </kbd>{" "}
               for a new line
             </p>
             <p className="flex-1 text-center sm:text-right">
-              A study aid — not an official source of Church doctrine.
+              A study aid, not an official source of Church doctrine.
             </p>
           </div>
         </form>
@@ -545,7 +545,7 @@ function BetaBadge() {
   return (
     <span
       title="This feature is in beta and still improving."
-      className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide leading-none text-primary"
+      className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium leading-none text-primary"
     >
       Beta
     </span>
@@ -561,17 +561,14 @@ function EmptyState({
 }) {
   return (
     <div className="mx-auto flex max-w-2xl flex-col items-center px-4 py-12 text-center sm:py-20">
-      <p className="flex items-center gap-2 eyebrow text-primary">
-        <Sparkles className="size-3.5" /> Study assistant
-      </p>
-      <div className="mt-4 flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <h1 className="font-display text-4xl font-light tracking-tight sm:text-5xl">
           Ask about the scriptures
         </h1>
         <BetaBadge />
       </div>
       <p className="mt-4 max-w-md font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
-        Questions about the standard works or General Conference — answered from the
+        Questions about the standard works or General Conference, answered from the
         text in this app, with references you can open.
       </p>
       <div className="mt-12 grid w-full border-t border-border sm:grid-cols-2 sm:gap-x-8">
@@ -637,16 +634,16 @@ function Bubble({
       <div className="flex w-full animate-in fade-in slide-in-from-bottom-1 duration-200">
         <div
           role="status"
-          className="flex w-full items-start gap-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3.5 py-3 text-sm text-foreground/90"
+          className="flex w-full items-start gap-2.5 rounded-xl border border-(--color-warning)/40 bg-(--color-warning)/10 px-3.5 py-3 text-sm text-foreground/90"
         >
-          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-500" />
+          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-(--color-warning-ink)" />
           <div className="min-w-0 flex-1">
             <p className="whitespace-pre-wrap break-words">{noticeText}</p>
             {onRegenerate && !streaming && (
               <button
                 type="button"
                 onClick={onRegenerate}
-                className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-amber-700 transition-colors hover:text-amber-800 dark:text-amber-500 dark:hover:text-amber-300"
+                className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-(--color-warning-ink) transition-colors hover:text-foreground"
               >
                 <RotateCcw className="size-3" /> Try again
               </button>

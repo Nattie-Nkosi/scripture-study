@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
 
 import { getVolume } from "@/lib/scripture/client";
@@ -28,9 +29,10 @@ export default async function VolumePage({ params }: Props) {
       <main className="mx-auto w-full max-w-3xl px-5 py-14 sm:py-20">
         <Link
           href="/read"
-          className="eyebrow text-muted-foreground transition-colors hover:text-primary"
+          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
-          ← Library
+          <ChevronLeft aria-hidden className="size-3.5" />
+          Library
         </Link>
         <h1 className="mt-3 font-display text-5xl font-light tracking-tight">
           {data.title}

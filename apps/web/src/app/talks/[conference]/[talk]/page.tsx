@@ -55,10 +55,10 @@ export default async function TalkPage({ params }: Props) {
 
       <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
         <div className="text-center animate-in fade-in duration-500">
-          <p className="eyebrow text-primary">{data.session}</p>
-          <h1 className="mx-auto mt-3 max-w-2xl font-display text-4xl leading-[1.08] font-light tracking-tight sm:text-[3.25rem]">
+          <h1 className="mx-auto max-w-2xl font-display text-4xl leading-[1.08] font-light tracking-tight sm:text-[3.25rem]">
             {data.title}
           </h1>
+          <p className="mt-4 font-serif text-base text-muted-foreground">{data.session}</p>
           <p className="mt-6 font-serif text-lg text-foreground/85 italic">
             {data.speaker}
           </p>

@@ -57,7 +57,7 @@ export function JumpToVerse({ count }: { count: number }) {
                 key={n}
                 type="button"
                 onClick={() => jump(n)}
-                className="rounded-sm py-1.5 text-center font-serif text-sm tabular-nums text-foreground/80 transition-colors hover:bg-primary hover:text-primary-foreground"
+                className="rounded-sm py-1.5 text-center font-serif text-sm tabular-nums text-foreground/80 transition-colors hover:bg-(--color-signal-fill) hover:text-primary-foreground"
               >
                 {n}
               </button>

@@ -70,15 +70,13 @@ export default async function LessonPage({ params }: Props) {
         </Link>
 
         <div className="mt-8 text-center animate-in fade-in duration-500">
-          <p className="eyebrow text-primary">
-            {manualName(lesson.manualId)} · {lesson.dateRange.display}
-          </p>
-          <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
+          <h1 className="font-display text-5xl font-light tracking-tight sm:text-6xl">
             {lesson.title}
           </h1>
-          <p className="mt-5 eyebrow text-muted-foreground">
-            {minutes} min read
+          <p className="mt-4 font-serif text-base text-muted-foreground">
+            {manualName(lesson.manualId)}, {lesson.dateRange.display}
           </p>
+          <p className="mt-1 font-serif text-base text-muted-foreground">{minutes} min read</p>
           <Ornament className="mt-9" />
         </div>
 

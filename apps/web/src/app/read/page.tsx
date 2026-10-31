@@ -33,7 +33,7 @@ export default async function LibraryPage() {
         <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-16">
           <p className="rounded-md border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
             Couldn’t load the library{status ? ` (HTTP ${status})` : ""}. The
-            scripture service may be temporarily unavailable — please try again.
+            scripture service may be temporarily unavailable. Please try again.
           </p>
         </main>
         <SiteFooter />
@@ -45,8 +45,7 @@ export default async function LibraryPage() {
     <>
       <SiteHeader />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-14 sm:py-20">
-        <p className="eyebrow text-primary">Library</p>
-        <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
+        <h1 className="font-display text-5xl font-light tracking-tight sm:text-6xl">
           The Standard Works
         </h1>
 
@@ -72,7 +71,7 @@ export default async function LibraryPage() {
                     </span>
                   )}
                 </span>
-                <ChevronRight className="size-5 shrink-0 translate-x-0 self-center text-muted-foreground opacity-0 transition-all group-hover:translate-x-1 group-hover:text-primary group-hover:opacity-100" />
+                <ChevronRight className="size-5 shrink-0 translate-x-0 self-center text-muted-foreground opacity-0 transition-[color,opacity,transform] group-hover:translate-x-1 group-hover:text-primary group-hover:opacity-100" />
               </Link>
             </li>
           ))}

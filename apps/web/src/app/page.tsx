@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -17,7 +17,7 @@ const SECTIONS = [
     href: "/read",
     label: "Library",
     description:
-      "The standard works — Old Testament through the Pearl of Great Price.",
+      "The standard works, from the Old Testament to the Pearl of Great Price.",
   },
   {
     href: "/talks",
@@ -58,75 +58,77 @@ export default function Home() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-16 sm:py-28">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-20 sm:py-32">
         <section className="max-w-2xl animate-in fade-in duration-700">
-          <p className="flex items-center gap-3 eyebrow text-primary">
-            <span aria-hidden className="size-1.5 rotate-45 bg-primary/70" />
-            A study edition
-          </p>
-
-          <h1 className="mt-6 font-display text-[2.75rem] leading-[1.02] font-light tracking-tight sm:text-[4.5rem]">
-            A clearer way to <em className="text-primary">read</em> scripture
+          <h1 className="max-w-[16ch] font-display text-(length:--text-display) leading-[1.02] font-light tracking-(--tracking-display) text-balance [overflow-wrap:break-word]">
+            A clearer way <br className="hidden sm:inline" />
+            to read scripture
           </h1>
 
-          <p className="mt-7 max-w-lg font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
+          <p className="mt-8 max-w-[52ch] font-serif text-(length:--text-lead) leading-relaxed text-muted-foreground text-pretty">
             The standard works, General Conference, and Come, Follow Me in one
-            calm edition — with notes, study helps, and an assistant grounded
+            calm edition, with notes, study helps, and an assistant grounded
             in the text itself.
           </p>
 
-          <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
+          <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
             <Link
               href="/read"
-              className="group inline-flex items-center gap-2 border-b border-primary pb-1 font-serif text-lg text-foreground transition-colors hover:text-primary"
+              className="inline-flex h-12 items-center rounded-(--radius-card) bg-(--color-signal-fill) px-7 font-serif text-lg whitespace-nowrap text-(--color-signal-ink) transition-colors duration-(--dur-short) hover:bg-(--color-signal-fill)/90 active:translate-y-px"
             >
               Open the library
-              <ArrowRight className="size-4 text-primary transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
               href="/ask"
-              className="group inline-flex items-center gap-1.5 font-serif text-lg text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex h-12 items-center font-serif text-lg whitespace-nowrap text-muted-foreground underline decoration-transparent decoration-1 underline-offset-[0.3em] transition-colors duration-(--dur-short) hover:text-foreground hover:decoration-primary"
             >
               Ask a question
-              <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
           </div>
         </section>
 
-        <section className="mt-24 sm:mt-32">
-          <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+        <section className="mt-28 sm:mt-36">
+          <div className="grid gap-x-12 gap-y-10 sm:grid-cols-2">
             <Suspense fallback={<ThisWeekCardSkeleton />}>
               <ThisWeekCard />
             </Suspense>
-            <ContinueReading className="self-start border-b-0 pt-5" />
+            <ContinueReading className="self-start" />
           </div>
         </section>
 
-        <Ornament className="mt-20 sm:mt-24" />
-        <DailyVerse className="mt-10" />
-        <Ornament className="mt-12" />
+        <Ornament className="mt-24 sm:mt-32" />
+        <DailyVerse className="mt-14" />
+        <Ornament className="mt-14" />
 
-        <section className="mt-24 sm:mt-32">
-          <h2 className="eyebrow text-muted-foreground">Contents</h2>
-          <ol className="mt-4 border-b border-border">
+        <section className="mt-28 sm:mt-36" aria-labelledby="contents-heading">
+          <h2
+            id="contents-heading"
+            className="font-display text-(length:--text-section) leading-[1.05] font-light tracking-(--tracking-display)"
+          >
+            Contents
+          </h2>
+          <ol className="mt-10 border-b border-border">
             {SECTIONS.map(({ href, label, description }, i) => (
               <li key={href} className="border-t border-border">
                 <Link
                   href={href}
-                  className="group flex items-baseline gap-5 py-5 sm:gap-8"
+                  className="group flex items-baseline gap-5 py-6 sm:gap-8"
                 >
-                  <span className="w-6 shrink-0 font-serif text-sm text-primary/70 italic">
+                  <span className="w-7 shrink-0 font-serif text-base text-primary italic">
                     {NUMERALS[i]}.
                   </span>
-                  <span className="min-w-0 flex-1 sm:flex sm:items-baseline sm:gap-6">
-                    <span className="font-display text-2xl tracking-tight transition-colors group-hover:text-primary sm:w-56 sm:shrink-0">
+                  <span className="min-w-0 flex-1 sm:flex sm:items-baseline sm:gap-8">
+                    <span className="block font-display text-(length:--text-title) leading-tight tracking-tight transition-colors duration-(--dur-short) group-hover:text-primary sm:w-60 sm:shrink-0">
                       {label}
                     </span>
-                    <span className="mt-1 block font-serif text-[0.95rem] leading-relaxed text-muted-foreground sm:mt-0">
+                    <span className="mt-1.5 block font-serif text-base leading-relaxed text-muted-foreground sm:mt-0">
                       {description}
                     </span>
                   </span>
-                  <ArrowRight className="size-4 shrink-0 self-center -translate-x-1 text-primary opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+                  <ArrowRight
+                    aria-hidden
+                    className="size-4 shrink-0 self-center -translate-x-1 text-primary opacity-0 transition-[opacity,transform] duration-(--dur-short) group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100"
+                  />
                 </Link>
               </li>
             ))}

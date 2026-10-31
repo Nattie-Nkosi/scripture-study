@@ -332,7 +332,7 @@ export function CommandPalette() {
           marginInline: "auto",
           maxHeight: "70vh",
         }}
-        className="flex max-w-xl flex-col overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl shadow-black/20 animate-in fade-in zoom-in-95 duration-150"
+        className="flex max-w-xl flex-col overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground animate-in fade-in zoom-in-95 duration-150"
       >
         <div className="flex items-center gap-2.5 border-b border-border px-4">
           <Search className="size-4 shrink-0 text-muted-foreground" />
@@ -372,7 +372,7 @@ export function CommandPalette() {
                   {header && (
                     <li
                       role="presentation"
-                      className="px-2 pt-2.5 pb-1 small-caps text-xs text-muted-foreground"
+                      className="px-2 pt-2.5 pb-1 font-serif text-sm text-muted-foreground"
                     >
                       {header}
                     </li>

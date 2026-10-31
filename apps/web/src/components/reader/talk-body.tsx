@@ -426,7 +426,7 @@ function NarrationPlayer({ narration }: { narration: Narration }) {
           {notice}
         </p>
       )}
-      <div className="flex items-center gap-1 rounded-full border border-border bg-card py-1.5 pl-2 pr-1.5 shadow-lg backdrop-blur">
+      <div className="flex items-center gap-1 rounded-full border border-border bg-card py-1.5 pl-2 pr-1.5 shadow-sm">
         {status === "idle" ? (
           <button
             type="button"
@@ -435,7 +435,7 @@ function NarrationPlayer({ narration }: { narration: Narration }) {
           >
             <Volume2 className="size-4" /> Read aloud
             {hd && (
-              <span className="rounded bg-primary/10 px-1 text-[0.6rem] font-semibold uppercase tracking-wide text-primary">
+              <span className="rounded bg-primary/10 px-1 text-[0.6875rem] font-semibold text-primary">
                 HD
               </span>
             )}
@@ -497,8 +497,8 @@ function VoicePicker({
   onSelect: (id: string) => void;
 }) {
   return (
-    <div className="absolute bottom-full left-1/2 mb-2 max-h-72 w-64 -translate-x-1/2 overflow-y-auto rounded-xl border border-border bg-card p-1 shadow-xl animate-in fade-in slide-in-from-bottom-1 duration-150">
-      <div className="flex items-center justify-between px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+    <div className="absolute bottom-full left-1/2 mb-2 max-h-72 w-64 -translate-x-1/2 overflow-y-auto rounded-xl border border-border bg-card p-1 animate-in fade-in slide-in-from-bottom-1 duration-150">
+      <div className="flex items-center justify-between px-2 py-1.5 font-serif text-sm font-medium text-muted-foreground">
         <span>Reading voice</span>
         {hd && <span className="text-primary">HD</span>}
       </div>
@@ -717,13 +717,13 @@ function ParagraphToolbar({
         onChange={(e) => onNoteChange(e.target.value)}
         placeholder="Add a note…"
         rows={2}
-        className="mt-2 w-full resize-none rounded-md border border-input bg-background px-2.5 py-1.5 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 sm:text-sm"
+        className="mt-2 w-full resize-none rounded-md border border-field-edge bg-background px-2.5 py-1.5 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 sm:text-sm"
       />
       <div className="mt-1.5 flex justify-end">
         <button
           type="button"
           onClick={onSave}
-          className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          className="rounded-md bg-(--color-signal-fill) px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-(--color-signal-fill)/90"
         >
           Save note
         </button>
@@ -749,7 +749,7 @@ function NotePanel({
       className="my-2 max-w-md border-l-2 border-primary/30 py-1 pl-4 font-serif text-[0.95rem] animate-in fade-in slide-in-from-top-1 duration-200"
     >
       <div className="mb-1.5 flex items-center justify-between gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <span className="font-serif text-sm font-medium text-muted-foreground">
           Note
         </span>
         <button
@@ -797,7 +797,7 @@ function FootnoteNote({
       className="my-3 max-w-xl border-l-2 border-primary/30 py-1 pl-4 font-serif text-[0.95rem] animate-in fade-in slide-in-from-top-1 duration-200"
     >
       <div className="mb-1.5 flex items-center justify-between gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <span className="font-serif text-sm font-medium text-muted-foreground">
           Footnote {letter}
         </span>
         <button

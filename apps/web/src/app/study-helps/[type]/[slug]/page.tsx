@@ -55,10 +55,10 @@ export default async function EntryPage({ params }: Props) {
         </Link>
 
         <div className="mt-8 text-center animate-in fade-in duration-500">
-          <p className="eyebrow text-primary">{typeName(type)}</p>
-          <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
+          <h1 className="font-display text-5xl font-light tracking-tight sm:text-6xl">
             {entry.title}
           </h1>
+          <p className="mt-4 font-serif text-base text-muted-foreground">{typeName(type)}</p>
           <Ornament className="mt-9" />
         </div>
 

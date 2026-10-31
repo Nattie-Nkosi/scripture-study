@@ -71,7 +71,7 @@ export default async function ConferencePage({ params }: Props) {
                           ) : null}
                         </span>
                       </span>
-                      <ChevronRight className="size-5 shrink-0 translate-x-0 self-center text-muted-foreground opacity-0 transition-all group-hover:translate-x-1 group-hover:text-primary group-hover:opacity-100" />
+                      <ChevronRight className="size-5 shrink-0 translate-x-0 self-center text-muted-foreground opacity-0 transition-[color,opacity,transform] group-hover:translate-x-1 group-hover:text-primary group-hover:opacity-100" />
                     </Link>
                   </li>
                 ))}

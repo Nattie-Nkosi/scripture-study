@@ -34,17 +34,14 @@ export function ContinueTalk({ className }: { className?: string }) {
     >
       <Mic strokeWidth={1.5} className="size-5 shrink-0 text-primary/70" />
       <span className="min-w-0 flex-1">
-        <span className="block eyebrow text-muted-foreground">
-          Continue talk
-        </span>
         <span className="block truncate font-display text-xl transition-colors group-hover:text-primary">
           {last.title}
         </span>
-        <span className="block truncate text-sm text-muted-foreground">
-          {last.speaker}
+        <span className="mt-1 block truncate font-serif text-base text-muted-foreground">
+          Continue the talk by {last.speaker}
         </span>
       </span>
-      <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-1 group-hover:text-primary" />
+      <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-[color,transform] group-hover:translate-x-1 group-hover:text-primary" />
     </Link>
   );
 }

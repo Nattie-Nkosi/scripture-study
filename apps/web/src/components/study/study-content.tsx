@@ -123,13 +123,13 @@ export function StudyContent() {
             href="/read"
             className="font-serif text-primary italic hover:underline"
           >
-            Open the library →
+            Open the library
           </Link>
           <Link
             href="/talks"
             className="font-serif text-primary italic hover:underline"
           >
-            Browse talks →
+            Browse talks
           </Link>
         </div>
       </div>
@@ -257,10 +257,10 @@ function Section({
 }) {
   return (
     <section>
-      <h2 className="flex items-center gap-2 eyebrow text-primary">
-        <span className="text-primary/70 [&_svg]:size-3.5">{icon}</span>
+      <h2 className="flex items-baseline gap-2.5 font-display text-2xl font-light tracking-tight">
+        <span className="self-center text-primary [&_svg]:size-4">{icon}</span>
         {title}
-        <span className="text-muted-foreground/70 tabular-nums">{count}</span>
+        <span className="font-serif text-base text-muted-foreground tabular-nums">{count}</span>
       </h2>
       <div className="mt-3 border-t border-border">{children}</div>
     </section>

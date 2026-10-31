@@ -39,7 +39,7 @@ export function MainNav() {
             href={href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "relative py-1 font-serif text-[0.95rem] whitespace-nowrap transition-colors",
+              "relative py-1 font-serif text-base whitespace-nowrap transition-colors duration-(--dur-short)",
               "after:absolute after:inset-x-0 after:-bottom-px after:h-px after:origin-left after:scale-x-0 after:bg-primary after:transition-transform after:duration-200 hover:after:scale-x-100",
               active
                 ? "text-foreground after:scale-x-100"

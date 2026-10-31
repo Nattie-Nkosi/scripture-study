@@ -62,10 +62,10 @@ export function SearchBox({
   return (
     <div>
       {!online && (
-        <div className="mb-3 flex items-start gap-2 rounded-lg border border-border bg-amber-500/10 px-3 py-2 text-sm text-foreground/80">
+        <div className="mb-3 flex items-start gap-2 rounded-lg border border-border bg-(--color-warning)/10 px-3 py-2 text-sm text-foreground/80">
           <CloudOff className="mt-0.5 size-4 shrink-0" />
           <p>
-            Search needs a connection. You’re offline right now — chapters and
+            Search needs a connection. You’re offline right now. Chapters and
             talks you’ve already opened are still available to read.
           </p>
         </div>
@@ -114,7 +114,7 @@ export function SearchBox({
             }
             autoFocus
             disabled={!online}
-            className="w-full border-0 border-b border-border bg-transparent py-3 pr-3 pl-8 font-serif text-xl outline-none transition-colors placeholder:text-muted-foreground/60 placeholder:italic focus-visible:border-primary disabled:opacity-50"
+            className="w-full border-0 border-b border-field-edge bg-transparent py-3 pr-3 pl-8 font-serif text-xl outline-none transition-colors placeholder:text-muted-foreground/60 placeholder:italic focus-visible:border-primary disabled:opacity-50"
           />
         </div>
         {scope === "scripture" && (
@@ -122,7 +122,7 @@ export function SearchBox({
             value={volume}
             onChange={(e) => setVolume(e.target.value)}
             disabled={!online}
-            className="border-0 border-b border-border bg-transparent px-1 py-3 font-serif text-base outline-none transition-colors focus-visible:border-primary disabled:opacity-50"
+            className="border-0 border-b border-field-edge bg-transparent px-1 py-3 font-serif text-base outline-none transition-colors focus-visible:border-primary disabled:opacity-50"
           >
             {VOLUMES.map((v) => (
               <option key={v.id} value={v.id}>

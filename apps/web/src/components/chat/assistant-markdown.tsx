@@ -54,9 +54,9 @@ const mdComponents: Components = {
       {children}
     </pre>
   ),
-  h1: ({ children }) => <p className="mt-4 mb-1 eyebrow text-primary">{children}</p>,
-  h2: ({ children }) => <p className="mt-4 mb-1 eyebrow text-primary">{children}</p>,
-  h3: ({ children }) => <p className="mt-4 mb-1 eyebrow text-primary">{children}</p>,
+  h1: ({ children }) => <p className="mt-4 mb-1 font-display text-[1.05em] font-medium text-foreground">{children}</p>,
+  h2: ({ children }) => <p className="mt-4 mb-1 font-display text-[1.05em] font-medium text-foreground">{children}</p>,
+  h3: ({ children }) => <p className="mt-4 mb-1 font-display text-[1.05em] font-medium text-foreground">{children}</p>,
   blockquote: ({ children }) => (
     <blockquote className="border-l-2 border-primary/40 pl-3 italic">
       {children}

@@ -1,6 +1,19 @@
+/* Hallmark · shape: kept · genre: editorial · theme: brand · redesign: restyle · scope: site, every route
+ * paper: oklch(0.982 0.01 84) · accent: oklch(0.45 0.125 25) · display: Newsreader · body: Newsreader, Geist for controls · hero: kept · nav: edge-aligned bar, wordmark, inline contents, search and theme controls · footer: colophon, the wordmark and line beside a two-column contents list · signature: the verse of the day set at section scale between fleurons
+ * axes: light/roman-serif/warm · posture: restrained · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V3 · weakest: V, the layout is kept by request, so variety comes only from the system: a filled garnet primary, display-scale titles, sentence-case serif labels in place of small caps */
+/* Hallmark · waive 22 · .night background oklch(0 0 0) in tokens.css · the owner chose a true-black night reading theme for OLED phones and glare */
+/* Hallmark · waive 38iii · the chapter number in the reader h1 alone, in garnet · rubrication is the reader's signature, paired with the garnet drop cap on verse 1 */
+/* Hallmark · waive 66 · one Beta pill beside the Ask h1 with a title tooltip · the assistant really is in beta and the pill carries that disclaimer */
+/* Hallmark · dismissed F18 · the 28px "slot" is shadcn data-slot="button" on header icon buttons, not an image slot */
+/* Hallmark · dropped "A study edition" eyebrow over the home h1, "Library" over /read, "Personal" over /study, "The chief corner stone" over the Organization quote, "Side by side" over the compare head, "Study assistant" over the Ask h1 · 54 names them; each title already says it */
+/* Hallmark · reworded section kickers into two-line titles (General Conference, Come Follow Me, Search, Study Helps, Church Organization) and moved detail kickers under their titles as captions · 54 names the eyebrow */
+/* Hallmark · reworded dashes in ledes to commas, colons, full stops or parentheses (home, Come Follow Me, Study Helps, My study, Ask, Organization) · 19 names the dash */
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./tokens.css";
+@import "./base.css" layer(base);
 
 @custom-variant dark (&:is(.dark *, .night *, .twilight *));
 
@@ -28,133 +41,12 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-field-edge: var(--field-edge);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
-}
-
-/* Warm "paper" palette — ivory light mode, warm charcoal dark mode. */
-:root {
-  color-scheme: light;
-  --radius: 0.375rem;
-  --reader-font-size: 1.1875rem;
-
-  --background: oklch(0.982 0.01 84);
-  --foreground: oklch(0.235 0.016 55);
-  --card: oklch(0.995 0.006 86);
-  --card-foreground: oklch(0.255 0.018 55);
-  --popover: oklch(0.995 0.006 86);
-  --popover-foreground: oklch(0.255 0.018 55);
-  /* Signature accent: deep garnet (rubrication). */
-  --primary: oklch(0.45 0.125 25);
-  --primary-foreground: oklch(0.98 0.012 85);
-  --secondary: oklch(0.95 0.013 82);
-  --secondary-foreground: oklch(0.32 0.022 52);
-  --muted: oklch(0.952 0.012 82);
-  --muted-foreground: oklch(0.52 0.02 58);
-  --accent: oklch(0.93 0.022 75);
-  --accent-foreground: oklch(0.3 0.025 52);
-  --destructive: oklch(0.55 0.2 27);
-  --border: oklch(0.9 0.014 78);
-  --input: oklch(0.9 0.014 78);
-  --ring: oklch(0.55 0.03 60);
-}
-
-.dark {
-  color-scheme: dark;
-  --background: oklch(0.19 0.012 60);
-  --foreground: oklch(0.92 0.014 84);
-  --card: oklch(0.22 0.013 60);
-  --card-foreground: oklch(0.92 0.014 84);
-  --popover: oklch(0.22 0.013 60);
-  --popover-foreground: oklch(0.92 0.014 84);
-  --primary: oklch(0.62 0.14 25);
-  --primary-foreground: oklch(0.99 0.01 85);
-  --secondary: oklch(0.27 0.014 60);
-  --secondary-foreground: oklch(0.92 0.014 84);
-  --muted: oklch(0.27 0.014 60);
-  --muted-foreground: oklch(0.72 0.018 80);
-  --accent: oklch(0.3 0.018 65);
-  --accent-foreground: oklch(0.92 0.014 84);
-  --destructive: oklch(0.7 0.19 22);
-  --border: oklch(1 0 0 / 9%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.6 0.03 70);
-}
-
-/* Sepia: rich aged-paper tones for low-glare daytime reading (a light theme).
- * Deeper, warmer, and more saturated than Paper so it reads as true sepia,
- * with darker ink and defined borders for clear legibility. */
-.sepia {
-  color-scheme: light;
-  --background: oklch(0.905 0.048 79);
-  --foreground: oklch(0.295 0.045 50);
-  --card: oklch(0.935 0.042 80);
-  --card-foreground: oklch(0.295 0.045 50);
-  --popover: oklch(0.935 0.042 80);
-  --popover-foreground: oklch(0.295 0.045 50);
-  --primary: oklch(0.44 0.14 30);
-  --primary-foreground: oklch(0.955 0.03 82);
-  --secondary: oklch(0.865 0.052 76);
-  --secondary-foreground: oklch(0.34 0.046 48);
-  --muted: oklch(0.865 0.052 76);
-  --muted-foreground: oklch(0.47 0.05 54);
-  --accent: oklch(0.83 0.062 73);
-  --accent-foreground: oklch(0.33 0.048 48);
-  --destructive: oklch(0.52 0.19 27);
-  --border: oklch(0.78 0.055 71);
-  --input: oklch(0.78 0.055 71);
-  --ring: oklch(0.48 0.06 54);
-}
-
-/* Night: true-black background for OLED screens (a dark theme). */
-.night {
-  color-scheme: dark;
-  --background: oklch(0 0 0);
-  --foreground: oklch(0.9 0.013 84);
-  --card: oklch(0.135 0.006 60);
-  --card-foreground: oklch(0.9 0.013 84);
-  --popover: oklch(0.135 0.006 60);
-  --popover-foreground: oklch(0.9 0.013 84);
-  --primary: oklch(0.64 0.15 25);
-  --primary-foreground: oklch(0.99 0.01 85);
-  --secondary: oklch(0.2 0.01 60);
-  --secondary-foreground: oklch(0.9 0.013 84);
-  --muted: oklch(0.2 0.01 60);
-  --muted-foreground: oklch(0.68 0.016 80);
-  --accent: oklch(0.24 0.012 65);
-  --accent-foreground: oklch(0.9 0.013 84);
-  --destructive: oklch(0.7 0.19 22);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.6 0.03 70);
-}
-
-/* Twilight: a gilded "illuminated manuscript" theme — deep indigo ground,
- * warm parchment text, and a gold accent in place of the usual garnet.
- * Borders carry a faint gold tint for the gilded edge (a dark theme). */
-.twilight {
-  color-scheme: dark;
-  --background: oklch(0.215 0.048 264);
-  --foreground: oklch(0.915 0.022 85);
-  --card: oklch(0.255 0.05 264);
-  --card-foreground: oklch(0.915 0.022 85);
-  --popover: oklch(0.255 0.05 264);
-  --popover-foreground: oklch(0.915 0.022 85);
-  --primary: oklch(0.8 0.13 84);
-  --primary-foreground: oklch(0.23 0.05 264);
-  --secondary: oklch(0.3 0.05 264);
-  --secondary-foreground: oklch(0.915 0.022 85);
-  --muted: oklch(0.3 0.05 264);
-  --muted-foreground: oklch(0.74 0.035 80);
-  --accent: oklch(0.34 0.055 264);
-  --accent-foreground: oklch(0.92 0.04 90);
-  --destructive: oklch(0.7 0.19 22);
-  --border: oklch(0.82 0.08 85 / 14%);
-  --input: oklch(0.82 0.08 85 / 16%);
-  --ring: oklch(0.72 0.1 84);
 }
 
 @layer base {
@@ -205,18 +97,11 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0 0.15 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Small-caps label used above titles and section heads. */
+/* Label, meta and tab text: the reading serif a step under body, sentence case, untracked. */
 @utility eyebrow {
-  font-family: var(--font-newsreader), serif;
-  font-variant-caps: all-small-caps;
-  letter-spacing: 0.12em;
-  font-size: 0.9rem;
-}
-
-/* Editorial small-caps for overlines / labels. */
-.small-caps {
-  font-variant-caps: small-caps;
-  letter-spacing: 0.06em;
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  line-height: 1.4;
 }
 
 /* Edge-to-edge: let a sticky header's background fill the status-bar / notch
@@ -262,13 +147,13 @@
 .mm-children {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
   padding-left: 1.25rem;
 }
 .mm-children > li {
   position: relative;
-  padding-left: 1rem;
+  padding-left: var(--space-md);
 }
 .mm-children > li > .mm-row {
   animation: mm-in 0.35s ease-out both;
@@ -312,7 +197,7 @@
   .mm-children {
     position: relative;
     margin-top: 0;
-    padding-left: 1rem;
+    padding-left: var(--space-md);
   }
   .mm-children::before {
     content: "";
@@ -327,7 +212,7 @@
   }
   .mm-children > li {
     display: flex;
-    padding-left: 1rem;
+    padding-left: var(--space-md);
   }
   .mm-children > li::before {
     top: 50%;
@@ -382,7 +267,7 @@
   transform: scaleX(1);
 }
 
-/* Hero emblem: hairline rings, engraved small-caps labels, drawn once on load. */
+/* Hero emblem: hairline rings and serif labels, drawn once on load. */
 .emblem-tick {
   stroke: color-mix(in oklch, var(--foreground) 18%, transparent);
   stroke-width: 0.75;
@@ -390,7 +275,6 @@
 .emblem-tier,
 .emblem-core {
   cursor: pointer;
-  outline: none;
 }
 .emblem-hit {
   fill: none;
@@ -413,15 +297,21 @@
 .emblem-tier:focus-visible .emblem-ring {
   stroke: color-mix(in oklch, var(--foreground) 55%, transparent);
 }
+.emblem-tier:focus-visible .emblem-ring,
+.emblem-core:focus-visible .emblem-disc {
+  stroke: var(--color-focus);
+  stroke-width: 2;
+}
+.emblem-mark:focus-visible .emblem-mark-gem {
+  stroke-width: 2;
+}
 .emblem-tier.is-active .emblem-ring {
   stroke: var(--primary);
   stroke-width: 1.5;
 }
 .emblem-label {
-  font-family: var(--font-newsreader), serif;
-  font-size: 10.5px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  font-family: var(--font-display);
+  font-size: 12px;
   fill: var(--muted-foreground);
   pointer-events: none;
   animation: org-fade 0.6s ease both;
@@ -437,7 +327,6 @@
 }
 .emblem-mark {
   cursor: pointer;
-  outline: none;
 }
 .emblem-mark-hit {
   fill: transparent;
@@ -467,14 +356,13 @@
   transform: scale(1.04);
 }
 .emblem-core-small {
-  font-family: var(--font-newsreader), serif;
-  font-size: 7.5px;
-  letter-spacing: 0.3em;
+  font-family: var(--font-display);
+  font-size: 11px;
   fill: color-mix(in oklch, var(--primary-foreground) 75%, transparent);
   pointer-events: none;
 }
 .emblem-core-big {
-  font-family: var(--font-newsreader), serif;
+  font-family: var(--font-display);
   font-size: 13px;
   font-style: italic;
   fill: var(--primary-foreground);

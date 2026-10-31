@@ -16,7 +16,7 @@ export default function ReadNotFound() {
         </h1>
         <p className="mt-2 text-muted-foreground text-pretty">
           We couldn’t find that volume, book, chapter, or verse. It may not
-          exist — check the reference and try again.
+          exist. Check the reference and try again.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link href="/read" className={buttonVariants()}>

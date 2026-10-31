@@ -49,9 +49,9 @@ export default async function SearchPage({ searchParams }: Props) {
     <>
       <SiteHeader />
       <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-14 sm:py-20">
-        <p className="eyebrow text-primary">Search</p>
-        <h1 className="mt-3 font-display text-5xl font-light tracking-tight sm:text-6xl">
-          Seek, and ye shall find
+        <h1 className="font-display text-5xl font-light tracking-tight sm:text-6xl">
+          Search
+          <span className="mt-2 block text-[0.5em] leading-tight">Seek, and ye shall find</span>
         </h1>
         <p className="mt-4 mb-10 max-w-xl font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
           Find verses across the standard works, General Conference talks, and
@@ -116,7 +116,7 @@ function Pager({
     <div className="mt-8 flex items-center justify-between">
       {hasPrev ? (
         <Link href={linkFor(page - 1)} className={buttonVariants({ variant: "outline", size: "sm" })}>
-          ← Previous
+          Previous
         </Link>
       ) : (
         <span />
@@ -124,7 +124,7 @@ function Pager({
       <span className="eyebrow text-muted-foreground">Page {page}</span>
       {hasNext ? (
         <Link href={linkFor(page + 1)} className={buttonVariants({ variant: "outline", size: "sm" })}>
-          Next →
+          Next
         </Link>
       ) : (
         <span />
@@ -233,7 +233,7 @@ async function ScriptureResults({
     <div className="mt-8 animate-in fade-in duration-300">
       <p className="text-sm text-muted-foreground">
         {data.total.toLocaleString()} result{data.total === 1 ? "" : "s"} ·
-        showing {offset + 1}–{shownUpTo}
+        showing {offset + 1} to {shownUpTo}
       </p>
 
       <ul className="mt-4 divide-y divide-border">
@@ -345,7 +345,7 @@ async function TalkResults({
     <div className="mt-8 animate-in fade-in duration-300">
       <p className="text-sm text-muted-foreground">
         {data.total.toLocaleString()} result{data.total === 1 ? "" : "s"} ·
-        showing {offset + 1}–{shownUpTo}
+        showing {offset + 1} to {shownUpTo}
       </p>
 
       <ul className="mt-4 divide-y divide-border">

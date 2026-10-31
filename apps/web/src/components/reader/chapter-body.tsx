@@ -632,7 +632,7 @@ export function ChapterBody({
           {mode === "simple" && simple && (
             <p className="mx-auto mt-6 max-w-2xl text-center text-xs text-muted-foreground">
               <Sparkles className="mr-1 inline size-3 align-[-0.1em]" />
-              AI-simplified paraphrase for readability — compare with the King
+              AI-simplified paraphrase for readability. Compare with the King
               James text for study.
             </p>
           )}
@@ -816,7 +816,7 @@ function VerseToolbar({
         onChange={(e) => onNoteChange(e.target.value)}
         placeholder="Add a note…"
         rows={2}
-        className="mt-2 w-full resize-none rounded-md border border-input bg-background px-2.5 py-1.5 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 sm:text-sm"
+        className="mt-2 w-full resize-none rounded-md border border-field-edge bg-background px-2.5 py-1.5 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 sm:text-sm"
       />
       <div className="mt-1.5 flex justify-end">
         <Button size="sm" onClick={onSave}>
@@ -940,7 +940,7 @@ function NotePanel({
   return (
     <div className="my-2.5 ml-5 max-w-md border-l-2 border-primary/30 py-1 pl-4 font-serif text-[0.95rem] animate-in fade-in slide-in-from-top-1 duration-200">
       <div className="mb-1.5 flex items-center justify-between gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <span className="font-serif text-sm font-medium text-muted-foreground">
           Note
         </span>
         <button
@@ -987,7 +987,7 @@ function FootnotePanel({
   return (
     <div className="my-2.5 ml-5 max-w-md border-l-2 border-primary/30 py-1 pl-4 font-serif text-[0.95rem] animate-in fade-in slide-in-from-top-1 duration-200">
       <div className="mb-1.5 flex items-center justify-between gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <span className="font-serif text-sm font-medium text-muted-foreground">
           Footnote {letter}
         </span>
         <button
@@ -1032,8 +1032,8 @@ function ExplainPanel({
   return (
     <div className="my-2.5 ml-5 max-w-md border-l-2 border-primary/50 py-1 pl-4 font-serif text-[0.95rem] animate-in fade-in slide-in-from-top-1 duration-200">
       <div className="mb-1.5 flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-primary/70">
-          <Sparkles className="size-3.5" /> Explain · {reference}
+        <span className="flex items-center gap-1.5 font-serif text-sm font-medium text-primary">
+          <Sparkles className="size-3.5" /> Explain {reference}
         </span>
         <button
           type="button"
@@ -1060,7 +1060,7 @@ function ExplainPanel({
       {status === "notice" && (
         <div
           role="status"
-          className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-2 text-foreground/90"
+          className="flex items-start gap-2 rounded-md border border-(--color-warning)/40 bg-(--color-warning)/10 px-2.5 py-2 text-foreground/90"
         >
           <p className="min-w-0 flex-1 break-words">{message}</p>
         </div>
@@ -1081,7 +1081,7 @@ function ExplainPanel({
 
       {status === "done" && (
         <p className="mt-2 text-[11px] text-muted-foreground">
-          A study aid — not an official source of Church doctrine.
+          A study aid, not an official source of Church doctrine.
         </p>
       )}
     </div>
@@ -1160,8 +1160,8 @@ function CitationsPanel({
   return (
     <div className="my-2.5 ml-5 max-w-md border-l-2 border-primary/30 py-1 pl-4 font-serif text-[0.95rem] animate-in fade-in slide-in-from-top-1 duration-200">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          <Users className="size-3.5" /> Who taught this? · {reference}
+        <span className="flex items-center gap-1.5 font-serif text-sm font-medium text-muted-foreground">
+          <Users className="size-3.5" /> Who taught {reference}?
         </span>
         <button
           type="button"

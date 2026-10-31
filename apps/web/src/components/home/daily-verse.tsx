@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 
 type Verse = { reference: string; text: string; href: string };
 
@@ -57,20 +56,19 @@ export function DailyVerse({ className }: { className?: string }) {
 
   return (
     <figure className={`text-center ${className ?? ""}`}>
-      <p className="eyebrow text-primary">Verse of the day</p>
-      <blockquote className="mx-auto mt-5 max-w-xl font-serif text-2xl leading-snug font-light text-pretty italic sm:text-[1.75rem]">
-        <span aria-hidden className="text-primary/60">“</span>
+      <blockquote className="mx-auto max-w-[26ch] font-serif text-(length:--text-display-s) leading-[1.15] font-light text-balance italic [hanging-punctuation:first]">
+        <span aria-hidden className="text-primary">“</span>
         {verse.text}
-        <span aria-hidden className="text-primary/60">”</span>
+        <span aria-hidden className="text-primary">”</span>
       </blockquote>
-      <figcaption className="mt-5">
+      <figcaption className="mt-8 font-serif text-base text-muted-foreground">
         <Link
           href={verse.href}
-          className="group inline-flex items-center gap-1.5 eyebrow text-muted-foreground transition-colors hover:text-primary"
+          className="text-foreground underline decoration-primary/50 decoration-1 underline-offset-[0.3em] transition-colors duration-(--dur-short) hover:text-primary hover:decoration-primary"
         >
           {verse.reference}
-          <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
         </Link>
+        <span className="block mt-1">Today’s verse</span>
       </figcaption>
     </figure>
   );
