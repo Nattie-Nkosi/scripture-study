@@ -27,8 +27,9 @@
   --tracking-display: -0.025em;
 }
 
-/* Warm "paper" palette — ivory light mode, warm charcoal dark mode. */
-:root {
+/* Warm "paper" palette: ivory light mode, warm charcoal dark mode. `.light` lets a theme preview opt back into Paper inside a dark page. */
+:root,
+.light {
   color-scheme: light;
   --radius: 0.375rem;
   --reader-font-size: 1.1875rem;

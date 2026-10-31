@@ -15,6 +15,10 @@
 @import "./tokens.css";
 @import "./base.css" layer(base);
 
+/* "sepia" is a reading-theme class; without this Tailwind also emits its
+ * `sepia` filter utility and tints the whole page when the theme is on. */
+@source not inline("sepia");
+
 @custom-variant dark (&:is(.dark *, .night *, .twilight *));
 
 @theme inline {

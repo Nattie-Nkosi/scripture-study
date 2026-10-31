@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Menu } from "@base-ui/react/menu";
-import { Check, Monitor, Palette } from "lucide-react";
+import { Check, Palette } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
@@ -12,54 +12,46 @@ type ThemeOption = {
   value: string;
   label: string;
   hint: string;
-  swatch: { bg: string; ink: string };
 };
 
-// Swatch colors are hardcoded so each option previews its own palette
-// regardless of the theme currently applied to the menu.
 const THEMES: ThemeOption[] = [
-  {
-    value: "light",
-    label: "Paper",
-    hint: "Bright cream",
-    swatch: { bg: "oklch(0.985 0.009 83)", ink: "oklch(0.45 0.125 25)" },
-  },
-  {
-    value: "sepia",
-    label: "Sepia",
-    hint: "Warm aged paper",
-    swatch: { bg: "oklch(0.905 0.048 79)", ink: "oklch(0.44 0.14 30)" },
-  },
-  {
-    value: "dark",
-    label: "Dark",
-    hint: "Warm charcoal",
-    swatch: { bg: "oklch(0.19 0.012 60)", ink: "oklch(0.62 0.14 25)" },
-  },
-  {
-    value: "night",
-    label: "Night",
-    hint: "True black, OLED",
-    swatch: { bg: "oklch(0 0 0)", ink: "oklch(0.64 0.15 25)" },
-  },
-  {
-    value: "twilight",
-    label: "Twilight",
-    hint: "Indigo & gold",
-    swatch: { bg: "oklch(0.215 0.048 264)", ink: "oklch(0.8 0.13 84)" },
-  },
+  { value: "light", label: "Paper", hint: "Bright cream" },
+  { value: "sepia", label: "Sepia", hint: "Warm aged paper" },
+  { value: "dark", label: "Dark", hint: "Warm charcoal" },
+  { value: "night", label: "Night", hint: "True black for OLED" },
+  { value: "twilight", label: "Twilight", hint: "Indigo and gold" },
 ];
 
-function Swatch({ option }: { option: ThemeOption }) {
+/** A tiny page set in a theme's own palette. The theme class on the wrapper
+ *  re-scopes the palette variables, so the preview always shows that theme
+ *  whatever the page around it is using. */
+function PagePreview({ theme, className }: { theme: string; className?: string }) {
   return (
     <span
-      className="flex size-5 shrink-0 items-center justify-center rounded-full border border-border/70"
-      style={{ background: option.swatch.bg }}
+      aria-hidden
+      className={cn(
+        theme,
+        "flex h-full flex-col justify-center bg-background px-1.5 text-foreground",
+        className,
+      )}
     >
-      <span
-        className="size-2 rounded-full"
-        style={{ background: option.swatch.ink }}
-      />
+      <span className="font-display text-[0.9375rem] leading-none">Aa</span>
+      <span className="mt-1 h-px w-4 bg-primary" />
+    </span>
+  );
+}
+
+function Swatch({ theme }: { theme: string }) {
+  return (
+    <span className="flex h-8 w-11 shrink-0 overflow-hidden rounded-sm border border-border">
+      {theme === "system" ? (
+        <>
+          <PagePreview theme="light" className="w-1/2 px-1" />
+          <PagePreview theme="dark" className="w-1/2 px-1" />
+        </>
+      ) : (
+        <PagePreview theme={theme} className="w-full" />
+      )}
     </span>
   );
 }
@@ -98,34 +90,21 @@ export function ThemeSelector() {
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner sideOffset={8} align="end" className="z-50">
-          <Menu.Popup className="min-w-52 origin-[var(--transform-origin)] rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg shadow-black/5 outline-none transition-[transform,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0">
-            <p className="px-2 pt-1 pb-1.5 font-serif text-sm text-muted-foreground">
-              Reading theme
-            </p>
-            <Menu.RadioGroup
-              value={selected}
-              onValueChange={(value) => setTheme(value as string)}
-            >
-              <RadioOption
-                value="system"
-                label="System"
-                hint="Match device"
-                icon={
-                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-border/70 bg-secondary text-muted-foreground">
-                    <Monitor className="size-3" />
-                  </span>
-                }
-              />
-              {THEMES.map((option) => (
-                <RadioOption
-                  key={option.value}
-                  value={option.value}
-                  label={option.label}
-                  hint={option.hint}
-                  icon={<Swatch option={option} />}
-                />
-              ))}
-            </Menu.RadioGroup>
+          <Menu.Popup className="w-64 origin-[var(--transform-origin)] rounded-(--radius-card) border border-border bg-popover p-1.5 text-popover-foreground outline-none transition-[transform,opacity] duration-(--dur-short) data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0">
+            <Menu.Group>
+              <Menu.GroupLabel className="px-2.5 pt-1.5 pb-2 font-serif text-sm text-muted-foreground">
+                Reading theme
+              </Menu.GroupLabel>
+              <Menu.RadioGroup
+                value={selected}
+                onValueChange={(value) => setTheme(value as string)}
+              >
+                <RadioOption value="system" label="System" hint="Match this device" />
+                {THEMES.map((option) => (
+                  <RadioOption key={option.value} {...option} />
+                ))}
+              </Menu.RadioGroup>
+            </Menu.Group>
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>
@@ -133,30 +112,20 @@ export function ThemeSelector() {
   );
 }
 
-function RadioOption({
-  value,
-  label,
-  hint,
-  icon,
-}: {
-  value: string;
-  label: string;
-  hint: string;
-  icon: React.ReactNode;
-}) {
+function RadioOption({ value, label, hint }: ThemeOption) {
   return (
     <Menu.RadioItem
       value={value}
       closeOnClick
       className={cn(
-        "flex cursor-default items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm outline-none select-none",
+        "flex min-h-12 cursor-default items-center gap-3 rounded-sm px-2.5 py-1.5 outline-none select-none",
         "data-[highlighted]:bg-muted data-[highlighted]:text-foreground"
       )}
     >
-      {icon}
-      <span className="flex flex-col leading-tight">
-        <span className="font-medium">{label}</span>
-        <span className="text-xs text-muted-foreground">{hint}</span>
+      <Swatch theme={value} />
+      <span className="flex min-w-0 flex-col">
+        <span className="font-serif text-base leading-snug">{label}</span>
+        <span className="font-serif text-sm leading-snug text-muted-foreground">{hint}</span>
       </span>
       <Menu.RadioItemIndicator className="ml-auto flex text-primary">
         <Check className="size-4" />
