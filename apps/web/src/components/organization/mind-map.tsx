@@ -148,9 +148,12 @@ function expansionFor(view: View): Set<string> {
   );
 }
 
+/** The outline and the web both carry data-node-id; only one is rendered at a time. */
 function scrollToNode(id: string, block: ScrollLogicalPosition, focus = false) {
   requestAnimationFrame(() => {
-    const el = document.querySelector<HTMLElement>(`[data-node-id="${id}"]`);
+    const el = [...document.querySelectorAll<HTMLElement | SVGElement>(`[data-node-id="${id}"]`)].find(
+      (e) => e.getClientRects().length > 0,
+    );
     if (!el) return;
     el.scrollIntoView({ block, inline: "center", behavior: "smooth" });
     if (focus) el.focus({ preventScroll: true });
@@ -288,11 +291,11 @@ export function OrgMindMap() {
               <button
                 type="button"
                 onClick={() => setManual({ key: viewKey, set: new Set(ALL_BRANCHES) })}
-                className="transition-colors hover:text-primary"
+                className="transition-colors hover:text-primary lg:hidden"
               >
                 Expand all
               </button>
-              <span aria-hidden className="size-1 rotate-45 bg-border" />
+              <span aria-hidden className="size-1 rotate-45 bg-border lg:hidden" />
               <button
                 type="button"
                 onClick={() => {
@@ -301,7 +304,8 @@ export function OrgMindMap() {
                 }}
                 className="transition-colors hover:text-primary"
               >
-                Collapse
+                <span className="lg:hidden">Collapse</span>
+                <span className="hidden lg:inline">Reset</span>
               </button>
             </div>
           </div>
@@ -310,7 +314,11 @@ export function OrgMindMap() {
             <CompareBar pinned={pinned} current={current} onClear={() => actions.compareWith(null)} />
           )}
 
-          <div className="overflow-x-auto rounded-xl border border-border bg-card/40 p-4 sm:p-6">
+          <div className="hidden rounded-xl border border-border bg-card lg:block">
+            <OrgWeb state={state} pinned={view.vs} line={line} />
+          </div>
+
+          <div className="overflow-x-auto rounded-xl border border-border bg-card/40 p-4 sm:p-6 lg:hidden">
             <ul className="mindmap">
               <Branch node={ORGANIZATION} depth={0} index={0} state={state} />
             </ul>
@@ -768,6 +776,269 @@ function CompareBar({
         {waiting ? "Cancel" : "Stop comparing"}
       </button>
     </div>
+  );
+}
+
+/* The web: Christ at the hub, the five levels on the first ring, every calling at the end
+ * of its own spoke. Each calling below a level takes one angular slot (children right after
+ * their parent), with an empty slot between levels; a level sits at the middle of its slots. */
+const WEB_RADII = [0, 150, 262, 362];
+const WEB_EDGE = 478;
+
+type WebPoint = { id: string; depth: number; deg: number; r: number; x: number; y: number; tier?: string };
+
+const round = (v: number) => Math.round(v * 10) / 10;
+
+function webPolar(r: number, deg: number) {
+  const rad = (deg * Math.PI) / 180;
+  return { x: round(r * Math.cos(rad)), y: round(r * Math.sin(rad)) };
+}
+
+const WEB = (() => {
+  const slot = new Map<string, number>();
+  const span = new Map<string, [number, number]>();
+  let n = 0;
+  const walk = (node: OrgNode) => {
+    slot.set(node.id, n++);
+    node.children?.forEach(walk);
+  };
+  for (const tier of ORGANIZATION.children ?? []) {
+    const first = n;
+    tier.children?.forEach(walk);
+    span.set(tier.id, [first, n - 1]);
+    n++;
+  }
+
+  const step = 360 / n;
+  const mid = (id: string) => (span.get(id)![0] + span.get(id)![1]) / 2;
+  const offset = -90 - mid(ORGANIZATION.children![0].id) * step;
+
+  const points = new Map<string, WebPoint>();
+  points.set(ROOT, { id: ROOT, depth: 0, deg: 0, r: 0, x: 0, y: 0 });
+  for (const node of byId.values()) {
+    if (node.id === ROOT) continue;
+    const depth = pathTo(node.id).length - 1;
+    const deg = offset + (depth === 1 ? mid(node.id) : slot.get(node.id)!) * step;
+    const r = WEB_RADII[Math.min(depth, 3)];
+    points.set(node.id, { id: node.id, depth, deg, r, ...webPolar(r, deg), tier: pathTo(node.id)[1].id });
+  }
+
+  const spokes = Array.from({ length: n }, (_, i) => offset + i * step);
+  return { points, spokes, step, spiral: spiralPath(spokes, step) };
+})();
+
+/** The capture thread: an Archimedean spiral wound across the spokes, each span sagging a
+ *  little toward the hub the way silk does between two radials. */
+function spiralPath(spokes: number[], step: number) {
+  const from = 66;
+  const to = 236;
+  const pitch = 15;
+  const grow = pitch / spokes.length;
+  const sag = Math.cos(((step / 2) * Math.PI) / 180) * 0.95;
+  let r = from;
+  let start = webPolar(r, spokes[0]);
+  let d = `M ${start.x} ${start.y}`;
+  for (let k = 1; r < to; k++) {
+    const next = r + grow;
+    const deg = spokes[0] + k * step;
+    const c = webPolar(((r + next) / 2) * sag, deg - step / 2);
+    start = webPolar(next, deg);
+    d += ` Q ${c.x} ${c.y} ${start.x} ${start.y}`;
+    r = next;
+  }
+  return d;
+}
+
+/** Long titles break in two at the space nearest their middle. */
+function wrapTitle(title: string): string[] {
+  if (title.length <= 18) return [title];
+  const middle = title.length / 2;
+  let best = -1;
+  for (let i = title.indexOf(" "); i >= 0; i = title.indexOf(" ", i + 1)) {
+    if (best < 0 || Math.abs(i - middle) < Math.abs(best - middle)) best = i;
+  }
+  return best < 0 ? [title] : [title.slice(0, best), title.slice(best + 1)];
+}
+
+/** A thread between two knots, drawn slack toward the hub. */
+function slackThread(a: { x: number; y: number }, b: { x: number; y: number }) {
+  const cx = round(((a.x + b.x) / 2) * 0.72);
+  const cy = round(((a.y + b.y) / 2) * 0.72);
+  return `Q ${cx} ${cy} ${b.x} ${b.y}`;
+}
+
+function OrgWeb({ state, pinned, line }: { state: MapState; pinned: string | null; line: OrgNode[] }) {
+  const { selected, onPath, inLine, actions } = state;
+  const activeTier = pathTo(selected)[1]?.id;
+  const nodes = [...WEB.points.values()].filter((p) => p.id !== ROOT);
+  const here = WEB.points.get(selected)!;
+  const stops = line.map((n) => WEB.points.get(n.id)!);
+
+  const dim = (p: WebPoint) =>
+    Boolean(activeTier) && p.tier !== activeTier && !inLine.has(p.id) && p.id !== pinned;
+
+  const onKeyDown = (id: string) => (e: React.KeyboardEvent) => {
+    const siblings = siblingsOf(id);
+    const at = siblings.findIndex((s) => s.id === id);
+    let next: string | undefined;
+    switch (e.key) {
+      case "Enter":
+      case " ":
+        next = id;
+        break;
+      case "ArrowRight":
+        next = siblings.length ? siblings[(at + 1) % siblings.length].id : undefined;
+        break;
+      case "ArrowLeft":
+        next = siblings.length ? siblings[(at - 1 + siblings.length) % siblings.length].id : undefined;
+        break;
+      case "ArrowDown":
+        next = byId.get(id)!.children?.[0]?.id;
+        break;
+      case "ArrowUp":
+        next = parentOf.get(id);
+        break;
+    }
+    if (!next) return;
+    e.preventDefault();
+    actions.select(next, true);
+  };
+
+  return (
+    <svg
+      viewBox={`${-WEB_EDGE - 12} ${-WEB_EDGE - 12} ${(WEB_EDGE + 12) * 2} ${(WEB_EDGE + 12) * 2}`}
+      className="org-web mx-auto block w-full max-w-232"
+      role="group"
+      aria-label="Map of Church organization"
+    >
+      <g aria-hidden>
+        {WEB.spokes.map((deg, i) => {
+          const end = webPolar(WEB_EDGE, deg);
+          return (
+            <line
+              key={i}
+              x1={0}
+              y1={0}
+              x2={end.x}
+              y2={end.y}
+              pathLength={1}
+              className="web-spoke"
+              style={{ "--i": i } as StaggerStyle}
+            />
+          );
+        })}
+        <path d={WEB.spiral} pathLength={1} className="web-spiral" />
+      </g>
+
+      <g aria-hidden>
+        {nodes.map((p) => {
+          const parent = WEB.points.get(parentOf.get(p.id)!)!;
+          return (
+            <line
+              key={p.id}
+              x1={parent.x}
+              y1={parent.y}
+              x2={p.x}
+              y2={p.y}
+              className={cn("web-edge", onPath.has(p.id) && "is-on", dim(p) && "is-dim")}
+              style={{ "--d": p.depth } as StaggerStyle}
+            />
+          );
+        })}
+      </g>
+
+      {stops.length > 1 && (
+        <path
+          key={line.map((n) => n.id).join()}
+          aria-hidden
+          d={`M ${stops[0].x} ${stops[0].y} ${stops.slice(1).map((s, i) => slackThread(stops[i], s)).join(" ")}`}
+          pathLength={1}
+          className="web-line"
+        />
+      )}
+
+      <circle key={selected} aria-hidden cx={here.x} cy={here.y} r={here.depth === 0 ? 92 : 34} className="web-ripple" />
+
+      {nodes.map((p) => {
+        const node = byId.get(p.id)!;
+        const isSelected = selected === p.id;
+        const tier = p.depth === 1 ? TIERS.find((t) => t.node.id === p.id) : undefined;
+        return (
+          <g
+            key={p.id}
+            data-node-id={p.id}
+            role="button"
+            tabIndex={isSelected ? 0 : -1}
+            aria-label={node.title}
+            aria-current={isSelected ? "true" : undefined}
+            onClick={() => actions.select(p.id)}
+            onKeyDown={onKeyDown(p.id)}
+            className={cn(
+              "web-node",
+              onPath.has(p.id) && "is-on",
+              inLine.has(p.id) && "is-traced",
+              isSelected && "is-selected",
+              dim(p) && "is-dim",
+            )}
+            style={{ "--d": p.depth } as StaggerStyle}
+          >
+            <title>{node.tagline}</title>
+            <circle cx={p.x} cy={p.y} r={16} className="web-hit" />
+            {pinned === p.id && <circle cx={p.x} cy={p.y} r={10} className="web-pin" />}
+            <circle cx={p.x} cy={p.y} r={tier ? 6.5 : 4.5} className="web-knot" />
+            {tier ? (
+              <text x={p.x} y={p.y + 24} textAnchor="middle" className="web-label web-tier-label">
+                <tspan className="web-numeral">{tier.numeral}</tspan> {tier.label}
+              </text>
+            ) : (
+              <WebLabel point={p} title={node.title} />
+            )}
+          </g>
+        );
+      })}
+
+      <g
+        data-node-id={ROOT}
+        role="button"
+        tabIndex={selected === ROOT ? 0 : -1}
+        aria-label={ORGANIZATION.title}
+        aria-current={selected === ROOT ? "true" : undefined}
+        onClick={() => actions.select(ROOT)}
+        onKeyDown={onKeyDown(ROOT)}
+        className="web-core"
+      >
+        <circle r={54} className="web-core-disc fill-(--color-signal-fill)" />
+        <circle r={48} className="fill-none stroke-primary-foreground/35" strokeWidth={0.6} />
+        <text y={-6} textAnchor="middle" className="emblem-core-small">
+          Led by
+        </text>
+        <text y={13} textAnchor="middle" className="emblem-core-big">
+          Jesus Christ
+        </text>
+      </g>
+    </svg>
+  );
+}
+
+/** A calling's name, laid along its spoke and turned to read left to right on either side. */
+function WebLabel({ point, title }: { point: WebPoint; title: string }) {
+  const deg = ((point.deg % 360) + 360) % 360;
+  const flip = deg > 90 && deg < 270;
+  const at = webPolar(point.r + 11, point.deg);
+  const lines = wrapTitle(title);
+  return (
+    <text
+      transform={`translate(${at.x} ${at.y}) rotate(${round(flip ? point.deg + 180 : point.deg)})`}
+      textAnchor={flip ? "end" : "start"}
+      dominantBaseline="central"
+      className="web-label"
+    >
+      {lines.map((l, i) => (
+        <tspan key={i} x={0} y={(i - (lines.length - 1) / 2) * 15}>
+          {l}
+        </tspan>
+      ))}
+    </text>
   );
 }
 

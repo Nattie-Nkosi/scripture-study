@@ -133,9 +133,8 @@
   }
 }
 
-/* Organization mind map: an indented outline on small screens, a left-to-right
- * branching map from `lg` up. Connectors are drawn with pseudo-elements: each
- * child gets a horizontal tick plus its slice of the vertical spine. New branches
+/* Organization outline (below lg; the web replaces it from lg up). Connectors are drawn
+ * with pseudo-elements: each child gets a horizontal tick plus its slice of the vertical spine. New branches
  * draw their ticks then reveal nodes in order (`--i`); the selected path is inked in garnet. */
 .mindmap,
 .mm-children {
@@ -188,54 +187,6 @@
 .mm-children > li:last-child::after {
   bottom: auto;
   height: 2.1rem;
-}
-
-@media (min-width: 64rem) {
-  .mm-row {
-    display: flex;
-    align-items: center;
-  }
-  .mm-node {
-    width: 11.5rem;
-  }
-  .mm-children {
-    position: relative;
-    margin-top: 0;
-    padding-left: var(--space-md);
-  }
-  .mm-children::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 1rem;
-    border-top: 1px solid var(--mm-line);
-  }
-  .mm-children-on::before {
-    border-top-color: var(--primary);
-  }
-  .mm-children > li {
-    display: flex;
-    padding-left: var(--space-md);
-  }
-  .mm-children > li::before {
-    top: 50%;
-    width: 1rem;
-  }
-  .mm-children > li::after {
-    top: -0.25rem;
-    bottom: -0.25rem;
-    height: auto;
-  }
-  .mm-children > li:first-child::after {
-    top: 50%;
-  }
-  .mm-children > li:last-child::after {
-    bottom: 50%;
-  }
-  .mm-children > li:only-child::after {
-    display: none;
-  }
 }
 
 .org-rise {
@@ -397,6 +348,136 @@
   animation-delay: calc(var(--i, 0) * 160ms + 250ms);
 }
 
+/* Organization web (lg+). Spun once on load, hub outward: spokes, then the spiral, then
+ * knots ring by ring. A selection sends one ripple across the silk; labels carry a card-
+ * coloured halo so the threads pass behind them. */
+.org-web {
+  font-family: var(--font-display);
+}
+.web-spoke,
+.web-spiral {
+  fill: none;
+  stroke-width: 0.6;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.web-spoke {
+  stroke: color-mix(in oklch, var(--foreground) 10%, transparent);
+  animation: emblem-draw 0.9s cubic-bezier(0.5, 0, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 12ms);
+}
+.web-spiral {
+  stroke: color-mix(in oklch, var(--foreground) 14%, transparent);
+  animation: emblem-draw 2.4s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
+}
+.web-edge {
+  stroke: color-mix(in oklch, var(--foreground) 30%, transparent);
+  stroke-width: 0.9;
+  animation: org-fade 0.6s ease both;
+  animation-delay: calc(var(--d, 0) * 180ms + 300ms);
+  transition: stroke 0.3s ease, stroke-width 0.3s ease, opacity 0.3s ease;
+}
+.web-edge.is-on {
+  stroke: var(--primary);
+  stroke-width: 1.6;
+}
+.web-node {
+  cursor: pointer;
+  outline: none;
+  animation: org-fade 0.5s ease both;
+  animation-delay: calc(var(--d, 0) * 180ms + 350ms);
+  transition: opacity 0.3s ease;
+}
+.web-edge.is-dim,
+.web-node.is-dim {
+  opacity: 0.4;
+}
+.web-hit {
+  fill: transparent;
+}
+.web-knot {
+  fill: var(--card);
+  stroke: color-mix(in oklch, var(--foreground) 45%, transparent);
+  stroke-width: 1;
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+.web-node:hover .web-knot,
+.web-node.is-on .web-knot,
+.web-node.is-traced .web-knot {
+  stroke: var(--primary);
+}
+.web-node.is-selected .web-knot {
+  fill: var(--primary);
+}
+.web-node:focus-visible .web-knot,
+.web-core:focus-visible .web-core-disc {
+  stroke: var(--color-focus);
+  stroke-width: 2.5;
+}
+.web-pin {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+.web-label {
+  font-size: 13.5px;
+  fill: var(--muted-foreground);
+  paint-order: stroke;
+  stroke: var(--card);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  transition: fill 0.2s ease;
+}
+.web-node:hover .web-label,
+.web-node.is-on .web-label,
+.web-node.is-traced .web-label {
+  fill: var(--foreground);
+}
+.web-node.is-selected .web-label {
+  fill: var(--primary);
+}
+.web-tier-label {
+  font-size: 15px;
+  fill: var(--foreground);
+}
+.web-numeral {
+  font-size: 12px;
+  fill: var(--primary);
+}
+.web-core {
+  cursor: pointer;
+  outline: none;
+}
+.web-core-disc {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.25s ease;
+}
+.web-core:hover .web-core-disc {
+  transform: scale(1.04);
+}
+.web-line {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  pointer-events: none;
+  animation: emblem-draw 0.9s cubic-bezier(0.5, 0, 0.2, 1) 0.1s both;
+}
+.web-ripple {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 1;
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: web-ripple 1.1s ease-out;
+}
+
 /* Line of authority in the detail panel: a garnet rail from Christ down to the calling. */
 .org-line > li {
   position: relative;
@@ -458,6 +539,16 @@
   from {
     opacity: 0;
     scale: 0.3;
+  }
+}
+@keyframes web-ripple {
+  from {
+    opacity: 0.6;
+    scale: 0.3;
+  }
+  to {
+    opacity: 0;
+    scale: 1;
   }
 }
 @keyframes org-plate-in {
