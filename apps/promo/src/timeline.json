@@ -1,0 +1,15 @@
+{
+  "fps": 30,
+  "transition": 12,
+  "scenes": [
+    { "id": "hook", "frames": 135 },
+    { "id": "reveal", "frames": 150 },
+    { "id": "reader", "frames": 180 },
+    { "id": "plain", "frames": 150 },
+    { "id": "ask", "frames": 195 },
+    { "id": "conference", "frames": 150 },
+    { "id": "contents", "frames": 150 },
+    { "id": "themes", "frames": 180 },
+    { "id": "end", "frames": 180 }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "promo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "music": "node scripts/make-music.mjs",
+    "studio": "npm run music && remotion studio",
+    "render": "npm run music && remotion render Promo out/scripture-study-9x16.mp4 && remotion render PromoFeed out/scripture-study-4x5.mp4",
+    "render:vertical": "npm run music && remotion render Promo out/scripture-study-9x16.mp4",
+    "render:feed": "npm run music && remotion render PromoFeed out/scripture-study-4x5.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.540",
+    "@remotion/google-fonts": "4.0.540",
+    "@remotion/transitions": "4.0.540",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "remotion": "4.0.540"
+  }
+}
