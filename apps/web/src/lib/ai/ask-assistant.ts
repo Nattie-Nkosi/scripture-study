@@ -28,6 +28,8 @@ const MAX_HISTORY = 10;
 export function buildAskMessages(opts: {
   history: { role: "user" | "assistant"; content: string }[];
   question: string;
+  /** Date and latest-conference facts from `conferenceContext()`. */
+  context?: string;
 }): AssistantMessage[] {
   const recent = opts.history
     .filter((m) => m.role === "user" || m.role === "assistant")
@@ -35,7 +37,10 @@ export function buildAskMessages(opts: {
     .map((m) => ({ role: m.role, content: m.content }));
 
   return [
-    { role: "system", content: SYSTEM_INSTRUCTIONS },
+    {
+      role: "system",
+      content: opts.context ? `${SYSTEM_INSTRUCTIONS}\n\n${opts.context}` : SYSTEM_INSTRUCTIONS,
+    },
     ...recent,
     { role: "user", content: opts.question },
   ];

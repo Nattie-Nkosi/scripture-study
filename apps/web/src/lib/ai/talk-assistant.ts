@@ -26,12 +26,15 @@ export function buildTalkGroundedMessages(opts: {
   paragraphs: string[];
   history: { role: "user" | "assistant"; content: string }[];
   question: string;
+  /** Date and latest-conference facts from `conferenceContext()`. */
+  context?: string;
 }): AssistantMessage[] {
   const passage = opts.paragraphs.map((p, i) => `${i + 1}. ${p}`).join("\n");
   const byline = opts.role ? `${opts.speaker}, ${opts.role}` : opts.speaker;
 
   const system =
     `${SYSTEM_INSTRUCTIONS}\n\n` +
+    (opts.context ? `${opts.context}\n\n` : "") +
     `Talk — “${opts.title}” by ${byline} ` +
     `(${opts.conferenceTitle}, ${opts.session}):\n` +
     passage;

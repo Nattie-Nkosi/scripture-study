@@ -2,7 +2,7 @@ import type Groq from "groq-sdk";
 
 import { buildAskMessages } from "@/lib/ai/ask-assistant";
 import { streamAssistantResponse } from "@/lib/ai/chat-runner";
-import { ASK_TOOLS, runAskTool } from "@/lib/ai/retrieval";
+import { ASK_TOOLS, conferenceContext, runAskTool } from "@/lib/ai/retrieval";
 import {
   MAX_QUESTION_CHARS,
   clampHistory,
@@ -38,7 +38,11 @@ export async function POST(req: Request) {
     );
   }
 
-  const messages = buildAskMessages({ history, question });
+  const messages = buildAskMessages({
+    history,
+    question,
+    context: await conferenceContext(),
+  });
 
   try {
     return await streamAssistantResponse({

@@ -4,7 +4,7 @@ import { getTalk } from "@/lib/conference/client";
 import { conferenceShortTitle } from "@/lib/conference/format";
 import { buildTalkGroundedMessages } from "@/lib/ai/talk-assistant";
 import { streamAssistantResponse } from "@/lib/ai/chat-runner";
-import { TALK_TOOLS, runTalkTool } from "@/lib/ai/retrieval";
+import { TALK_TOOLS, conferenceContext, runTalkTool } from "@/lib/ai/retrieval";
 import {
   MAX_QUESTION_CHARS,
   clampHistory,
@@ -65,6 +65,7 @@ export async function POST(req: Request) {
     paragraphs: talk.content.paragraphs.map((p) => p.text),
     history,
     question,
+    context: await conferenceContext(),
   });
 
   // Persist the user's message before we start (best effort).

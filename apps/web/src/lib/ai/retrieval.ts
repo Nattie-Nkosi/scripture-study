@@ -2,11 +2,19 @@ import "server-only";
 import type Groq from "groq-sdk";
 
 import { searchScriptures } from "@/lib/scripture/client";
-import { searchConferenceTalks } from "@/lib/conference/client";
+import {
+  getConference,
+  getLatestConference,
+  searchConferenceTalks,
+} from "@/lib/conference/client";
 import { conferenceShortTitle } from "@/lib/conference/format";
 import { searchStudyHelps } from "@/lib/study-helps/client";
 import { typeName } from "@/lib/study-helps/format";
 import type { StudyHelpType } from "@/lib/study-helps/types";
+import type {
+  ConferenceSearchOptions,
+  ConferenceSearchResult,
+} from "@/lib/conference/types";
 import { embedText } from "@/lib/ai/embeddings";
 import {
   semanticSearchScriptures,
@@ -216,7 +224,7 @@ export const talkSearchTool: Groq.Chat.Completions.ChatCompletionTool = {
   function: {
     name: "search_talks",
     description:
-      "Full-text search of General Conference talks (1971 to today). Use this to find what speakers have taught on a topic, or to find related talks beyond the one the reader is viewing. Returns matching excerpts with the talk title, speaker, and conference.",
+      "Full-text search of General Conference talks (1971 to today). Use this to find what speakers have taught on a topic, or to find related talks beyond the one the reader is viewing. Returns one excerpt per talk, newest talks first, with the talk title, speaker, and conference. Narrow by conference or year when the reader asks about a particular or recent conference.",
     parameters: {
       type: "object",
       properties: {
@@ -229,11 +237,68 @@ export const talkSearchTool: Groq.Chat.Completions.ChatCompletionTool = {
           type: "string",
           description: "Optional. Restrict to one speaker by name, e.g. \"Russell M. Nelson\".",
         },
+        conference: {
+          type: "string",
+          description: 'Optional. Restrict to one conference by id, "YYYY-04" (April) or "YYYY-10" (October), e.g. "2024-10".',
+        },
+        year: {
+          type: "integer",
+          description: "Optional. Restrict to talks given in this year.",
+        },
+        start_year: {
+          type: "integer",
+          description: "Optional. Only talks from this year onward, e.g. for recent teachings.",
+        },
       },
       required: ["query"],
     },
   },
 };
+
+// Excerpts pulled from each end of the hit list before collapsing to talks.
+const TALK_WINDOW = 40;
+// Of the talks handed back, how many come from the newest end.
+const TALK_NEWEST = 8;
+const CONFERENCE_ID = /^\d{4}-(04|10)$/;
+
+function yearArg(v: unknown): number | undefined {
+  const n = typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN;
+  return Number.isInteger(n) && n >= 1971 && n <= 2100 ? n : undefined;
+}
+
+function conferenceArg(v: unknown): string | undefined {
+  return typeof v === "string" && CONFERENCE_ID.test(v.trim()) ? v.trim() : undefined;
+}
+
+function uniqueTalks(hits: ConferenceSearchResult[], seen: Set<string>): ConferenceSearchResult[] {
+  const out: ConferenceSearchResult[] = [];
+  for (const h of hits) {
+    if (seen.has(h.talkId)) continue;
+    seen.add(h.talkId);
+    out.push(h);
+  }
+  return out;
+}
+
+// The API returns hits oldest first, one per matching paragraph, so a plain
+// first page is all 1970s talks. Read both ends of the list, collapse to one
+// excerpt per talk, and lead with the newest.
+async function searchTalksBothEnds(
+  query: string,
+  opts: ConferenceSearchOptions,
+): Promise<{ results: ConferenceSearchResult[]; total: number }> {
+  const head = await searchConferenceTalks(query, { ...opts, limit: TALK_WINDOW });
+  const tail =
+    head.total > TALK_WINDOW
+      ? (await searchConferenceTalks(query, { ...opts, limit: TALK_WINDOW, offset: head.total - TALK_WINDOW })).results
+      : [];
+  const newest = uniqueTalks([...head.results, ...tail].reverse(), new Set()).slice(0, TALK_NEWEST);
+  const oldest = uniqueTalks(head.results, new Set(newest.map((t) => t.talkId)));
+  const results = [...newest, ...oldest]
+    .slice(0, MAX_RESULTS)
+    .sort((a, b) => b.year - a.year || b.month - a.month);
+  return { results, total: head.total };
+}
 
 async function executeTalkSearch(args: Record<string, unknown>): Promise<string> {
   const query = typeof args.query === "string" ? args.query.trim() : "";
@@ -242,13 +307,19 @@ async function executeTalkSearch(args: Record<string, unknown>): Promise<string>
     typeof args.speaker === "string" && args.speaker.trim()
       ? args.speaker.trim()
       : undefined;
+  const opts: ConferenceSearchOptions = {
+    speaker,
+    conference: conferenceArg(args.conference),
+    year: yearArg(args.year),
+    startYear: yearArg(args.start_year),
+  };
 
   try {
-    let res = await searchConferenceTalks(query, { limit: MAX_RESULTS, speaker });
+    let res = await searchTalksBothEnds(query, opts);
     let used = query;
     for (const alt of fallbackQueries(query)) {
       if (res.results.length > 0) break;
-      res = await searchConferenceTalks(alt, { limit: FALLBACK_RESULTS, speaker });
+      res = await searchTalksBothEnds(alt, opts);
       used = alt;
     }
     if (res.results.length === 0) {
@@ -260,11 +331,63 @@ async function executeTalkSearch(args: Record<string, unknown>): Promise<string>
         `"${r.title}" — ${r.speaker}, ${conferenceShortTitle(r.year, r.month)}: ${snippet(r.text)}`,
     );
     return (
-      `Talk excerpts matching "${query}"${note} — showing ${res.results.length} of ${res.total}:\n` +
+      `Talks matching "${query}"${note}, newest first — showing ${res.results.length} talks from ${res.total} matching passages:\n` +
       lines.join("\n")
     );
   } catch {
     return "The talk search is unavailable right now. Answer from the talk already provided, and say you couldn't look further.";
+  }
+}
+
+// --- list_conference_talks --------------------------------------------------
+
+export const conferenceTalksTool: Groq.Chat.Completions.ChatCompletionTool = {
+  type: "function",
+  function: {
+    name: "list_conference_talks",
+    description:
+      "List every talk in one General Conference, by session, with its title and speaker. Leave conference empty for the most recent conference. Use this for questions like who spoke, what the talks were, or an overview of a conference.",
+    parameters: {
+      type: "object",
+      properties: {
+        conference: {
+          type: "string",
+          description: 'Optional. Conference id, "YYYY-04" or "YYYY-10". Omit for the most recent conference.',
+        },
+      },
+    },
+  },
+};
+
+async function executeConferenceTalks(args: Record<string, unknown>): Promise<string> {
+  try {
+    const id = conferenceArg(args.conference) ?? (await getLatestConference())._id;
+    const conf = await getConference(id, true);
+    const sessions = conf.sessions.map((s) => {
+      const talks = (s.talks ?? []).map(
+        (t) => `- "${t.title}" — ${t.speaker}${t.role ? `, ${t.role}` : ""}`,
+      );
+      return `${s.name}:\n${talks.join("\n")}`;
+    });
+    return `${conf.title} (id ${conf._id}):\n\n${sessions.join("\n\n")}`;
+  } catch {
+    return "Couldn't load that conference's talks. Tell the reader you couldn't look it up rather than guessing.";
+  }
+}
+
+/** Today's date and the newest conference, so "the latest conference" means
+ *  the one actually in the library rather than whatever the model last saw. */
+export async function conferenceContext(): Promise<string> {
+  const today = new Date().toLocaleDateString("en-US", { dateStyle: "long", timeZone: "UTC" });
+  try {
+    const latest = await getLatestConference();
+    return (
+      `Today is ${today}. The most recent General Conference in this library is the ${latest.title} (id ${latest._id}). ` +
+      `When the reader asks about the latest, most recent, or last conference, they mean this one: use list_conference_talks for who spoke and what the talks were, and search_talks with conference "${latest._id}" for what was taught. ` +
+      "Your own memory of recent conferences is out of date, so rely on these tools for anything recent."
+    );
+  } catch {
+    return `Today is ${today}.`;
   }
 }
 
@@ -351,6 +474,7 @@ export const READER_TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
  *  gets both). */
 export const TALK_TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
   talkSearchTool,
+  conferenceTalksTool,
   scriptureSearchTool,
   studyHelpsSearchTool,
 ];
@@ -359,6 +483,7 @@ export const TALK_TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
 export const ASK_TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
   scriptureSearchTool,
   talkSearchTool,
+  conferenceTalksTool,
   studyHelpsSearchTool,
 ];
 
@@ -372,6 +497,7 @@ export function runScriptureTool(name: string, argsJson: string): Promise<string
 /** Run a tool the talk assistant requested, returning text for the model. */
 export function runTalkTool(name: string, argsJson: string): Promise<string> {
   if (name === "search_talks") return executeTalkSearch(parseArgs(argsJson));
+  if (name === "list_conference_talks") return executeConferenceTalks(parseArgs(argsJson));
   if (name === "search_scriptures") return executeScriptureSearch(parseArgs(argsJson));
   if (name === "search_study_helps") return executeStudyHelpsSearch(parseArgs(argsJson));
   return Promise.resolve(`Unknown tool "${name}".`);
@@ -381,6 +507,7 @@ export function runTalkTool(name: string, argsJson: string): Promise<string> {
 export function runAskTool(name: string, argsJson: string): Promise<string> {
   if (name === "search_scriptures") return executeScriptureSearch(parseArgs(argsJson));
   if (name === "search_talks") return executeTalkSearch(parseArgs(argsJson));
+  if (name === "list_conference_talks") return executeConferenceTalks(parseArgs(argsJson));
   if (name === "search_study_helps") return executeStudyHelpsSearch(parseArgs(argsJson));
   return Promise.resolve(`Unknown tool "${name}".`);
 }
