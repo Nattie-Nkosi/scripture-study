@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { startNavigationProgress } from "@/components/navigation-progress";
 import { CloudOff, Search } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -50,13 +51,17 @@ export function SearchBox({
     e.preventDefault();
     const query = q.trim();
     if (!query || !online) return;
+    startNavigationProgress(urlFor(query, scope));
     router.push(urlFor(query, scope));
   }
 
   function pickScope(next: Scope) {
     setScope(next);
     const query = q.trim();
-    if (query && online) router.push(urlFor(query, next));
+    if (query && online) {
+      startNavigationProgress(urlFor(query, next));
+      router.push(urlFor(query, next));
+    }
   }
 
   return (

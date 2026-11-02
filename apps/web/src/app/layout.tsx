@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
+import { NavigationProgress } from "@/components/navigation-progress";
 import { CommandPalette } from "@/components/command-palette";
 
 const geistSans = Geist({
@@ -73,6 +74,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <NavigationProgress />
           <CommandPalette />
           <ServiceWorkerRegister />
         </ThemeProvider>

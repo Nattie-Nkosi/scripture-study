@@ -3,6 +3,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
+import { startNavigationProgress } from "@/components/navigation-progress";
 import {
   BookOpen,
   Bookmark,
@@ -285,6 +286,7 @@ export function CommandPalette() {
 
   function go(href: string) {
     close();
+    startNavigationProgress(href);
     router.push(href);
   }
 
