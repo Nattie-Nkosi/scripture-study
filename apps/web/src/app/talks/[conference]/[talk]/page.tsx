@@ -53,7 +53,7 @@ export default async function TalkPage({ params }: Props) {
       />
       <ReadingProgress />
 
-      <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
+      <main className="mx-auto w-full max-w-3xl px-5 pt-10 pb-28 sm:py-14">
         <div className="text-center animate-in fade-in duration-500">
           <h1 className="mx-auto max-w-2xl font-display text-4xl leading-[1.08] font-light tracking-tight sm:text-[3.25rem]">
             {data.title}

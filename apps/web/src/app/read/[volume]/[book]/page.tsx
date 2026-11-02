@@ -38,7 +38,7 @@ export default async function BookPage({ params }: Props) {
       <main className="mx-auto w-full max-w-3xl px-5 py-14 sm:py-20">
         <Link
           href={`/read/${volume}`}
-          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
+          className="-my-2.5 inline-flex items-center gap-1 py-2.5 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
           <ChevronLeft aria-hidden className="size-3.5" />
           Back

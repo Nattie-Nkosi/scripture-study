@@ -57,7 +57,7 @@ export default async function SpeakersPage({ searchParams }: Props) {
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-14 sm:py-20">
         <Link
           href="/talks"
-          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
+          className="-my-2.5 inline-flex items-center gap-1 py-2.5 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
           <ChevronLeft className="size-3.5" />
           General Conference
@@ -74,6 +74,7 @@ export default async function SpeakersPage({ searchParams }: Props) {
               name="q"
               defaultValue={q}
               placeholder="Find a speaker by name…"
+              aria-label="Find a speaker by name"
               className="w-full border-0 border-b border-field-edge bg-transparent py-3 pr-3 pl-8 font-serif text-xl outline-none transition-colors placeholder:text-muted-foreground/60 placeholder:italic focus-visible:border-primary"
             />
           </div>

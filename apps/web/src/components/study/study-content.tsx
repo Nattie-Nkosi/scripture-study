@@ -115,7 +115,7 @@ export function StudyContent() {
       <div className="mt-10 max-w-prose">
         <p className="font-serif leading-relaxed text-muted-foreground">
           Nothing saved yet. As you read scripture or a conference talk, highlight
-          a passage, jot a note, or add a bookmark — it will gather here, ready
+          a passage, jot a note, or add a bookmark, and it will gather here, ready
           when you return.
         </p>
         <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">

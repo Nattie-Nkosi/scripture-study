@@ -48,7 +48,7 @@ export default async function EntryPage({ params }: Props) {
       <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
         <Link
           href={`/study-helps/${type}`}
-          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
+          className="-my-2.5 inline-flex items-center gap-1 py-2.5 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
           <ChevronLeft className="size-3.5" />
           {typeName(type)}

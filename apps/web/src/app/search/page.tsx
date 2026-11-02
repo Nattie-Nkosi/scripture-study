@@ -13,6 +13,7 @@ import {
   ConferenceApiError,
 } from "@/lib/conference/client";
 import { conferenceShortTitle } from "@/lib/conference/format";
+import type { ConferenceSearchResult } from "@/lib/conference/types";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { SearchBox } from "@/components/search/search-box";
@@ -300,6 +301,8 @@ function StudyHelpResults({
   );
 }
 
+// The API lists hits oldest first, one per paragraph. Page from the far end so
+// the newest talks lead, and fold a talk's passages into one entry.
 async function TalkResults({
   q,
   page,
@@ -309,13 +312,22 @@ async function TalkResults({
   page: number;
   offset: number;
 }) {
-  let data;
+  let total: number;
+  let hits: ConferenceSearchResult[];
   try {
-    data = await searchConferenceTalks(q, {
-      limit: PAGE_SIZE,
-      offset,
-      highlight: true,
-    });
+    total = (await searchConferenceTalks(q, { limit: 1 })).total;
+    const end = Math.max(0, total - offset);
+    const start = Math.max(0, end - PAGE_SIZE);
+    hits =
+      end > start
+        ? (
+            await searchConferenceTalks(q, {
+              limit: end - start,
+              offset: start,
+              highlight: true,
+            })
+          ).results.reverse()
+        : [];
   } catch (err) {
     const status = err instanceof ConferenceApiError ? err.status : undefined;
     return (
@@ -326,7 +338,7 @@ async function TalkResults({
     );
   }
 
-  if (data.results.length === 0) {
+  if (hits.length === 0) {
     return (
       <p className="mt-10 text-center text-sm text-muted-foreground">
         No conference talks for <span className="font-medium">“{q}”</span>.
@@ -334,37 +346,57 @@ async function TalkResults({
     );
   }
 
-  const shownUpTo = offset + data.results.length;
+  const talks: { first: ConferenceSearchResult; more: ConferenceSearchResult[] }[] = [];
+  for (const h of hits) {
+    const last = talks.at(-1);
+    if (last && last.first.talkId === h.talkId) last.more.push(h);
+    else talks.push({ first: h, more: [] });
+  }
+
+  const shownUpTo = offset + hits.length;
   const linkFor = (p: number) => {
     const params = new URLSearchParams({ q, scope: "talks" });
     if (p > 1) params.set("page", String(p));
     return `/search?${params.toString()}`;
   };
+  const href = (r: ConferenceSearchResult) =>
+    `/talks/${r.conferenceId}/${r.talkId}#p${r.paragraph}`;
 
   return (
     <div className="mt-8 animate-in fade-in duration-300">
       <p className="text-sm text-muted-foreground">
-        {data.total.toLocaleString()} result{data.total === 1 ? "" : "s"} ·
-        showing {offset + 1} to {shownUpTo}
+        {total.toLocaleString()} matching passage{total === 1 ? "" : "s"}, newest
+        first · showing {offset + 1} to {shownUpTo}
       </p>
 
       <ul className="mt-4 divide-y divide-border">
-        {data.results.map((r, i) => (
-          <li key={`${r.talkId}-${r.paragraph}-${i}`} className="py-4">
-            <Link
-              href={`/talks/${r.conferenceId}/${r.talkId}#p${r.paragraph}`}
-              className="group block"
-            >
+        {talks.map(({ first, more }) => (
+          <li key={`${first.talkId}-${first.paragraph}`} className="py-4">
+            <Link href={href(first)} className="group block">
               <p className="font-display text-xl text-foreground transition-colors group-hover:text-primary text-balance">
-                {r.title}
+                {first.title}
               </p>
               <p className="mt-0.5 eyebrow text-muted-foreground">
-                {r.speaker} · {conferenceShortTitle(r.year, r.month)}
+                {first.speaker} · {conferenceShortTitle(first.year, first.month)}
               </p>
               <p className="mt-1.5 font-serif leading-relaxed text-foreground/85">
-                {r.highlight ?? r.text}
+                {first.highlight ?? first.text}
               </p>
             </Link>
+            {more.length > 0 && (
+              <ul className="mt-2 space-y-1.5 border-l border-border pl-4">
+                {more.map((r) => (
+                  <li key={r.paragraph}>
+                    <Link
+                      href={href(r)}
+                      className="block font-serif text-sm leading-relaxed text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      {r.highlight ?? r.text}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         ))}
       </ul>
@@ -372,7 +404,7 @@ async function TalkResults({
       <Pager
         page={page}
         hasPrev={page > 1}
-        hasNext={shownUpTo < data.total}
+        hasNext={shownUpTo < total}
         linkFor={linkFor}
       />
     </div>

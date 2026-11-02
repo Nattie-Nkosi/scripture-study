@@ -82,7 +82,7 @@ export default async function ReaderPage({ params }: Props) {
       />
       <ReadingProgress />
 
-      <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
+      <main className="mx-auto w-full max-w-3xl px-5 pt-10 pb-28 sm:py-14">
         <div className="text-center animate-in fade-in duration-500">
           <h1 className="font-display text-5xl font-light tracking-tight sm:text-6xl">
             {bookRef.title}{" "}

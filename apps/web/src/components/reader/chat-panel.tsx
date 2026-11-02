@@ -415,7 +415,8 @@ export function ChatPanel({
                 }
               }}
               rows={1}
-              placeholder={online ? placeholder : "Offline — connect to ask"}
+              placeholder={online ? placeholder : "Offline. Connect to ask"}
+              aria-label={placeholder.replace(/…$/, "")}
               disabled={!deviceId || !online}
               className="max-h-40 min-h-[2.5rem] flex-1 resize-none rounded-lg border border-field-edge bg-card px-3 py-2 text-base outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50 sm:text-sm"
             />

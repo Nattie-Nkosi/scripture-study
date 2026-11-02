@@ -487,8 +487,8 @@ export function AskChat() {
               rows={1}
               placeholder={
                 online
-                  ? "Ask about the scriptures or General Conference…"
-                  : "Offline — connect to ask"
+                  ? "Ask a question…"
+                  : "Offline. Connect to ask"
               }
               disabled={!online}
               aria-label="Ask a question"
@@ -561,12 +561,9 @@ function EmptyState({
 }) {
   return (
     <div className="mx-auto flex max-w-2xl flex-col items-center px-4 py-12 text-center sm:py-20">
-      <div className="flex items-center gap-2">
-        <h1 className="font-display text-4xl font-light tracking-tight sm:text-5xl">
-          Ask about the scriptures
-        </h1>
-        <BetaBadge />
-      </div>
+      <h1 className="font-display text-4xl font-light tracking-tight text-balance sm:text-5xl">
+        Ask about the scriptures
+      </h1>
       <p className="mt-4 max-w-md font-serif text-lg leading-relaxed text-muted-foreground text-pretty">
         Questions about the standard works or General Conference, answered from the
         text in this app, with references you can open.

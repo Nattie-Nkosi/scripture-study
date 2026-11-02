@@ -112,7 +112,8 @@ export function SearchBox({
                     ? "Search the study helps…"
                     : "Search the scriptures…"
             }
-            autoFocus
+            autoFocus={!initialQuery}
+            aria-label="Search"
             disabled={!online}
             className="w-full border-0 border-b border-field-edge bg-transparent py-3 pr-3 pl-8 font-serif text-xl outline-none transition-colors placeholder:text-muted-foreground/60 placeholder:italic focus-visible:border-primary disabled:opacity-50"
           />
@@ -120,6 +121,7 @@ export function SearchBox({
         {scope === "scripture" && (
           <select
             value={volume}
+            aria-label="Volume"
             onChange={(e) => setVolume(e.target.value)}
             disabled={!online}
             className="border-0 border-b border-field-edge bg-transparent px-1 py-3 font-serif text-base outline-none transition-colors focus-visible:border-primary disabled:opacity-50"

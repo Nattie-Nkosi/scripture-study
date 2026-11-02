@@ -13,7 +13,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
         <Link
           href="/"
           aria-label="Scripture Study, home"
-          className="group flex shrink-0 items-center gap-2.5"
+          className="group flex h-11 shrink-0 items-center gap-2.5"
         >
           <Logo className="size-5 text-primary transition-transform duration-(--dur-long) group-hover:-rotate-6" />
           <span aria-hidden className="font-display text-lg font-medium tracking-tight">

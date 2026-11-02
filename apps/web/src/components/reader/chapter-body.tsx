@@ -503,7 +503,7 @@ export function ChapterBody({
                         // From `sm` up the number hangs in the left margin, leaving the text
                         // block clean; its line-height is scaled up so its baseline tracks
                         // the verse's first line.
-                        "mr-1.5 cursor-pointer select-none align-baseline font-serif text-[0.7em] tabular-nums italic transition-colors sm:absolute sm:top-0 sm:right-full sm:mr-4 sm:leading-[2.57]",
+                        "relative mr-1.5 cursor-pointer select-none align-baseline font-serif before:absolute before:-inset-y-2.5 before:-left-3 before:-right-1.5 before:content-[''] sm:before:-inset-x-3 text-[0.7em] tabular-nums italic transition-colors sm:absolute sm:top-0 sm:right-full sm:mr-4 sm:leading-[2.57]",
                         selectedHere
                           ? "text-primary"
                           : "text-primary/45 hover:text-primary",

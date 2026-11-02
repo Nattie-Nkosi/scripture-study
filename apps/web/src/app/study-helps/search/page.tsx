@@ -55,7 +55,7 @@ export default async function StudyHelpsSearchPage({ searchParams }: Props) {
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:py-14">
         <Link
           href="/study-helps"
-          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
+          className="-my-2.5 inline-flex items-center gap-1 py-2.5 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
           <ChevronLeft className="size-3.5" />
           Study Helps

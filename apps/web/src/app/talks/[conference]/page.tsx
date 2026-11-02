@@ -31,7 +31,7 @@ export default async function ConferencePage({ params }: Props) {
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-14 sm:py-20">
         <Link
           href="/talks"
-          className="inline-flex items-center gap-1 eyebrow text-muted-foreground transition-colors hover:text-primary"
+          className="-my-2.5 inline-flex items-center gap-1 py-2.5 eyebrow text-muted-foreground transition-colors hover:text-primary"
         >
           <ChevronLeft className="size-3.5" />
           General Conference
